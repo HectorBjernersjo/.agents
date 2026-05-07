@@ -13,6 +13,7 @@ Include every issue they found, no matter how small.
 
 Then after you've done that, go through the table and verify that each one is an actual problem.
 Then create a new table excluding the ones which were hallucinations/weren't actually problems and those that were too stupid.
+When going through the comments, look in REVIEW_CONTEXT.md (if it exists) to not make the same misstakes as the previous reviewer.
 Note that nitpicks are good even if they are small or just point out a minor improvement. 
 Also note that the user will only look at this final table so make sure it contains all the information they need. In this final table also include a number column (1 to however many rows there are).
 
