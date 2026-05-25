@@ -61,4 +61,8 @@ For each file, check for code standard violations based on the following rules c
 - Security: Ensure `sanitizeHelper.sanitizeHtml` (or equivalent) is used when inserting server data into `innerHTML`.
 - Globals: Avoid defining global variables (e.g., `window.value`).
 
+## Other things to look for
+- A lot of times we have acidentally added a lot of unnecessary comments that don't give any value and just say what the code does. 
+  Please point those out so we can remove them.
+
 When you are done, output a list of each file containing violations and bullet points for the specific standards broken in that file.
