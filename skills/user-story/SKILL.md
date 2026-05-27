@@ -136,6 +136,8 @@ påverkas bara chatboten, ingen annan del av systemet.
 
 
 Chatboten är ute i prod så skriv inget om någon feature flag för den.
+Du behöver inte förklara vad som har byggts i riskanalysen, bara vilka risker som finns och vad vi har gjort för att förhindra dom.
+Om det är något vi inte har gjort nog för, säg till.
 
 
 ## Pr description

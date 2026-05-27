@@ -21,5 +21,6 @@ For example:
 - Bad/unnecessary comments
 - Unused variables
 - Change the name of this variable to be clearer
+- If we're going to null check this it should be marked as nullable
 
 When you're done, make a list of each file and all the improvements that could be made.
