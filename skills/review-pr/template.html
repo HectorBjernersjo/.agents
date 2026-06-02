@@ -190,6 +190,31 @@
       letter-spacing: 0.04em;
     }
 
+    th button.sort-button {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      font: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+    }
+
+    th button.sort-button:hover {
+      color: var(--accent);
+    }
+
+    .sort-indicator {
+      color: var(--muted-2);
+      font-size: 11px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
     tbody tr:nth-child(even) {
       background: var(--table-subtle);
     }
@@ -221,6 +246,7 @@
       gap: 18px;
       padding: 20px 22px 22px 78px;
       border-top: 1px solid var(--border-subtle);
+      text-align: left;
     }
 
     .expanded-content h3 {
@@ -275,19 +301,28 @@
       text-align: right;
     }
 
+    .expanded-row td:first-child {
+      width: auto;
+      text-align: left;
+    }
+
     th:nth-child(2), td:nth-child(2) {
       width: 88px;
     }
 
     th:nth-child(3), td:nth-child(3) {
+      width: 112px;
+    }
+
+    th:nth-child(4), td:nth-child(4) {
       width: 250px;
     }
 
-    th:nth-child(5), td:nth-child(5) {
+    th:nth-child(6), td:nth-child(6) {
       width: 118px;
     }
 
-    th:nth-child(6), td:nth-child(6) {
+    th:nth-child(7), td:nth-child(7) {
       width: 260px;
     }
 
@@ -350,8 +385,9 @@
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Severity</th>
+            <th><button type="button" class="sort-button" data-sort-key="id"># <span class="sort-indicator" data-sort-indicator="id"></span></button></th>
+            <th><button type="button" class="sort-button" data-sort-key="severity">Severity <span class="sort-indicator" data-sort-indicator="severity"></span></button></th>
+            <th><button type="button" class="sort-button" data-sort-key="needsHumanCheck">Needs Human Check <span class="sort-indicator" data-sort-indicator="needsHumanCheck"></span></button></th>
             <th>Finding</th>
             <th>Problem</th>
             <th>Agent</th>
@@ -378,6 +414,7 @@
       {
         id: number,
         severity: "High" | "Medium" | "Low",
+        needsHumanCheck: number, // 1-10, where 10 most needs human judgment.
         title: string,
         problem: string,      // Visible in the table; usually one useful paragraph.
         description: string,  // Full markdown description from agent reports.
@@ -389,8 +426,11 @@
     const findings = [];
 
     const severityFilters = ["All", "High", "Medium", "Low"];
+    const severityRank = { High: 3, Medium: 2, Low: 1 };
+    const defaultSortDirections = { id: "asc", severity: "desc", needsHumanCheck: "desc" };
     let activeSeverityFilter = "All";
     let activeAgentFilter = "All";
+    let sortState = { key: "id", direction: "asc" };
 
     function countBy(predicate) {
       return findings.filter(predicate).length;
@@ -455,6 +495,57 @@
       return String(severity || "Low").toLowerCase();
     }
 
+    function sortValue(finding, key) {
+      if (key === "severity") {
+        return severityRank[finding.severity] || 0;
+      }
+
+      if (key === "needsHumanCheck") {
+        return Number(finding.needsHumanCheck) || 0;
+      }
+
+      return Number(finding.id) || 0;
+    }
+
+    function sortedFindings() {
+      const directionMultiplier = sortState.direction === "asc" ? 1 : -1;
+
+      return findings
+        .filter(matchesFilter)
+        .sort((left, right) => {
+          const leftValue = sortValue(left, sortState.key);
+          const rightValue = sortValue(right, sortState.key);
+
+          if (leftValue === rightValue) {
+            return (Number(left.id) || 0) - (Number(right.id) || 0);
+          }
+
+          return leftValue > rightValue ? directionMultiplier : -directionMultiplier;
+        });
+    }
+
+    function setupSortButtons() {
+      document.querySelectorAll("[data-sort-key]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const key = button.dataset.sortKey;
+          const direction = sortState.key === key
+            ? (sortState.direction === "asc" ? "desc" : "asc")
+            : (defaultSortDirections[key] || "asc");
+
+          sortState = { key, direction };
+          render();
+        });
+      });
+    }
+
+    function renderSortIndicators() {
+      document.querySelectorAll("[data-sort-indicator]").forEach((indicator) => {
+        indicator.textContent = indicator.dataset.sortIndicator === sortState.key
+          ? (sortState.direction === "asc" ? "↑" : "↓")
+          : "";
+      });
+    }
+
     function renderHeader() {
       document.title = review.title || "PR Review";
       document.querySelector("#review-title").textContent = review.title || "PR Review";
@@ -507,7 +598,7 @@
     }
 
     function renderTable() {
-      const rows = findings.filter(matchesFilter).map((finding) => {
+      const rows = sortedFindings().map((finding) => {
         const isExpanded = Boolean(finding.expanded);
         const severity = finding.severity || "Low";
         const description = finding.description || finding.problem || "";
@@ -516,6 +607,7 @@
           <tr class="review-row ${severityClass(severity)}" data-finding-id="${finding.id}" aria-expanded="${isExpanded}">
             <td>${finding.id}</td>
             <td><span class="pill ${severityClass(severity)}">${escapeHtml(severity)}</span></td>
+            <td>${escapeHtml(finding.needsHumanCheck ?? "")}</td>
             <td class="finding">
               ${escapeHtml(finding.title)}
               <div class="expand-hint">${isExpanded ? "Click to collapse" : "Click for more details and suggested fix"}</div>
@@ -526,7 +618,7 @@
           </tr>
           ${isExpanded ? `
             <tr class="expanded-row">
-              <td colspan="6">
+              <td colspan="7">
                 <div class="expanded-content">
                   <section>
                     <h3>Description</h3>
@@ -561,9 +653,11 @@
       renderHeader();
       renderSummary();
       renderFilters();
+      renderSortIndicators();
       renderTable();
     }
 
+    setupSortButtons();
     render();
   </script>
 </body>

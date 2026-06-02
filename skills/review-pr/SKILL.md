@@ -53,6 +53,7 @@ Each finding must include:
 
 - `id`: index number
 - `severity`: `High`, `Medium`, or `Low`
+- `needsHumanCheck`: number from 1 to 10. See ### Needs human check guide for how to rank.
 - `title`: short description
 - `problem`: a useful one-paragraph problem summary shown directly in the table, so the reader usually does not need to expand the row
 - `description`: the full original description from the agent reports, preserving Markdown and fenced code blocks
@@ -60,7 +61,21 @@ Each finding must include:
 - `location`: list of locations if applicable, preferably as an array of strings so each location renders on its own line
 - `agents`: all agents that found the issue
 
-The template controls which fields are visible in the table and which fields appear when a row is expanded. Preserve Markdown and fenced code blocks in `description` and `fix` so the template can render them correctly.
+Write them in order of severity, highest first. Preserve Markdown and fenced code blocks in `description` and `fix` so the template can render them correctly.
 
-After writing `review.html`, give the user a direct link to that file they can open in a browser.
-Make the link work for the user's operating environment.
+After writing `review.html`, give the user a direct browser-openable path to that file. Don't make it a link, give the exact path so they can copy.
+Make the path work for the user's operating environment:
+
+- If running in WSL and the user is likely opening the file from a Windows browser, run `wslpath -w "<absolute-path-to-review.html>"` and give the resulting `\\wsl.localhost\...` UNC path in a plain copy-pasteable text block. Do not give only a Linux `file:///home/...` URL in this case.
+- Otherwise, give an appropriate `file://` URL or absolute path for the current OS.
+
+### Needs human check guide
+Low numbers mean the agent would theoretically be comfortable implementing the fix without asking the user.
+High numbers mean the finding may need human judgment because the agent is less certain it is correct.
+Things to consider when setting the "Needs human check" score:
+- If it's pre existing the score should be higher.
+- If it might be out of scope for this pr it should be higher (at least if it's a bigger change).
+- If it only or mostly touches code from this pr it should be lower.
+- Bigger changes should be higher and smaller changes lower.
+- If you there may be a deliberate reason for the current behavior it should be higher.
+- If there are many possible fixes to a problem and you're not sure this is the best one.

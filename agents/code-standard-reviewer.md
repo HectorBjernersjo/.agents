@@ -65,7 +65,11 @@ For each file, check for code standard violations based on the following rules c
 - A lot of times we have acidentally added a lot of unnecessary comments that don't give any value and just say what the code does. 
   Please point those out so we can remove them.
 
-When you are done, output a list of each file containing violations and bullet points for the specific standards broken in that file.
-
 Write your complete report to `docs/prs/<branch-slug>/reviews/<review-id>/code-standard/report.md`. Create the directory if it does not exist.
+The report should be a list of each code-standard problem you found. For each problem, include:
+- The file and location, if applicable.
+- Which standard is broken.
+- A relatively detailed explanation of why it is a problem.
+- A concrete suggested fix, including the exact style or code shape the implementer should use.
+
 Then report back to the main review agent with the path to the file.

@@ -23,7 +23,11 @@ For example:
 - Change the name of this variable to be clearer
 - If we're going to null check this it should be marked as nullable
 
-When you're done, make a list of each file and all the improvements that could be made.
-
 Write your complete report to `docs/prs/<branch-slug>/reviews/<review-id>/nitpick/report.md`. Create the directory if it does not exist.
+The report should be a list of each nitpick or small improvement you found. For each problem, include:
+- The file and location, if applicable.
+- A concise explanation of why the current code is slightly worse than it needs to be.
+- A concrete suggested fix, including the exact rename, formatting change, nullability change, cleanup, or small rewrite you recommend.
+- Enough detail that the implementer can apply the nitpick without needing to infer your intent.
+
 Then report back to the main review agent with the path to the file.
