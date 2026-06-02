@@ -4,21 +4,6 @@ description: Responds to review and updates docs/prs/<branch-slug>/REVIEW_CONTEX
 disable-model-invocation: true
 ---
 
-Use this PR review file structure:
-
-```text
-docs/prs/<branch-slug>/
-├── REVIEW_CONTEXT.md
-├── reviews/
-│   └── review-001/
-│       ├── review.md
-│       └── agents/
-└── responses/
-    └── review-001.md
-```
-
-Derive `<branch-slug>` from the current git branch by replacing `/` with `-` and replacing any character outside `[A-Za-z0-9._-]` with `-`.
-
 Jag kommer att svara på alla (eller några) av dina punkter med tre olika alternativ.
 Antingen fixa, ignorera eller en följdfråga.
 - Börja med att implementera alla fixar först, en i taget.
