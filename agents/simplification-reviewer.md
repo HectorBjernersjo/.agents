@@ -25,7 +25,7 @@ Write your complete report to `docs/prs/<branch-slug>/reviews/<review-id>/simpli
 The report should be a list of each simplification problem you found. For each problem, include:
 - The file and location, if applicable.
 - A relatively detailed explanation of why the current code is harder to read or reason about than it needs to be.
-- A concrete suggested fix, including what should be split, moved, renamed, inlined, deleted, or restructured.
+- A single concrete fix, including what should be split, moved, renamed, inlined, deleted, or restructured.
 - Enough detail that the implementer can make the change without guessing what shape you intended.
 
 Then report back to the main review agent with the path to the file.

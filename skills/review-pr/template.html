@@ -560,6 +560,7 @@
         ["Architectural", countBy((finding) => (finding.agents || []).includes("architecture-reviewer"))],
         ["Simplifications", countBy((finding) => (finding.agents || []).includes("simplification-reviewer"))],
         ["Bugs", countBy((finding) => (finding.agents || []).includes("bug-reviewer"))],
+        ["Footguns", countBy((finding) => (finding.agents || []).includes("footgun-reviewer"))],
         ["Nitpicks", countBy((finding) => (finding.agents || []).includes("nitpick-reviewer"))],
         ["Code Standard", countBy((finding) => (finding.agents || []).includes("code-standard-reviewer"))],
       ].filter(([label, value]) => label === "Total" || value > 0);

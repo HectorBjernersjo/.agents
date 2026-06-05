@@ -37,7 +37,8 @@ Think about all the architectural smells you find and things you think could be 
 - Single responsibility violations: methods or classes handling things outside their responsibility.
 - Complexity hiding: logic that could be extracted into a method or class that hides meaningful complexity.
 - Shallow modules: interfaces that are too shallow where the module could be deepened or the interface shrunk.
-- Type safety and domain modeling: places where discriminated unions, value objects, or clearer data models would improve type safety and readability.
+- Better data modeling: Places where the data models could be improved.
+  Either by increasing type safety with for example discriminated unions and value objects, or where they could just be modeled in a simpler, better or more self explanatory way.
 - Temporal coupling: hidden ordering dependencies between method calls.
 - Over-engineering: cases where a simpler solution would do the job just as well.
 - Side effects and purity: opportunities to split read logic from write operations or isolate side effects.

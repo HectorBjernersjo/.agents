@@ -70,6 +70,6 @@ The report should be a list of each code-standard problem you found. For each pr
 - The file and location, if applicable.
 - Which standard is broken.
 - A relatively detailed explanation of why it is a problem.
-- A concrete suggested fix, including the exact style or code shape the implementer should use.
+- A single concrete fix, including the exact style or code shape the implementer should use.
 
 Then report back to the main review agent with the path to the file.
