@@ -8,10 +8,9 @@ Use this PR review file structure:
 
 ```text
 docs/prs/<branch-slug>/
-├── REVIEW_CONTEXT.md
+├── review.html
 └── reviews/
     └── review-001/
-        ├── review.html
         ├── architecture/
         │   └── report.md
         ├── bug/
@@ -40,20 +39,27 @@ Don't tell the agents anything more than that plus "go".
 Spawn them as blocking.
 
 ## Step 4
-When all of their reviwers are done, compile all of their findings into an HTML document `docs/prs/<branch-slug>/reviews/<review-id>/review.html`.
-Before writing that file though, read `docs/prs/<branch-slug>/REVIEW_CONTEXT.md` (if it exists). It includes some misstakes and false positives previous reviewers did.
-Filter out any of the subagents comments that REVIEW_CONTEXT.md says to ignore.
-Make sure to include all of the agents points in the final compilation, if there are duplicate points, combine them into one.
+When all of the reviewers are done, compile their findings into a single PR-level HTML document `docs/prs/<branch-slug>/review.html`.
+Make sure to include all of the agents' points in the final compilation. If there are duplicate points, combine them into one.
+
+If `docs/prs/<branch-slug>/review.html` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
+
+- Match existing findings to newly generated findings by stable identity: prefer the same `id` if the finding is clearly the same, otherwise match by title plus location/problem.
+- Preserve `status` and `ignoreReason` for matched findings.
+- Keep existing findings with `status: "implemented"` or `status: "ignored"` even if they are no longer present in the newest agent reports, so the PR-level review keeps its resolved/ignored history.
+- Do not keep old `pending` findings that no longer appear in the newest agent reports unless there is a clear reason they still apply.
 
 Use this skill's `template.html` as the base for `review.html`.
 
-First copy `template.html` to `docs/prs/<branch-slug>/reviews/<review-id>/review.html`. Then edit only that copied `review.html` to populate the `review` object and `findings` array.
+First copy `template.html` to `docs/prs/<branch-slug>/review.html`. Then edit only that copied `review.html` to populate the `review` object and `findings` array.
 
 Each finding must include:
 
 - `id`: index number
 - `severity`: `High`, `Medium`, or `Low`
 - `needsHumanCheck`: number from 1 to 10. See ### Needs human check guide for how to rank.
+- `status`: `pending`, `implemented`, or `ignored`. Default new findings to `pending`.
+- `ignoreReason`: required when `status` is `ignored`; omit or leave empty otherwise.
 - `title`: short description
 - `problem`: a useful one-paragraph problem summary shown directly in the table, so the reader usually does not need to expand the row
 - `description`: the full original description from the agent reports, preserving Markdown and fenced code blocks

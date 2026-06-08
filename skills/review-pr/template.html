@@ -34,6 +34,10 @@
       --medium-bg: rgba(255, 200, 0, 0.05);
       --low-bg: rgba(180, 180, 180, 0.05);
       --low: #aeb8c5;
+      --pending: #8ab4ff;
+      --implemented: #8fd19e;
+      --ignored: #c5a3ff;
+      --ignored-bg: rgba(197, 163, 255, 0.08);
     }
 
     * {
@@ -140,6 +144,18 @@
       background: var(--accent-bg);
     }
 
+    .checkbox-label {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .checkbox-label input {
+      accent-color: var(--accent);
+    }
+
     .pill.high {
       border-color: rgba(255, 123, 114, 0.5);
       color: var(--high);
@@ -155,6 +171,24 @@
     .pill.low {
       color: var(--low);
       background: var(--low-bg);
+    }
+
+    .pill.pending {
+      border-color: rgba(138, 180, 255, 0.5);
+      color: var(--pending);
+      background: var(--accent-bg);
+    }
+
+    .pill.implemented {
+      border-color: rgba(143, 209, 158, 0.5);
+      color: var(--implemented);
+      background: rgba(143, 209, 158, 0.08);
+    }
+
+    .pill.ignored {
+      border-color: rgba(197, 163, 255, 0.5);
+      color: var(--ignored);
+      background: var(--ignored-bg);
     }
 
     .table-wrap {
@@ -289,6 +323,14 @@
       font-size: 0.92em;
     }
 
+    .ignore-reason {
+      margin-top: 16px;
+      padding: 12px;
+      border: 1px solid rgba(197, 163, 255, 0.28);
+      border-radius: 8px;
+      background: var(--ignored-bg);
+    }
+
     .expand-hint {
       margin-top: 4px;
       color: var(--muted-2);
@@ -315,14 +357,18 @@
     }
 
     th:nth-child(4), td:nth-child(4) {
-      width: 250px;
-    }
-
-    th:nth-child(6), td:nth-child(6) {
       width: 118px;
     }
 
+    th:nth-child(5), td:nth-child(5) {
+      width: 250px;
+    }
+
     th:nth-child(7), td:nth-child(7) {
+      width: 118px;
+    }
+
+    th:nth-child(8), td:nth-child(8) {
       width: 260px;
     }
 
@@ -388,6 +434,7 @@
             <th><button type="button" class="sort-button" data-sort-key="id"># <span class="sort-indicator" data-sort-indicator="id"></span></button></th>
             <th><button type="button" class="sort-button" data-sort-key="severity">Severity <span class="sort-indicator" data-sort-indicator="severity"></span></button></th>
             <th><button type="button" class="sort-button" data-sort-key="needsHumanCheck">Needs Human Check <span class="sort-indicator" data-sort-indicator="needsHumanCheck"></span></button></th>
+            <th>Status</th>
             <th>Finding</th>
             <th>Problem</th>
             <th>Agent</th>
@@ -415,6 +462,8 @@
         id: number,
         severity: "High" | "Medium" | "Low",
         needsHumanCheck: number, // 1-10, where 10 most needs human judgment.
+        status: "pending" | "implemented" | "ignored", // Defaults to "pending" when omitted.
+        ignoreReason: string, // Required when status is "ignored".
         title: string,
         problem: string,      // Visible in the table; usually one useful paragraph.
         description: string,  // Full markdown description from agent reports.
@@ -430,6 +479,8 @@
     const defaultSortDirections = { id: "asc", severity: "desc", needsHumanCheck: "desc" };
     let activeSeverityFilter = "All";
     let activeAgentFilter = "All";
+    let showIgnored = false;
+    let showImplemented = false;
     let sortState = { key: "id", direction: "asc" };
 
     function countBy(predicate) {
@@ -447,6 +498,15 @@
 
     function visibleProblem(finding) {
       return finding.problem || (finding.description || "").split(/\n\s*\n/)[0];
+    }
+
+    function statusFor(finding) {
+      const status = String(finding.status || "pending").toLowerCase();
+      return ["pending", "implemented", "ignored"].includes(status) ? status : "pending";
+    }
+
+    function statusLabel(status) {
+      return status.charAt(0).toUpperCase() + status.slice(1);
     }
 
     function splitLocations(location) {
@@ -488,7 +548,11 @@
     function matchesFilter(finding) {
       const severityMatches = activeSeverityFilter === "All" || finding.severity === activeSeverityFilter;
       const agentMatches = activeAgentFilter === "All" || (finding.agents || []).includes(activeAgentFilter);
-      return severityMatches && agentMatches;
+      const status = statusFor(finding);
+      const statusMatches = status === "pending"
+        || (status === "ignored" && showIgnored)
+        || (status === "implemented" && showImplemented);
+      return severityMatches && agentMatches && statusMatches;
     }
 
     function severityClass(severity) {
@@ -554,6 +618,9 @@
     function renderSummary() {
       const stats = [
         ["Total", findings.length],
+        ["Pending", countBy((finding) => statusFor(finding) === "pending")],
+        ["Implemented", countBy((finding) => statusFor(finding) === "implemented")],
+        ["Ignored", countBy((finding) => statusFor(finding) === "ignored")],
         ["High", countBy((finding) => finding.severity === "High")],
         ["Medium", countBy((finding) => finding.severity === "Medium")],
         ["Low", countBy((finding) => finding.severity === "Low")],
@@ -584,6 +651,11 @@
           <strong>Agent</strong>
           ${agentFilters.map((filter) => `<button type="button" class="${filter === activeAgentFilter ? "active" : ""}" data-filter-group="agent" data-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join("")}
         </div>
+        <div class="filter-row">
+          <strong>Status</strong>
+          <label class="checkbox-label"><input type="checkbox" data-status-toggle="ignored" ${showIgnored ? "checked" : ""}> Show ignored</label>
+          <label class="checkbox-label"><input type="checkbox" data-status-toggle="implemented" ${showImplemented ? "checked" : ""}> Show implemented</label>
+        </div>
       `;
 
       document.querySelectorAll("[data-filter]").forEach((button) => {
@@ -596,12 +668,24 @@
           render();
         });
       });
+
+      document.querySelectorAll("[data-status-toggle]").forEach((checkbox) => {
+        checkbox.addEventListener("change", () => {
+          if (checkbox.dataset.statusToggle === "ignored") {
+            showIgnored = checkbox.checked;
+          } else {
+            showImplemented = checkbox.checked;
+          }
+          render();
+        });
+      });
     }
 
     function renderTable() {
       const rows = sortedFindings().map((finding) => {
         const isExpanded = Boolean(finding.expanded);
         const severity = finding.severity || "Low";
+        const status = statusFor(finding);
         const description = finding.description || finding.problem || "";
 
         return `
@@ -609,6 +693,7 @@
             <td>${finding.id}</td>
             <td><span class="pill ${severityClass(severity)}">${escapeHtml(severity)}</span></td>
             <td>${escapeHtml(finding.needsHumanCheck ?? "")}</td>
+            <td><span class="pill ${status}">${escapeHtml(statusLabel(status))}</span></td>
             <td class="finding">
               ${escapeHtml(finding.title)}
               <div class="expand-hint">${isExpanded ? "Click to collapse" : "Click for more details and suggested fix"}</div>
@@ -619,7 +704,7 @@
           </tr>
           ${isExpanded ? `
             <tr class="expanded-row">
-              <td colspan="7">
+              <td colspan="8">
                 <div class="expanded-content">
                   <section>
                     <h3>Description</h3>
@@ -628,6 +713,12 @@
                   <section>
                     <h3>Suggested fix</h3>
                     <div class="rich-text">${renderMarkdown(finding.fix || "")}</div>
+                    ${status === "ignored" && finding.ignoreReason ? `
+                      <div class="ignore-reason">
+                        <h3>Ignore reason</h3>
+                        <div class="rich-text">${renderMarkdown(finding.ignoreReason)}</div>
+                      </div>
+                    ` : ""}
                   </section>
                 </div>
               </td>

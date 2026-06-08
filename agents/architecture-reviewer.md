@@ -43,6 +43,11 @@ Think about all the architectural smells you find and things you think could be 
 - Over-engineering: cases where a simpler solution would do the job just as well.
 - Side effects and purity: opportunities to split read logic from write operations or isolate side effects.
 - Testability: classes or functions that would be hard or useless to test because they are tightly coupled, too broad, too shallow, or impure. Use this as a smell, but do not suggest adding tests.
+- Generic naming: Any method or class whose name contains something like "Process" or "Processor". This is a sign of either lazy naming or the method doing too much.
+- Mixed levels of abstractions: When a method does things on different levels. Ideally, a method should either do one specific, "low level" thing, or orchestrate a flow using other methods, not both. 
+  This makes the code easier to read and reason about.
+- Wrapper functions: When one or more core methods are wrapped in a bunch of other methods which just add some minor functionality.
+  This makes it hard to understand what is actually happening as you have to go very far down to get to the actual functionality.
 
 After thinking it through and thoroughly looking through the code, make a list of every problem and smell you found. You do not have to be sure they are worth fixing yet; include everything that does not seem like the best architectural decision.
 

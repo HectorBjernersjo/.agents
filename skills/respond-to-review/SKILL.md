@@ -1,16 +1,17 @@
 ---
 name: respond-to-review
-description: Responds to review and updates docs/prs/<branch-slug>/REVIEW_CONTEXT.md
+description: Responds to review and updates docs/prs/<branch-slug>/review.html
 disable-model-invocation: true
 ---
 
 Jag kommer att svara på alla (eller några) av dina punkter med tre olika alternativ.
 Antingen fixa, ignorera eller en följdfråga.
 - Börja med att implementera alla fixar först, en i taget.
-- Kolla sedan på allting jag sade åt dig att ignorera på något sätt.
-  Lägg till dom grejerna i `docs/prs/<branch-slug>/REVIEW_CONTEXT.md` (skapa filen och mappen om den inte finns) så att nästa person som reviewar inte behöver ta upp samma saker igen.
-  Du behöver inte lägga till nånting om supersmå nitpicks och sånt som jag sa åt dig att ignorera.
-  Du behöver heller inte nämna någonting om dina fixar i den, det kommer ju redan vara fixat när nästa person reviewar.
+- Uppdatera sedan `docs/prs/<branch-slug>/review.html` så att review-punkternas status matchar vad som hände:
+  - Punkter du fixade ska få `status: "implemented"`.
+  - Punkter användaren sade att vi ska ignorera ska få `status: "ignored"` och en tydlig `ignoreReason`.
+  - Punkter som fortfarande behöver hanteras ska vara kvar som `status: "pending"` eller sakna status, eftersom `pending` är default.
+  - Ändra bara status/ignore reason för punkter som faktiskt behandlades i den här responsen.
 - Till sist, gör en tabell där du svarar på alla frågor jag har ställt och allting som jag tyckte var oklart.
   Ta en fråga i taget och verifiera mot koden innan du svarar på dom, det gör inget om det tar en stund.
   Skriv också om det är någon av de andra punkterna där du tycker att jag har fel, kanske att jag har missat något.
