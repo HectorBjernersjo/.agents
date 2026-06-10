@@ -40,7 +40,9 @@ Spawn them as blocking.
 
 ## Step 4
 When all of the reviewers are done, compile their findings into a single PR-level HTML document `docs/prs/<branch-slug>/review.html`.
-Make sure to include all of the agents' points in the final compilation. If there are duplicate points, combine them into one.
+Make sure to include all of the agents' points in the final compilation.
+If multiple agents point out the exact same problem, combine it into one point in the table, you can still describe the agents solution in the description.
+And pick exacly one solution which you think is best to put as the suggested fix.
 
 If `docs/prs/<branch-slug>/review.html` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
 

@@ -1,6 +1,8 @@
 # Issue tracker: GitLab
 
-Issues and PRDs for this repo live as GitLab issues. Use the [`glab`](https://gitlab.com/gitlab-org/cli) CLI for all operations.
+Triage-managed issues for this repo live as GitLab issues. Use the [`glab`](https://gitlab.com/gitlab-org/cli) CLI for all issue-tracker operations.
+
+`to-prd` and `to-issues` do not use this issue-tracker configuration. They always write local markdown to `docs/prds/` and `docs/issues/`.
 
 ## Conventions
 
@@ -16,7 +18,7 @@ Infer the repo from `git remote -v` — `glab` does this automatically when run 
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitLab issue.
+Create a GitLab issue, unless the skill is `to-prd` or `to-issues`.
 
 ## When a skill says "fetch the relevant ticket"
 

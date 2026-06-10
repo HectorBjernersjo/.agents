@@ -1,12 +1,20 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and publish it to the project issue tracker. Use when user wants to create a PRD from the current context.
+description: Turn the current conversation context into a PRD markdown file under docs/prds. Use when user wants to create a PRD from the current context.
 disable-model-invocation: true
 ---
 
 This skill takes the current conversation context and codebase understanding and produces a PRD. Do NOT interview the user — just synthesize what you already know.
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+Always write the PRD as local markdown. Do not use GitHub, GitLab, `.scratch/`, or `docs/agents/issue-tracker.md`; this output location is intentionally not configurable.
+
+## Output
+
+- Create `docs/prds/` if it does not already exist.
+- Write the PRD to `docs/prds/<feature-slug>.md`.
+- Use a short kebab-case `<feature-slug>` derived from the feature name.
+- Put `Status: needs-triage` near the top of the file.
+- If a file with the chosen name already exists, choose the nearest clear variant such as `docs/prds/<feature-slug>-2.md` instead of overwriting it.
 
 ## Process
 
@@ -18,9 +26,13 @@ A deep module (as opposed to a shallow module) is one which encapsulates a lot o
 
 Check with the user that these modules match their expectations. Check with the user which modules they want tests written for.
 
-3. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `needs-triage` triage label so it enters the normal triage flow.
+3. Write the PRD using the template below, then save it under `docs/prds/`.
 
 <prd-template>
+
+# <Feature Name>
+
+Status: needs-triage
 
 ## Problem Statement
 

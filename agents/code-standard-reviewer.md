@@ -41,7 +41,7 @@ For each file, check for code standard violations based on the following rules c
   - Use PascalCase for properties (booleans should start with Is/Can/Has).
   - Use camelCase for parameters and local variables.
   - Interfaces must be prefixed with `I`.
-- Organization: Namespaces should be file-scoped; public methods should appear before private methods.
+- Organization: Namespaces should be file-scoped.
 - Extensions: Prefer creating extension methods for reusable logic (validation, formatting) over repeating code.
 - Migrations: Ensure all database migrations are zero-downtime compatible (must work with the previous app version).
 

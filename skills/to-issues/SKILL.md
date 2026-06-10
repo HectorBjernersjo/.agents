@@ -1,6 +1,6 @@
 ---
 name: to-issues
-description: Break a plan, spec, or PRD into independently-grabbable issues on the project issue tracker using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
+description: Break a plan, spec, or PRD into independently-grabbable markdown issue files under docs/issues using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
 disable-model-invocation: true
 ---
 
@@ -8,13 +8,21 @@ disable-model-invocation: true
 
 Break a plan into independently-grabbable issues using vertical slices (tracer bullets).
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+Always write issues as local markdown. Do not use GitHub, GitLab, `.scratch/`, or `docs/agents/issue-tracker.md`; this output location is intentionally not configurable.
+
+## Output
+
+- Create `docs/issues/` if it does not already exist.
+- Write issues to `docs/issues/<feature-slug>-<NN>-<slice-slug>.md`, numbered from `01` within the current breakdown.
+- Use short kebab-case slugs derived from the source feature and each slice title.
+- Put `Status: needs-triage` near the top of each file.
+- If a file with the chosen name already exists, choose the nearest clear variant instead of overwriting it.
 
 ## Process
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation context. If the user passes an issue reference (issue number, URL, or path) as an argument, fetch it from the issue tracker and read its full body and comments.
+Work from whatever is already in the conversation context. If the user passes a markdown path as an argument, read that file and use it as the source material.
 
 ### 2. Explore the codebase (optional)
 
@@ -50,16 +58,20 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Publish the issues to the issue tracker
+### 5. Write the issue files
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. Apply the `needs-triage` triage label so each issue enters the normal triage flow.
+For each approved slice, create a new markdown issue file under `docs/issues/` using the issue body template below.
 
-Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
+Write issues in dependency order (blockers first) so you can reference earlier issue file paths in the "Blocked by" field.
 
 <issue-template>
+# <Slice Title>
+
+Status: needs-triage
+
 ## Parent
 
-A reference to the parent issue on the issue tracker (if the source was an existing issue, otherwise omit this section).
+A reference to the parent markdown file, such as a PRD in `docs/prds/`, if the source was an existing file. Otherwise omit this section.
 
 ## What to build
 
@@ -73,10 +85,10 @@ A concise description of this vertical slice. Describe the end-to-end behavior, 
 
 ## Blocked by
 
-- A reference to the blocking ticket (if any)
+- A reference to the blocking issue file path (if any)
 
 Or "None - can start immediately" if no blockers.
 
 </issue-template>
 
-Do NOT close or modify any parent issue.
+Do NOT close, delete, or modify any parent/source file.

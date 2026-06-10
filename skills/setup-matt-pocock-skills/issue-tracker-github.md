@@ -1,6 +1,8 @@
 # Issue tracker: GitHub
 
-Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
+Triage-managed issues for this repo live as GitHub issues. Use the `gh` CLI for all issue-tracker operations.
+
+`to-prd` and `to-issues` do not use this issue-tracker configuration. They always write local markdown to `docs/prds/` and `docs/issues/`.
 
 ## Conventions
 
@@ -15,7 +17,7 @@ Infer the repo from `git remote -v` — `gh` does this automatically when run in
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitHub issue.
+Create a GitHub issue, unless the skill is `to-prd` or `to-issues`.
 
 ## When a skill says "fetch the relevant ticket"
 
