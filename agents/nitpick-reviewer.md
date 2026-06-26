@@ -18,10 +18,12 @@ For each file, look for any good nitpicks you can find.
 For example:
 - Here we could use a ternary operator to make it clearer.
 - Formatting errors
-- Comments that just describe what the code does
+- Long and unnecessary comments. Start with the assumption that all added comments are unnecessary and check if it each one actually gives some needed context or just repeats what the code does.
 - Unused variables
-- Change the name of this variable to be clearer
 - If we're going to null check this it should be marked as nullable
+
+Dont include the folowing:
+- Suggestions about making classes sealed
 
 Write your complete report to `docs/prs/<branch-slug>/reviews/<review-id>/nitpick/report.md`. Create the directory if it does not exist.
 The report should be a list of each nitpick or small improvement you found. For each problem, include:

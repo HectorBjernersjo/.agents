@@ -446,33 +446,17 @@
     </div>
   </main>
 
+  <script src="./review-data.js"></script>
   <script>
-    const review = {
+    const reviewData = window.reviewData || {};
+    const review = reviewData.review || {
       title: "PR Review",
       branchSlug: "",
       reviewId: "",
       sourcePath: "",
       agents: [],
     };
-
-    /*
-      Replace this empty array when generating review.html.
-      Finding schema:
-      {
-        id: number,
-        severity: "High" | "Medium" | "Low",
-        needsHumanCheck: number, // 1-10, where 10 most needs human judgment.
-        status: "pending" | "implemented" | "ignored", // Defaults to "pending" when omitted.
-        ignoreReason: string, // Required when status is "ignored".
-        title: string,
-        problem: string,      // Visible in the table; usually one useful paragraph.
-        description: string,  // Full markdown description from agent reports.
-        fix: string,          // Full markdown suggested fix and tests.
-        location: string,
-        agents: string[]
-      }
-    */
-    const findings = [];
+    const findings = Array.isArray(reviewData.findings) ? reviewData.findings : [];
 
     const severityFilters = ["All", "High", "Medium", "Low"];
     const severityRank = { High: 3, Medium: 2, Low: 1 };
@@ -628,7 +612,9 @@
         ["Simplifications", countBy((finding) => (finding.agents || []).includes("simplification-reviewer"))],
         ["Bugs", countBy((finding) => (finding.agents || []).includes("bug-reviewer"))],
         ["Footguns", countBy((finding) => (finding.agents || []).includes("footgun-reviewer"))],
+        ["Naming", countBy((finding) => (finding.agents || []).includes("naming-reviewer"))],
         ["Nitpicks", countBy((finding) => (finding.agents || []).includes("nitpick-reviewer"))],
+        ["Slop", countBy((finding) => (finding.agents || []).includes("slop-reviewer"))],
         ["Code Standard", countBy((finding) => (finding.agents || []).includes("code-standard-reviewer"))],
       ].filter(([label, value]) => label === "Total" || value > 0);
 

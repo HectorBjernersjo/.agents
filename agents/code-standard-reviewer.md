@@ -44,6 +44,7 @@ For each file, check for code standard violations based on the following rules c
 - Organization: Namespaces should be file-scoped.
 - Extensions: Prefer creating extension methods for reusable logic (validation, formatting) over repeating code.
 - Migrations: Ensure all database migrations are zero-downtime compatible (must work with the previous app version).
+- Interfaces should either be in a separate file with the same name as the interface or in the same file as the implementation.
 
 ### JavaScript / TypeScript / jQuery
 - Variable Declaration: Always use `const` or `let`; never use `var`. Prefer `const` unless reassignment is strictly necessary.

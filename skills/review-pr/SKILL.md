@@ -7,57 +7,122 @@ disable-model-invocation: true
 Use this PR review file structure:
 
 ```text
-docs/prs/<branch-slug>/
-├── review.html
-└── reviews/
-    └── review-001/
-        ├── architecture/
-        │   └── report.md
-        ├── bug/
-        │   └── report.md
-        ├── code-standard/
-        │   └── report.md
-        ├── simplification/
-        │   └── report.md
-        └── nitpick/
-            └── report.md
+docs/prs/
+├── _review-index/
+│   └── ignored-findings.jsonl
+└── <branch-slug>/
+    ├── review.html
+    ├── review-data.js
+    └── reviews/
+        └── review-001/
+            ├── architecture/
+            │   └── report.md
+            ├── bug/
+            │   └── report.md
+            ├── code-standard/
+            │   └── report.md
+            ├── naming/
+            │   └── report.md
+            ├── simplification/
+            │   └── report.md
+            ├── nitpick/
+            │   └── report.md
+            └── slop/
+                └── report.md
 ```
 
+`review-data.js` is the source of truth for the current PR review. `review.html` is a static view copied from this skill's `template.html`.
+`docs/prs/_review-index/ignored-findings.jsonl` is an append-only historical search index of ignored findings from all PRs.
+
+The `review-data.js` file must be strict JSON-compatible JavaScript:
+
+```js
+window.reviewData = {
+  "review": {
+    "title": "PR Review",
+    "branchSlug": "<branch-slug>",
+    "reviewId": "<review-id>",
+    "generatedAt": "<iso-8601 timestamp>",
+    "sourcePath": "docs/prs/<branch-slug>/review.html",
+    "baseRef": "origin/master",
+    "agents": [
+      "bug-reviewer",
+      "code-standard-reviewer",
+      "naming-reviewer",
+      "simplification-reviewer",
+      "nitpick-reviewer",
+      "slop-reviewer"
+    ]
+  },
+  "findings": []
+};
+```
+
+Include `"architecture-reviewer"` in `review.agents` only when it was run.
+
+Use quoted object keys, no comments, and no trailing commas inside the object so agents can parse it by stripping `window.reviewData =` and the trailing semicolon.
+
+Historical ignored finding index rows must be one JSON object per line:
+
+```json
+{"event":"ignored","pr":"<branch-slug>","findingId":3,"files":["src/foo.ts"],"fingerprint":"bug-reviewer:src/foo.ts:null-user-id","agents":["bug-reviewer"],"title":"...","problem":"...","ignoreReason":"...","ignoredAt":"2026-06-26T08:04:00Z"}
+```
+
+Use `ignored-findings.jsonl` to find candidate previous ignores, then verify the new finding is the same concern before suppressing it.
+
 ## Step 1
-If there are any uncommitted changes (except in package json and such files that don't matter to a review), tell the user to commit them before you proceed, so `git diff origin/master...` works properly.
+If there are any uncommitted changes (except in package json other such files that arent at all related to this pr), tell the user to commit them before you proceed, so `git diff origin/master...` works properly.
 
 ## Step 2
-Create the next zero-padded review directory under `docs/prs/<branch-slug>/reviews/` (`review-001`, `review-002`, ...).
-Each reviewing agent will write its own complete report to `<agent-name>/report.md`.
 Derive `<branch-slug>` from the current git branch by ignoring `users/<username>` (if that is part of the branch) and only using the rest to create a slug.
+Get the current PR files with `git diff --name-only origin/master...`.
+
+Before starting the reviewers, look for previously ignored findings that mention any of the current PR files:
+
+- Prefer searching `docs/prs/_review-index/ignored-findings.jsonl` for exact repo-relative file paths from the current PR.
+- Each matching JSONL row is a candidate previous ignore.
+- Because the index is append-only, use the latest event for the same `pr`, `findingId`, and `fingerprint` to decide whether a previous ignore is still active.
+- When compiling new findings later, suppress a finding only when it is clearly the same concern as a candidate previous ignore: overlapping `files`, same/similar `agents` or category, and matching `fingerprint` or substantially matching `title`/`problem`.
 
 ## Step 3
-Start the five reviewing agents "architecture-reviewer", "bug-reviewer", "code-standard-reviewer", "simplification-reviewer" and "nitpick-reviewer".
+Create the next zero-padded review directory under `docs/prs/<branch-slug>/reviews/` (`review-001`, `review-002`, ...).
+Each reviewing agent will write its own complete report to `<agent-name>/report.md`.
+
+## Step 4
+Decide whether this PR is large enough for `architecture-reviewer`. Default to skipping it.
+
+Run `architecture-reviewer` only when the PR clearly has broad architectural impact, such as:
+
+- It changes more than 8 production files or more than 400 non-generated lines.
+- It changes public contracts, module boundaries, dependency wiring, persistence, auth, caching, queues/jobs, migrations, package structure, or other cross-cutting infrastructure.
+- It introduces or rewires a full feature flow across multiple layers.
+
+Small local fixes, test-only changes, renames, formatting, copy changes, and contained refactors should not run `architecture-reviewer`.
+
+Start "bug-reviewer", "code-standard-reviewer", "naming-reviewer", "simplification-reviewer", "nitpick-reviewer" and "slop-reviewer".
+Also start "architecture-reviewer" only if the PR passed the architecture threshold above.
 Pass them the resolved `<branch-slug>` and `<review-id>` so all agents write to the same review run. 
-For `architecture-reviewer`, also pass architecture steps dir: this skill's `references/architecture-reviewer/` directory. 
+If starting `architecture-reviewer`, also pass architecture steps dir: this skill's `references/architecture-reviewer/` directory. 
 Don't tell the agents anything more than that plus "go".
 Spawn them as blocking.
 
-## Step 4
-When all of the reviewers are done, compile their findings into a single PR-level HTML document `docs/prs/<branch-slug>/review.html`.
+## Step 5
+When all of the reviewers are done, compile their findings into `docs/prs/<branch-slug>/review-data.js` and copy this skill's `template.html` to `docs/prs/<branch-slug>/review.html`.
 Make sure to include all of the agents' points in the final compilation.
 If multiple agents point out the exact same problem, combine it into one point in the table, you can still describe the agents solution in the description.
 And pick exacly one solution which you think is best to put as the suggested fix.
 
-If `docs/prs/<branch-slug>/review.html` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
+If `docs/prs/<branch-slug>/review-data.js` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
 
 - Match existing findings to newly generated findings by stable identity: prefer the same `id` if the finding is clearly the same, otherwise match by title plus location/problem.
 - Preserve `status` and `ignoreReason` for matched findings.
 - Keep existing findings with `status: "implemented"` or `status: "ignored"` even if they are no longer present in the newest agent reports, so the PR-level review keeps its resolved/ignored history.
-- Do not keep old `pending` findings that no longer appear in the newest agent reports unless there is a clear reason they still apply.
-
-Use this skill's `template.html` as the base for `review.html`.
-
-First copy `template.html` to `docs/prs/<branch-slug>/review.html`. Then edit only that copied `review.html` to populate the `review` object and `findings` array.
+- Drop old `pending` findings that no longer appear in the newest agent reports unless there is a clear reason they still apply.
 
 Each finding must include:
 
 - `id`: index number
+- `fingerprint`: stable string for the same underlying concern across review runs, built from agent/category, primary file, and normalized issue name
 - `severity`: `High`, `Medium`, or `Low`
 - `needsHumanCheck`: number from 1 to 10. See ### Needs human check guide for how to rank.
 - `status`: `pending`, `implemented`, or `ignored`. Default new findings to `pending`.
@@ -67,11 +132,12 @@ Each finding must include:
 - `description`: the full original description from the agent reports, preserving Markdown and fenced code blocks
 - `fix`: the full suggested fix, preserving Markdown and fenced code blocks
 - `location`: list of locations if applicable, preferably as an array of strings so each location renders on its own line
+- `files`: repo-relative file paths touched by this finding, without line numbers, for example `["src/foo.ts"]`
 - `agents`: all agents that found the issue
 
 Write them in order of severity, highest first. Preserve Markdown and fenced code blocks in `description` and `fix` so the template can render them correctly.
 
-After writing `review.html`, give the user a direct browser-openable path to that file. Don't make it a link, give the exact path so they can copy.
+After writing `review-data.js` and `review.html`, give the user a direct browser-openable path to `review.html`. Don't make it a link, give the exact path so they can copy.
 Make the path work for the user's operating environment:
 
 - If running in WSL and the user is likely opening the file from a Windows browser, run `wslpath -w "<absolute-path-to-review.html>"` and give the resulting `\\wsl.localhost\...` UNC path in a plain copy-pasteable text block. Do not give only a Linux `file:///home/...` URL in this case.
