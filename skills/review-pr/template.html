@@ -36,8 +36,10 @@
       --low: #aeb8c5;
       --pending: #8ab4ff;
       --implemented: #8fd19e;
-      --ignored: #c5a3ff;
-      --ignored-bg: rgba(197, 163, 255, 0.08);
+      --ignored-human: #c5a3ff;
+      --ignored-human-bg: rgba(197, 163, 255, 0.08);
+      --ignored-ai: #f0c36a;
+      --ignored-ai-bg: rgba(240, 195, 106, 0.08);
     }
 
     * {
@@ -185,10 +187,17 @@
       background: rgba(143, 209, 158, 0.08);
     }
 
-    .pill.ignored {
+    .pill.ignored,
+    .pill.ignored-by-human {
       border-color: rgba(197, 163, 255, 0.5);
-      color: var(--ignored);
-      background: var(--ignored-bg);
+      color: var(--ignored-human);
+      background: var(--ignored-human-bg);
+    }
+
+    .pill.ignored-by-ai {
+      border-color: rgba(240, 195, 106, 0.5);
+      color: var(--ignored-ai);
+      background: var(--ignored-ai-bg);
     }
 
     .table-wrap {
@@ -328,7 +337,7 @@
       padding: 12px;
       border: 1px solid rgba(197, 163, 255, 0.28);
       border-radius: 8px;
-      background: var(--ignored-bg);
+      background: var(--ignored-human-bg);
     }
 
     .expand-hint {
@@ -486,11 +495,17 @@
 
     function statusFor(finding) {
       const status = String(finding.status || "pending").toLowerCase();
-      return ["pending", "implemented", "ignored"].includes(status) ? status : "pending";
+      const normalizedStatus = status === "ignored" ? "ignored-by-human" : status;
+      return ["pending", "implemented", "ignored-by-human", "ignored-by-ai"].includes(normalizedStatus)
+        ? normalizedStatus
+        : "pending";
     }
 
     function statusLabel(status) {
-      return status.charAt(0).toUpperCase() + status.slice(1);
+      return status
+        .split("-")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
     }
 
     function splitLocations(location) {
@@ -534,7 +549,7 @@
       const agentMatches = activeAgentFilter === "All" || (finding.agents || []).includes(activeAgentFilter);
       const status = statusFor(finding);
       const statusMatches = status === "pending"
-        || (status === "ignored" && showIgnored)
+        || (status.startsWith("ignored") && showIgnored)
         || (status === "implemented" && showImplemented);
       return severityMatches && agentMatches && statusMatches;
     }
@@ -604,7 +619,8 @@
         ["Total", findings.length],
         ["Pending", countBy((finding) => statusFor(finding) === "pending")],
         ["Implemented", countBy((finding) => statusFor(finding) === "implemented")],
-        ["Ignored", countBy((finding) => statusFor(finding) === "ignored")],
+        ["Ignored by Human", countBy((finding) => statusFor(finding) === "ignored-by-human")],
+        ["Ignored by AI", countBy((finding) => statusFor(finding) === "ignored-by-ai")],
         ["High", countBy((finding) => finding.severity === "High")],
         ["Medium", countBy((finding) => finding.severity === "Medium")],
         ["Low", countBy((finding) => finding.severity === "Low")],
@@ -699,7 +715,7 @@
                   <section>
                     <h3>Suggested fix</h3>
                     <div class="rich-text">${renderMarkdown(finding.fix || "")}</div>
-                    ${status === "ignored" && finding.ignoreReason ? `
+                    ${status.startsWith("ignored") && finding.ignoreReason ? `
                       <div class="ignore-reason">
                         <h3>Ignore reason</h3>
                         <div class="rich-text">${renderMarkdown(finding.ignoreReason)}</div>

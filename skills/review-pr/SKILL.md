@@ -1,6 +1,6 @@
 ﻿---
 name: review-pr
-description: Runs multiple reviewing agents in parallel to review the current PR
+description: Runs multiple reviewing agents in parallel to review the current PR and handles follow-up responses to review findings
 disable-model-invocation: true
 ---
 
@@ -65,7 +65,7 @@ Use quoted object keys, no comments, and no trailing commas inside the object so
 Historical ignored finding index rows must be one JSON object per line:
 
 ```json
-{"event":"ignored","pr":"<branch-slug>","findingId":3,"files":["src/foo.ts"],"fingerprint":"bug-reviewer:src/foo.ts:null-user-id","agents":["bug-reviewer"],"title":"...","problem":"...","ignoreReason":"...","ignoredAt":"2026-06-26T08:04:00Z"}
+{"event":"ignored","ignoredBy":"human","pr":"<branch-slug>","findingId":3,"files":["src/foo.ts"],"fingerprint":"bug-reviewer:src/foo.ts:null-user-id","agents":["bug-reviewer"],"title":"...","problem":"...","ignoreReason":"...","ignoredAt":"2026-06-26T08:04:00Z"}
 ```
 
 Use `ignored-findings.jsonl` to find candidate previous ignores, then verify the new finding is the same concern before suppressing it.
@@ -116,8 +116,7 @@ If `docs/prs/<branch-slug>/review-data.js` already exists, read it before overwr
 
 - Match existing findings to newly generated findings by stable identity: prefer the same `id` if the finding is clearly the same, otherwise match by title plus location/problem.
 - Preserve `status` and `ignoreReason` for matched findings.
-- Keep existing findings with `status: "implemented"` or `status: "ignored"` even if they are no longer present in the newest agent reports, so the PR-level review keeps its resolved/ignored history.
-- Drop old `pending` findings that no longer appear in the newest agent reports unless there is a clear reason they still apply.
+- Keep existing findings with `status: "implemented"`, `status: "ignored-by-human"`, or `status: "ignored-by-ai"` even if they are no longer present in the newest agent reports, so the PR-level review keeps its resolved/ignored history.
 
 Each finding must include:
 
@@ -125,8 +124,8 @@ Each finding must include:
 - `fingerprint`: stable string for the same underlying concern across review runs, built from agent/category, primary file, and normalized issue name
 - `severity`: `High`, `Medium`, or `Low`
 - `needsHumanCheck`: number from 1 to 10. See ### Needs human check guide for how to rank.
-- `status`: `pending`, `implemented`, or `ignored`. Default new findings to `pending`.
-- `ignoreReason`: required when `status` is `ignored`; omit or leave empty otherwise.
+- `status`: `pending`, `implemented`, `ignored-by-human`, or `ignored-by-ai`. Default new findings to `pending`.
+- `ignoreReason`: required when status starts with `ignored`; omit or leave empty otherwise.
 - `title`: short description
 - `problem`: a useful one-paragraph problem summary shown directly in the table, so the reader usually does not need to expand the row
 - `description`: the full original description from the agent reports, preserving Markdown and fenced code blocks
@@ -137,11 +136,17 @@ Each finding must include:
 
 Write them in order of severity, highest first. Preserve Markdown and fenced code blocks in `description` and `fix` so the template can render them correctly.
 
-After writing `review-data.js` and `review.html`, give the user a direct browser-openable path to `review.html`. Don't make it a link, give the exact path so they can copy.
+## Step 6
+As the last review step, read this skill's `COMMENT-FILTER.md` and apply it to the completed findings one at a time.
+
+After finishing Step 6 and writing `review-data.js` and `review.html`, give the user a direct browser-openable path to `review.html`. Don't make it a link, give the exact path so they can copy.
 Make the path work for the user's operating environment:
 
 - If running in WSL and the user is likely opening the file from a Windows browser, run `wslpath -w "<absolute-path-to-review.html>"` and give the resulting `\\wsl.localhost\...` UNC path in a plain copy-pasteable text block. Do not give only a Linux `file:///home/...` URL in this case.
 - Otherwise, give an appropriate `file://` URL or absolute path for the current OS.
+
+## Responding to review findings
+When the user later responds to findings from a generated review, read this skill's `RESPOND-TO-REVIEW.md` and follow it.
 
 ### Needs human check guide
 Low numbers mean the agent would theoretically be comfortable implementing the fix without asking the user.
