@@ -93,9 +93,9 @@ Decide whether this PR is large enough for `architecture-reviewer`. Default to s
 
 Run `architecture-reviewer` only when the PR clearly has broad architectural impact, such as:
 
-- It changes more than 8 production files or more than 400 non-generated lines.
-- It changes public contracts, module boundaries, dependency wiring, persistence, auth, caching, queues/jobs, migrations, package structure, or other cross-cutting infrastructure.
-- It introduces or rewires a full feature flow across multiple layers.
+- It adds more than than 400 non-generated lines.
+- It makes significant architectural changes to existing contracts or flows.
+- It introduces or rewires a decently large feature flow.
 
 Small local fixes, test-only changes, renames, formatting, copy changes, and contained refactors should not run `architecture-reviewer`.
 
@@ -104,7 +104,7 @@ Also start "architecture-reviewer" only if the PR passed the architecture thresh
 Pass them the resolved `<branch-slug>` and `<review-id>` so all agents write to the same review run. 
 If starting `architecture-reviewer`, also pass architecture steps dir: this skill's `references/architecture-reviewer/` directory. 
 Don't tell the agents anything more than that plus "go".
-Spawn them as blocking.
+Spawn them all in the same call, not one at a time. And make them blocking.
 
 ## Step 5
 When all of the reviewers are done, compile their findings into `docs/prs/<branch-slug>/review-data.js` and copy this skill's `template.html` to `docs/prs/<branch-slug>/review.html`.

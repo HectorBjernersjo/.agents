@@ -125,6 +125,21 @@
       align-items: center;
     }
 
+    .filter-row button {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .filter-count {
+      color: var(--muted-2);
+    }
+
+    button.active .filter-count {
+      color: currentColor;
+      opacity: 0.78;
+    }
+
     button, .pill {
       border: 1px solid var(--border);
       border-radius: 999px;
@@ -469,6 +484,16 @@
 
     const severityFilters = ["All", "High", "Medium", "Low"];
     const severityRank = { High: 3, Medium: 2, Low: 1 };
+    const agentLabels = {
+      "architecture-reviewer": "Architectural",
+      "simplification-reviewer": "Simplifications",
+      "bug-reviewer": "Bugs",
+      "footgun-reviewer": "Footguns",
+      "naming-reviewer": "Naming",
+      "nitpick-reviewer": "Nitpicks",
+      "slop-reviewer": "Slop",
+      "code-standard-reviewer": "Code Standard",
+    };
     const defaultSortDirections = { id: "asc", severity: "desc", needsHumanCheck: "desc" };
     let activeSeverityFilter = "All";
     let activeAgentFilter = "All";
@@ -541,17 +566,51 @@
     }
 
     function agentsForFilters() {
-      return Array.from(new Set(findings.flatMap((finding) => finding.agents || []))).sort();
+      return Array.from(new Set(findings.flatMap((finding) => finding.agents || [])))
+        .sort((left, right) => agentLabel(left).localeCompare(agentLabel(right)));
+    }
+
+    function agentLabel(agent) {
+      return agentLabels[agent] || agent;
+    }
+
+    function matchesSeverityAndAgent(finding, severity, agent) {
+      const severityMatches = severity === "All" || finding.severity === severity;
+      const agentMatches = agent === "All" || (finding.agents || []).includes(agent);
+      return severityMatches && agentMatches;
+    }
+
+    function matchesStatusVisibility(finding) {
+      const status = statusFor(finding);
+      return status === "pending"
+        || (status.startsWith("ignored") && showIgnored)
+        || (status === "implemented" && showImplemented);
+    }
+
+    function countForFilters({ severity = activeSeverityFilter, agent = activeAgentFilter } = {}) {
+      return findings.filter((finding) =>
+        matchesSeverityAndAgent(finding, severity, agent) && matchesStatusVisibility(finding)
+      ).length;
+    }
+
+    function countForStatus(statusMatcher) {
+      return findings.filter((finding) =>
+        matchesSeverityAndAgent(finding, activeSeverityFilter, activeAgentFilter)
+        && statusMatcher(statusFor(finding))
+      ).length;
+    }
+
+    function renderFilterButton(group, value, label, count, isActive) {
+      return `
+        <button type="button" class="${isActive ? "active" : ""}" data-filter-group="${group}" data-filter="${escapeHtml(value)}">
+          ${escapeHtml(label)} <span class="filter-count">${count}</span>
+        </button>
+      `;
     }
 
     function matchesFilter(finding) {
-      const severityMatches = activeSeverityFilter === "All" || finding.severity === activeSeverityFilter;
-      const agentMatches = activeAgentFilter === "All" || (finding.agents || []).includes(activeAgentFilter);
-      const status = statusFor(finding);
-      const statusMatches = status === "pending"
-        || (status.startsWith("ignored") && showIgnored)
-        || (status === "implemented" && showImplemented);
-      return severityMatches && agentMatches && statusMatches;
+      return matchesSeverityAndAgent(finding, activeSeverityFilter, activeAgentFilter)
+        && matchesStatusVisibility(finding);
     }
 
     function severityClass(severity) {
@@ -618,21 +677,11 @@
       const stats = [
         ["Total", findings.length],
         ["Pending", countBy((finding) => statusFor(finding) === "pending")],
-        ["Implemented", countBy((finding) => statusFor(finding) === "implemented")],
-        ["Ignored by Human", countBy((finding) => statusFor(finding) === "ignored-by-human")],
         ["Ignored by AI", countBy((finding) => statusFor(finding) === "ignored-by-ai")],
         ["High", countBy((finding) => finding.severity === "High")],
         ["Medium", countBy((finding) => finding.severity === "Medium")],
         ["Low", countBy((finding) => finding.severity === "Low")],
-        ["Architectural", countBy((finding) => (finding.agents || []).includes("architecture-reviewer"))],
-        ["Simplifications", countBy((finding) => (finding.agents || []).includes("simplification-reviewer"))],
-        ["Bugs", countBy((finding) => (finding.agents || []).includes("bug-reviewer"))],
-        ["Footguns", countBy((finding) => (finding.agents || []).includes("footgun-reviewer"))],
-        ["Naming", countBy((finding) => (finding.agents || []).includes("naming-reviewer"))],
-        ["Nitpicks", countBy((finding) => (finding.agents || []).includes("nitpick-reviewer"))],
-        ["Slop", countBy((finding) => (finding.agents || []).includes("slop-reviewer"))],
-        ["Code Standard", countBy((finding) => (finding.agents || []).includes("code-standard-reviewer"))],
-      ].filter(([label, value]) => label === "Total" || value > 0);
+      ];
 
       document.querySelector("#summary").innerHTML = stats.map(([label, value]) => `
         <article class="stat">
@@ -644,19 +693,33 @@
 
     function renderFilters() {
       const agentFilters = ["All", ...agentsForFilters()];
+      const ignoredCount = countForStatus((status) => status.startsWith("ignored"));
+      const implementedCount = countForStatus((status) => status === "implemented");
       document.querySelector("#filters").innerHTML = `
         <div class="filter-row">
           <strong>Severity</strong>
-          ${severityFilters.map((filter) => `<button type="button" class="${filter === activeSeverityFilter ? "active" : ""}" data-filter-group="severity" data-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join("")}
+          ${severityFilters.map((filter) => renderFilterButton(
+            "severity",
+            filter,
+            filter,
+            countForFilters({ severity: filter }),
+            filter === activeSeverityFilter
+          )).join("")}
         </div>
         <div class="filter-row">
           <strong>Agent</strong>
-          ${agentFilters.map((filter) => `<button type="button" class="${filter === activeAgentFilter ? "active" : ""}" data-filter-group="agent" data-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join("")}
+          ${agentFilters.map((filter) => renderFilterButton(
+            "agent",
+            filter,
+            filter === "All" ? "All" : agentLabel(filter),
+            countForFilters({ agent: filter }),
+            filter === activeAgentFilter
+          )).join("")}
         </div>
         <div class="filter-row">
           <strong>Status</strong>
-          <label class="checkbox-label"><input type="checkbox" data-status-toggle="ignored" ${showIgnored ? "checked" : ""}> Show ignored</label>
-          <label class="checkbox-label"><input type="checkbox" data-status-toggle="implemented" ${showImplemented ? "checked" : ""}> Show implemented</label>
+          <label class="checkbox-label"><input type="checkbox" data-status-toggle="ignored" ${showIgnored ? "checked" : ""}> Show ignored <span class="filter-count">${ignoredCount}</span></label>
+          <label class="checkbox-label"><input type="checkbox" data-status-toggle="implemented" ${showImplemented ? "checked" : ""}> Show implemented <span class="filter-count">${implementedCount}</span></label>
         </div>
       `;
 
