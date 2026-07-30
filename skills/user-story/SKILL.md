@@ -1,4 +1,4 @@
-﻿---
+---
 name: user-story
 description: Creates a user story from the current pr
 disable-model-invocation: true

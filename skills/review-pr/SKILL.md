@@ -1,4 +1,4 @@
-﻿---
+---
 name: review-pr
 description: Runs multiple reviewing agents in parallel to review the current PR and handles follow-up responses to review findings
 disable-model-invocation: true
