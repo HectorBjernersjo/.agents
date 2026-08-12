@@ -50,10 +50,17 @@ You don't need to mention the same rename more than once even if it's about a va
 ## Rename Recommendations
 
 Think through each of these, are all of them worth changing?
-In `docs/prs/<branch-slug>/reviews/<review-id>/naming/suggested-renames.md`, write a list of all the names you think actually are worth changing along with 3 - 5 suggestions for each one.
+In `docs/prs/<branch-slug>/reviews/<review-id>/naming/suggested-renames.md`, write a list of all the names you think actually are worth changing, along with 2 - 3 candidates for each one.
 Always think about what you think is the best possible final name for this variable or concept, don't get stuck in thinking you have to just tweak the existing name.
 If a completly different name is better and still fits with the overall naming standard, go with that.
-Shorter names are generally prefered to unnecessarily long ones, but unsderstandability is still the priority.
+
+### A Name Is a Handle, Not a Definition
+
+A name only has to be unmistakable at its usage sites, where the file, class, method, and doc comments already provide context. Semantics that need a sentence belong in a doc comment, not in the name. A name that tries to carry the whole contract is a failed name.
+
+Judge every candidate in situ: rewrite the actual line or call site with the new name and ask "did this line get clearer, or just longer?" If it only got longer, reject the candidate.
+
+A rename that makes the name more than one word longer than the original needs explicit justification for what misunderstanding each added word prevents. Candidates that stack three or more qualifiers are almost always the wrong answer.
 
 ### Do Not Suggest Redundant Context or Super Pedantic Local Renames
 

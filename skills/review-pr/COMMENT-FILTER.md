@@ -19,6 +19,12 @@ Mark a finding as `ignored-by-ai` when it:
 
 Do not mark something `ignored-by-ai` just because it is a nitpick or only slightly useful.
 
+Evaluate every finding by the resulting code change, not by whether the suggestion has any theoretical benefit.
+
+Mark a finding as `ignored-by-ai` when the proposed fix does not make the codebase better overall. Consider readability, simplicity, maintainability, brittleness, duplication, and actual defect prevention together. A local benefit is not enough when the resulting code adds equal or greater cost.
+
+Before keeping a finding, mentally apply the suggested fix and compare the before and after versions. Keep it only when the resulting code is clearly better.
+
 If a claim can be verified by searching docs or writing/running a small test, verify it before deciding.
 
 When code looks inconsistent with shared or standard patterns, investigate why before suggesting a change.

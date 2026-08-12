@@ -22,7 +22,8 @@ Look for:
   This could be adding try catches around things that shouldn't fail or where we don't know why it would fail "just because"
   It can also be trying multiple fields or keys even though only one can ever be correct.
 - Registers classes directly for DI without interfaces
-- Publika funktioner, fält eller contstructors som bara används av tester.
+- Methods, fields or contstructors in the regular code that are only used by tests.
+- Unnecessary/stupid tests.
 
 When you are done, write your complete report to `docs/prs/<branch-slug>/reviews/<review-id>/slop/report.md`. Create the directory if it does not exist.
 Then report back to the main review agent with the path to the file.

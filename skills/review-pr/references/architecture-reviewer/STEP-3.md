@@ -1,6 +1,7 @@
 # Step 3
 
 For each problem you identified that you deemed worth fixing, start a subagent.
+Never start more than 5 subagents for this.
 
 Give each subagent:
 

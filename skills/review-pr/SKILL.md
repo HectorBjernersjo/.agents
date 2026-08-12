@@ -111,7 +111,8 @@ When all of the reviewers are done, compile their findings into `docs/prs/<branc
 Make sure to include all of the agents' points in the final compilation.
 If multiple agents point out the exact same problem, combine it into one point in the table, you can still describe the agents solution in the description.
 And pick exacly one solution which you think is best to put as the suggested fix.
-Use relatively simple language without unnecessary jargon and don't assume the reader knows the entire codebase when writing the review-data.
+When writing the compiled findings to review-data.js, use simple language without unnecessary jargon and don't assume the reader knows the entire codebase.
+If the subagents explanation is complicated, simplify it.
 
 If `docs/prs/<branch-slug>/review-data.js` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
 
@@ -145,6 +146,7 @@ Make the path work for the user's operating environment:
 
 - If running in WSL and the user is likely opening the file from a Windows browser, run `wslpath -w "<absolute-path-to-review.html>"` and give the resulting `\\wsl.localhost\...` UNC path in a plain copy-pasteable text block. Do not give only a Linux `file:///home/...` URL in this case.
 - Otherwise, give an appropriate `file://` URL or absolute path for the current OS.
+- If it's a symlink, give the path to the canonical file location.
 
 ## Responding to review findings
 When the user later responds to findings from a generated review, read this skill's `RESPOND-TO-REVIEW.md` and follow it.
