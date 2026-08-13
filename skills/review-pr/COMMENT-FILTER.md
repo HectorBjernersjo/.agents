@@ -8,7 +8,6 @@ Mark a finding as `ignored-by-ai` when it:
 - Suggests an unnecessary refactor that would make the code worse.
 - Claims something is a bug when it is not actually a bug.
 - Flags behavior that is clearly intentional.
-- Suggests a change that goes against established codebase patterns.
 - Points out pre-existing code that was not changed in this PR, unless it is important enough to include anyway.
 - Duplicates another finding. Merge duplicates into the best single finding where useful.
 - Points out UTF-8 BOM; tests cover this and it does not need a PR comment.

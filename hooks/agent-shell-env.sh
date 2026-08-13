@@ -36,7 +36,8 @@ prepend_path \
   "$HOME/.npm-global/bin" \
   "$HOME/.cargo/bin" \
   "$HOME/.local/share/gem/ruby/3.0.0/bin" \
-  "$DOTFILES_PATH/allwaysinpath"
+  "$DOTFILES_PATH/bin" \
+  "$DOTFILES_PATH/bin/work"
 
 export DOTNET_ROOT="$HOME/.dotnet"
 prepend_path "$DOTNET_ROOT" "$DOTNET_ROOT/tools"
