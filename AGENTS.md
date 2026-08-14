@@ -18,3 +18,6 @@ I'm Hector. You're my agent. I focus on building complex things as simple as pos
 
 ## Questions are read only 
 - When I ask a question, unless you are 100% sure that I want you to change something, just answer the question without making any edits.
+
+## My setup
+- When i tell you to test something that is best built as a separate project, build it in ~/test/{that project}

@@ -19,6 +19,7 @@ For each file, check whether any of the footgun scenarios below apply. Verify ea
 ## Footgun scenarios
 
 - We run multiple backend instances. Code must not assume there is only one backend process. Flag code that stores shared application state only in memory, relies on process-local locks/counters/caches/timers for correctness, assumes singleton background work across the fleet, or otherwise breaks when requests for the same user/entity are handled by different backend instances. If local memory is only an optimization and correctness still comes from a shared durable source, do not flag it.
+- Most customers are in azure but we have some who self-host and some that are on our old windows hosting "iver". Make sure the code doesn't break for them.
 
 When you are done, write your complete report to `docs/prs/<branch-slug>/reviews/<review-id>/footgun/report.md`. Create the directory if it does not exist.
 Then report back to the main review agent with the path to the file.

@@ -6,12 +6,7 @@ disable-model-invocation: true
 
 Användaren vill ha hjälp med att skapa en user story från deras pr, användaren kommer att säga vilket pr de vill ha hjälp med.
 
-Om du ska göra för det här pret:
 - Kör exakt "git --no-pager diff master..." för att se vad den här pr:en har gjort.
-Om du ska göra för ett annat pr:
-- Gör git --no-pager log --author="Hector Bjernersjö", 
-- Leta upp vilken commit som verkar matcha bäst med den användaren vill ha
-- Gör sen git --no-pager show {den committen}
 
 User storyn ska innehålla följande
 - Namn
@@ -140,11 +135,13 @@ Du behöver inte förklara vad som har byggts i riskanalysen, bara vilka risker 
 Om det är något vi inte har gjort nog för, säg till.
 
 
-## Pr description
-Fokusera på varför det är gjort som det är och beskriv i bredare drag.
+## PR
+Be användaren skapa en user story och ge dig "siffran" för user storyn.
+När hen har gjort det så kan du skapa upp ett pr åt hen med gh cli:t, gör den som en draft och ge användaren en länk.
 
-
-## Vilket pr
-
-(Om det inte står något pr här så kör på det nuvarande pret)
-Det pr du ska göra riskanalys för är:
+## PR description
+Fokusera på varför jag har gjort det som det är, inte så mycket på exakt vad som har ändrats.
+Om det är något lite större eller där det annars är aktuellt kan du även beskriva flödet som man behöver förså i pr:et.
+Håll den ganska kortfattad, du behöver inte ta med varenda ändring.
+Pr descriptionen ska vara på svenska, den kan ofta vara rätt lik user story descriptionen, men kanske med lite mer tekniska detaljer där det är relevant.
+Avsluta pr descriptionen med AB#{numret på user storyn som användaren gav dig}
