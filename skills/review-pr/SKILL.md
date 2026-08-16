@@ -75,6 +75,8 @@ If there are any uncommitted changes (except in package json other such files th
 
 ## Step 2
 Derive `<branch-slug>` from the current git branch by ignoring `users/<username>` (if that is part of the branch) and only using the rest to create a slug.
+
+If `docs/work/` holds a folder matching that slug, read its `spec.md` and the ticket being implemented first, and pass their paths to the reviewing agents — findings should be judged against what the work set out to do. `/land` deletes this PR's review artifacts once the work merges.
 Get the current PR files with `git diff --name-only origin/master...`.
 
 Before starting the reviewers, look for previously ignored findings that mention any of the current PR files:

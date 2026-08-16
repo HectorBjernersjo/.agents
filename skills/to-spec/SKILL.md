@@ -1,12 +1,12 @@
 ---
 name: to-spec
-description: Turn the current conversation into a spec and write it to docs/specs/ — no interview, just synthesis of what you've already discussed.
+description: Turn the current conversation into a spec and write it to docs/work/ — no interview, just synthesis of what you've already discussed.
 disable-model-invocation: true
 ---
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user — just synthesize what you already know.
 
-Specs live as markdown files in the repo: `docs/specs/<feature-slug>.md`.
+Specs live as markdown files in the repo: `docs/work/<feature-slug>/spec.md`. If the work already has a `map.md` — several features under one effort — write to `docs/work/<effort-slug>/<feature-slug>/spec.md` instead.
 
 ## Process
 
@@ -16,7 +16,7 @@ Specs live as markdown files in the repo: `docs/specs/<feature-slug>.md`.
 
 Check with the user that these seams match their expectations.
 
-3. Write the spec using the template below to `docs/specs/<feature-slug>.md`, creating the directory if needed. Add a `**Status:** ready-for-agent` line at the top - no need for additional triage.
+3. Write the spec using the template below, creating the directory if needed. Reuse the slug of an existing `grilling.md` when this spec comes out of one. Don't add a status line — the file existing means the work isn't done.
 
 <spec-template>
 

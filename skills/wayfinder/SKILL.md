@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets under docs/tickets/, and resolve them one at a time until the way to the destination is clear.
+description: Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets under docs/work/, and resolve them one at a time until the way to the destination is clear.
 disable-model-invocation: true
 ---
 
@@ -18,18 +18,20 @@ Every map and ticket has a **name** — its title. In everything the human reads
 
 ## The Map
 
-The map is a single markdown file at `docs/tickets/<effort-slug>/map.md` — the canonical artifact. Its tickets are files beside it in the same directory.
+The map is a single markdown file at `docs/work/<effort-slug>/map.md` — the canonical artifact. Its tickets are files beside it in the same directory.
 
 The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place — its ticket — so the map never restates it, only gists it and links.
 
 **Wayfinding operations:**
 
-- **Map**: `docs/tickets/<effort-slug>/map.md` — the Destination / Notes / Decisions-so-far / Fog body.
-- **Ticket**: `docs/tickets/<effort-slug>/<NN>-<slug>.md`, numbered from `01`, with the question in the body. A `Type:` line records the ticket type (`research`/`prototype`/`grilling`/`task`); a `Status:` line records `open`/`claimed`/`resolved`.
+- **Map**: `docs/work/<effort-slug>/map.md` — the Destination / Notes / Decisions-so-far / Fog body.
+- **Ticket**: `docs/work/<effort-slug>/<NN>-<slug>.md`, numbered from `01`, with the question in the body. A `Type:` line records the ticket type (`research`/`prototype`/`grilling`/`task`); a `Status:` line records `open`/`claimed`/`resolved`.
 - **Blocking**: a `Blocked by: NN, NN` line near the top. A ticket is unblocked when every ticket it lists is `resolved`.
 - **Frontier**: scan the effort's directory for tickets that are `open` and unblocked; first by number wins.
 - **Claim**: set `Status: claimed` and save before any work.
 - **Resolve**: append the answer under an `## Answer` heading, set `Status: resolved`, then append a context pointer to the map's Decisions-so-far in `map.md`.
+
+Decision tickets are **not** build tickets, so they don't follow the delete-on-merge rule the rest of `docs/work/` does — the answer *is* the artifact, so a resolved ticket stays until the whole effort lands. Build tickets that come out of this map live in `docs/work/<effort-slug>/<feature-slug>/tickets/` and are deleted as they merge.
 
 ### The map body
 
@@ -121,7 +123,7 @@ User invokes with a loose idea.
 
 1. **Name the destination.** Run a `/grilling` and `/domain-modeling` session to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and ask the user how they'd like to proceed.
-3. **Create the map** (`docs/tickets/<effort-slug>/map.md`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
+3. **Create the map** (`docs/work/<effort-slug>/map.md`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**. If a `docs/work/<slug>/` folder already exists for this idea — a grilling and maybe a spec that turned out to be bigger than one feature — add the map there rather than starting a new folder, and move any existing `spec.md` and `tickets/` down into a `<feature-slug>/` subfolder.
 4. **Create the tickets you can specify now** as files beside the map, wiring `Blocked by:` edges as you go — the filename numbers are the ids, so edges can reference them directly. Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
 5. **Fire the research subagents.** For each `research` ticket you just created, spin up a `/research` subagent to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket.
 6. Stop — charting is one session's work; it hand-resolves nothing.
@@ -137,3 +139,7 @@ User invokes with a map (a path or effort name). A ticket is **optional** — wi
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing the map's files concurrently.
+
+### Land the map
+
+When the frontier is empty and the destination is reached, the map hands off to building: run `/to-spec` per feature the effort produced, each writing to `docs/work/<effort-slug>/<feature-slug>/spec.md`, then `/to-tickets` beside it. Once the last feature's tickets are merged and gone, `/land` graduates the map's decisions into ADRs and deletes the whole effort folder.
