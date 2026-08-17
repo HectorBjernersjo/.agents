@@ -1,20 +1,26 @@
 ---
-name: user-story
-description: Creates a user story from the current pr
-disable-model-invocation: true
+name: create-user-story
+description: Use when the user asks you to create or edit a User Story in Azure DevOps
 ---
 
-Användaren vill ha hjälp med att skapa en user story från deras pr, användaren kommer att säga vilket pr de vill ha hjälp med.
+Användaren vill ha hjälp med att skapa en user story från deras pr, eller redigera en som redan finns. Användaren kommer att säga vilket pr det gäller.
 
-- Kör exakt "git --no-pager diff master..." för att se vad den här pr:en har gjort.
+- Kör "jj diff -r 'trunk()..(@- ~ base)' --git" för att se vad featuren har gjort — stacken ovanpå master, utan tweaks (feature-heden är @:s förälder minus base). Gäller det ett enskilt PR-segment: diffa segmentets range istället. (Funkar i alla HRM-feature-workspaces; git-CLI:t finns bara i master.)
+
+## Redigera en befintlig story
+Om användaren pekar på en befintlig story (ett id, en länk, eller "storyn för det här pr:et"):
+- Hämta den med `ado-show-story --id <id>`. Vet du inte id:t, lista med `ado-list-stories` och matcha på titel, eller fråga.
+- Diffa pr:et som vanligt och jämför med storyns innehåll. Föreslå bara ändringar i de fält som faktiskt behöver ändras, och visa dem fält för fält innan du skriver.
+- Uppdatera med `ado-update-story --id <id> <flaggor>` (se längst ner). Bara de flaggor du anger ändras.
+- Om pr:et har växt så att klassningen eller risken inte längre stämmer, säg det uttryckligen, även om användaren bara bett om något annat.
 
 User storyn ska innehålla följande
 - Namn
 - Description
 - Acceptance criteria
 - Release note
+- Change classification
 - Riskanalys
-- PR description
 
 Här kommer lite instruktioner för hur du ska skriva dem:
 
@@ -28,8 +34,32 @@ Ska vara i listform, också på ganska hög "oteknisk nivå" (beroende lite på 
 Du behöver inte göra en massa punkter som säger samma sak, bättre med färre, tydliga punkter.
 
 ## Release Note
-Skriv en release note för det här pr:et, den ska vara på engelska och ha en header (bara några ord) och en text (max en till några meningar)
+Skriv bara en release note om pr:et innehåller en ändring som användaren faktiskt ser eller märker av. Interna verktyg, refaktoreringar och rena tekniska ändringar ska inte ha någon release note — föreslå då ingen, och utelämna release note-flaggorna när storyn skapas.
+Om pr:et behöver en: den ska vara på engelska och ha en header (bara några ord) och en text (max en till några meningar)
 Fokusera bara på vad som ändras för användaren, ingenting tekniskt.
+
+## Change classification
+Obligatoriskt fält på storyn enligt vår SDLC-policy (DEV-POL-03, hela dokumentet ligger i `change-policy.md` bredvid den här filen). Reviewern ska verifiera att klassningen stämmer, så sätt den ärligt och motivera kort för användaren varför du valde som du gjorde.
+
+Fyra värden: `No Change`, `Standard Change`, `Normal Change`, `Emergency Change`.
+
+Beslutslogik:
+1. Är det ett backlog-item utan deploy till prod eller ändring av prod-miljön? → **No Change**.
+2. Återställer det tjänsten vid en P1-incident (prod nere, felaktig lönekörning, aktivt exploit, persondataincident)? → **Emergency Change**. Kräver riskanalys, peer review och post-mortem inom en arbetsdag, och Development Manager måste godkänna avsteg från releasecykeln. Påminn användaren om det.
+3. Annars, rör pr:et NÅGOT av följande?
+   - Databas: schemaändringar, migreringar, nya tabeller eller kolumner.
+   - Säkerhet: autentisering, auktorisering (RBAC), kryptering, nyckelhantering.
+   - Data: hantering, lagring eller överföring av PII eller känslig data (lön, sjukfrånvaro, anställdinfo).
+   - Kritiska beräkningar och legal compliance: logik som påverkar löneberäkning, juridisk ställning eller anställningslivscykeln (onboarding/avslut).
+   - Externt: inkommande/utgående API:er eller tredjepartsintegrationer.
+   - Infra: deploy-pipelines, miljökonfiguration, nya NuGet/NPM-beroenden.
+   - Omfattning: flera moduler eller cross-cutting concerns.
+
+   JA på någon → **Normal Change**. NEJ på alla → **Standard Change**.
+
+Normal Change kräver 5x5-riskmatrisen (som vi alltid fyller i, se nedan). Blir totalrisken Critical på en Normal Change krävs dessutom en formell threat model (STRIDE) dokumenterad i storyn. Flagga det tydligt om ni hamnar där.
+
+Var inte snål med Normal. Nästan allt i HRM rör persondata eller lön på något sätt, så en ändring som bara råkar läsa anställdinformation är Normal, inte Standard. Standard är för sånt som ren frontend-styling, refaktoreringar utan beteendeändring, interna verktyg och textändringar.
 
 ## Riskanalys
 
@@ -79,7 +109,8 @@ There's a strong possibility that the event will occur in the near future
 5 - Almost certain
 Likely to occur soon and often
 
-Total risk = risk impact * risk likelihood
+Total risk ska alltid vara risk impact * risk likelihood
+Sen beroende på vad total risk är sätter man olika risk i user storyn:
 Total risk 1 - 3 = low, 4 - 9 = medium, 10 - 12 = high, 15 - 25 = critical
 
 ---
@@ -135,13 +166,33 @@ Du behöver inte förklara vad som har byggts i riskanalysen, bara vilka risker 
 Om det är något vi inte har gjort nog för, säg till.
 
 
-## PR
-Be användaren skapa en user story och ge dig "siffran" för user storyn.
-När hen har gjort det så kan du skapa upp ett pr åt hen med gh cli:t, gör den som en draft och ge användaren en länk.
+## Skapa eller uppdatera user storyn i Azure DevOps
+När användaren har godkänt innehållet skapar du storyn med scriptet `ado-create-story` (ligger i PATH). Kör inte `az` direkt — det är blockerat.
 
-## PR description
-Fokusera på varför jag har gjort det som det är, inte så mycket på exakt vad som har ändrats.
-Om det är något lite större eller där det annars är aktuellt kan du även beskriva flödet som man behöver förså i pr:et.
-Håll den ganska kortfattad, du behöver inte ta med varenda ändring.
-Pr descriptionen ska vara på svenska, den kan ofta vara rätt lik user story descriptionen, men kanske med lite mer tekniska detaljer där det är relevant.
-Avsluta pr descriptionen med AB#{numret på user storyn som användaren gav dig}
+```
+ado-create-story \
+  --title "<namnet>" \
+  --description "<description som HTML>" \
+  --acceptance "<acceptance criteria som HTML-lista>" \
+  --classification standard|normal|emergency|no \
+  --risk-impact <1-5> --risk-likelihood <1-5> \
+  --risk-comment "<riskanalys-texten som HTML>" \
+  --release-note-header "<release note-headern>" \
+  --release-note-text "<release note-texten som HTML>"
+```
+
+- Text-fälten är HTML-fält i DevOps: använd `<div>`, `<br>` och `<ul><li>` för struktur, inte markdown.
+- Utelämna release note-flaggorna om pr:et inte behöver någon release note.
+- Scriptet räknar ut risknivån från impact × likelihood, skapar storyn på Team Employee-boarden i kolumnen Active och swimlanen Hector, och skriver ut `{id, url}`. Ge användaren länken.
+
+Redigering av en befintlig story tar samma flaggor plus `--id`, och ändrar bara det du anger:
+
+```
+ado-update-story --id <id> --classification normal --risk-impact 3 --risk-likelihood 2 --risk-comment "<html>"
+ado-update-story --id <id> --no-release-note          # stäng av release note
+ado-show-story --id <id>                              # läs storyns fält som json
+```
+
+Impact och likelihood måste alltid anges tillsammans eftersom risknivån räknas om.
+
+Kom ihåg id:t som scriptet returnerar — det används som `AB#{id}` i pr descriptionen när `/create-pr` körs.

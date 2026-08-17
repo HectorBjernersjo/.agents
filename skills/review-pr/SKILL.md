@@ -113,8 +113,7 @@ When all of the reviewers are done, compile their findings into `docs/prs/<branc
 Make sure to include all of the agents' points in the final compilation.
 If multiple agents point out the exact same problem, combine it into one point in the table, you can still describe the agents solution in the description.
 And pick exacly one solution which you think is best to put as the suggested fix.
-When writing the compiled findings to review-data.js, use simple language without unnecessary jargon and don't assume the reader knows the entire codebase.
-If the subagents explanation is complicated, simplify it.
+När du skriver alla findings till review-data.js, översätt dom till svenska, och använd ett simpelt språk, undvik jargong och förutsätt inte att användaren har så bra koll på kodbasen.
 
 If `docs/prs/<branch-slug>/review-data.js` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
 

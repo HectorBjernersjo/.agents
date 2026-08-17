@@ -10,6 +10,7 @@
  *
  *   node generate-image.mjs --prompt "..." --out mock.png [--size 1536x1024] [--quality medium]
  *   node generate-image.mjs --prompt-file prompt.txt --out mock.png
+ *   node generate-image.mjs --prompt-file prompt.txt --out mock.png --key-file openai.env
  *   node generate-image.mjs --prompt "..." --out mock.png --ref screenshot.png [--ref more.png]
  *
  * --ref anchors generation on input image(s) via the edits endpoint: pass a
@@ -203,9 +204,20 @@ if (process.env.IMPECCABLE_IMAGE_GEN_FAKE) {
   process.exit(0);
 }
 
-const key = process.env.OPENAI_API_KEY;
+/* The key may arrive in the environment or as a file the script reads itself.
+   The second is there because an agent cannot put a secret on its own command
+   line: --key-file takes a path to either a bare key or a shell env file with
+   an OPENAI_API_KEY assignment in it. */
+function keyFromFile(path) {
+  const text = fs.readFileSync(path, 'utf8');
+  const assigned = text.match(/OPENAI_API_KEY\s*=\s*['"]?([^'"\s]+)/);
+  return (assigned ? assigned[1] : text).trim();
+}
+
+const keyFile = arg('key-file');
+const key = keyFile ? keyFromFile(keyFile) : process.env.OPENAI_API_KEY;
 if (!key) {
-  console.error('generate-image: OPENAI_API_KEY is not set; use the harness-native image tool instead.');
+  console.error('generate-image: no key; set OPENAI_API_KEY or pass --key-file.');
   process.exit(1);
 }
 const promptFile = arg('prompt-file');
