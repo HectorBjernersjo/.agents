@@ -1,6 +1,6 @@
 ---
 name: pr-media
-description: Use when the user wants a demo video, gif or screenshots of a feature for a PR, or when create-pr finds UI changes in the diff.
+description: Använd när användaren vill ha en demovideo, gif eller skärmdumpar av en feature till ett PR, eller när create-pr hittar UI-ändringar i diffen.
 ---
 
 Spela in en kort demo av featuren med Playwright-MCP:n, gör en gif, pusha den
@@ -30,10 +30,12 @@ inget hamnar i @ av misstag. Filer utanför workspacen (t.ex.
 
 ## Flöde
 
-1. **Appen ska köra.** Kolla med `ss -ltnp` vad som lyssnar. I HRM:
-   Flex.Net.Web på `https://localhost:56866`, NovaFrontend på `http://localhost:5173`,
-   Nova.Api på `https://localhost:7293`. Kör Hector redan appen, använd den.
-   Kör inget, starta själv enligt "Starta HRM från WSL" nedan.
+1. **Starta en egen instans av appen.** Standardportarna (Flex.Net.Web
+   56866, Nova.Api 7293, NovaFrontend 5173) tillhör Hectors egen körning från
+   `main/`. Rör den inte och anta inte att den kör din feature. Starta i
+   stället från feature-workspacen på egna portar enligt "Starta HRM från WSL"
+   nedan, och sätt `BASE_URL` i `record.js` till din port. Kolla med
+   `ss -ltnp` att porten du väljer är ledig innan du startar.
 
 2. **Utforska först, spela in sen.** Navigera med `browser_navigate` och
    `browser_snapshot` i MCP:ns vanliga sida tills du vet exakt vilka steg och
@@ -115,23 +117,47 @@ Gäller båda klienterna, web-widgeten och Flexie-panelen i Nova.
 - Flikar som "Öppna länk" öppnar ligger kvar i MCP:ns browser. Mallen stänger
   dem i `finally`.
 
+## Smoke test: "testa att chatboten fortfarande funkar"
+
+Ber användaren bara om det, utan att peka på en specifik feature, är klippet
+alltid samma. Kör web-widgeten i Flex.Net.Web, inte Nova. Be Flexie skapa en
+sjukfrånvaroansökan för hela nästa vecka, vänta in förslaget och acceptera
+det i videon. Det övar hela kedjan: strömmat svar, verktygsanrop, och
+bekräftelse tillbaka till boten. Skriv prompten på svenska, ungefär
+"Skapa en sjukfrånvaroansökan för hela nästa vecka", och klipp så att
+acceptansen och botens kvittens är med i slutet.
+
 ## Starta HRM från WSL
 
 Kör Hector inget och du behöver apparna, så här startar de från en
 feature-workspace. Alla i bakgrunden, logga till scratchpad.
 
+Kör alltid på andra portar än standard, så att inspelningen inte krockar med
+en instans Hector redan har igång. `ASPNETCORE_URLS` styr Kestrel och vinner
+över `launchSettings.json`, så använd den i stället för `--launch-profile`.
+Förslag: Web 56876/56877, Nova.Api 7393, Vite 5273. Är någon upptagen
+(`ss -ltnp`), ta nästa tiotal.
+
 ```
 export DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH ASPNETCORE_ENVIRONMENT=Development
-# Flex.Net.Web (https://localhost:56866)
-cd Flex.Net/Flex.Net.Web && dotnet run --launch-profile Flex.Net.Web \
+# Flex.Net.Web (https://localhost:56876)
+cd Flex.Net/Flex.Net.Web && ASPNETCORE_URLS='https://localhost:56876;http://localhost:56877' \
+  dotnet run --no-launch-profile \
   --property:AllowMissingPrunePackageData=true --property:NuGetAudit=false
-# Nova.Api (https://localhost:7293). getdocument-steget failar från WSL, stäng av det.
-cd Flex.Net/FlexHrm.Nova.Api && dotnet run --launch-profile https \
+# Nova.Api (https://localhost:7393). getdocument-steget failar från WSL, stäng av det.
+cd Flex.Net/FlexHrm.Nova.Api && ASPNETCORE_URLS='https://localhost:7393' \
+  dotnet run --no-launch-profile \
   --property:AllowMissingPrunePackageData=true --property:NuGetAudit=false \
   --property:OpenApiGenerateDocumentsOnBuild=false
-# NovaFrontend (http://localhost:5173), proxar /nova/api till 7293
-cd NovaFrontend && PATH=$HOME/.nvm/versions/node/v22.16.0/bin:$PATH npx vite --port 5173 --strictPort
+# NovaFrontend (http://localhost:5273), proxar /nova/api till Nova.Api-porten ovan
+cd NovaFrontend && VITE_NOVA_API_BASE=https://localhost:7393 \
+  PATH=$HOME/.nvm/versions/node/v22.16.0/bin:$PATH npx vite --port 5273 --strictPort
 ```
+
+Forms-login funkar på vilken port som helst. OIDC-redirect och
+Skatteverket-inloggning gör det inte (redirect-URI:n är registrerad på
+56866), så de kan inte demas från en egen instans. Cookies är inget problem,
+inspelningen kör i en egen browser-context.
 
 Frontend-bundlen för Flex.Net.Web byggs separat med `npm run build` i
 `Flex.Net.Web`, med Linux-node först i PATH (`npm` i PATH är Windows-fnm).

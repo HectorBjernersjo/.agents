@@ -3,7 +3,7 @@
 // och demo(), kör med filename satt till den absoluta sökvägen.
 async (page) => {
   const OUT = '/home/hector/work/HRM/features/SLUG/.playwright-mcp/pr-media/SLUG';
-  const BASE_URL = 'https://localhost:56866';
+  const BASE_URL = 'https://localhost:56876'; // porten du startade Web på, inte Hectors 56866
   const NEEDS_LOGIN = true;
   const KUNDINSTANS = 'FLEX1';
 
@@ -41,10 +41,11 @@ async (page) => {
     ignoreHTTPSErrors: true, // dev-certet på localhost
     recordVideo: { dir: OUT, size },
   });
-  // Nova: cookie-bannern överlever inte storageState, göm den i klippet.
+  // Nova: cookie-bannern överlever inte storageState. Web: chatbotens intro.js-tour
+  // ("Vad undrar du över?") lägger en overlay i varje ny context som blockerar klick.
   await ctx.addInitScript(() => {
     const style = document.createElement('style');
-    style.textContent = '#CookieBanner { display: none !important; }';
+    style.textContent = '#CookieBanner, .introjs-overlay, .introjs-helperLayer, .introjs-tooltipReferenceLayer, .introjs-tooltip, .introjs-disableInteraction { display: none !important; }';
     document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
   });
 
