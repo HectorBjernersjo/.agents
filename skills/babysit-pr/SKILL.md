@@ -59,6 +59,11 @@ issue-kommentarer med `gh pr comment`. Signera varje kommentar du skriver med
 
 Resolva inga trådar. Det gör Hector eller CodeRabbit själv.
 
+`/azp run` är undantaget från signaturen. Azure Pipelines parsar hela
+kommentarskroppen som kommandot, så en signatur under den ger
+"Command 'run / ...' is not supported by Azure Pipelines" och pipelinen
+startar aldrig. Posta `/azp run` helt ensamt i kommentaren.
+
 ## Händelse: ny push
 
 Oavsett om det är din egen fix eller Hectors: nollställ tystnadstimern.
@@ -80,7 +85,13 @@ gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository
 
 - **Finns olösta trådar, eller kommentarer som väntar på Hector**: posta inte
   `/azp run`. Säg till Hector vad som är kvar. Vänta.
-- **Annars**: posta `/azp run` på PR:et.
+- **Annars**: posta `/azp run` på PR:et (ensamt, ingen signatur).
+
+Kontrollera efteråt att pipelinen faktiskt startade. Azure-checkarna
+(`UnitTests .NET`, `IntegrationTests .NET`) dyker upp först en stund efter
+kommandot, så en checklista som bara innehåller `check-migrations`,
+`CodeRabbit` och `Aikido` betyder att pipelinen inte har startat, inte att
+den är grön. Vänta på att .NET-checkarna finns innan du kallar något grönt.
 
 ## Händelse: pipelinen är klar
 
