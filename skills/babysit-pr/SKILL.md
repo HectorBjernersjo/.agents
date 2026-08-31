@@ -1,6 +1,6 @@
 ---
 name: babysit-pr
-description: Vaktar ett PR efter nya kommentarer, svarar bottar på det den är säker på, skickar resten vidare till Hector, och postar /azp run när PR:et varit tyst i 10 minuter
+description: Vaktar ett PR efter nya kommentarer, svarar bottar på det den är säker på, skickar resten vidare till Hector, och drar igång testerna när PR:et varit tyst i 10 minuter
 ---
 
 Hector säger vilket PR, annars ta PR:et för nuvarande branch (`gh pr view`).
@@ -20,10 +20,9 @@ händelse, och säger exakt vad du gör i det.
 
    Testpipelinen kör inte alls på draft. `DevOps/UnitTests.yml` och
    `DevOps/IntegrationTests.yml` har `drafts: false` i sin `pr:`-trigger, så
-   `/azp run` svarar "pipeline triggers exclude this branch/path" och
-   `UnitTests .NET`/`IntegrationTests .NET` dyker aldrig upp. Ett draft-PR kan
-   alltså inte bli grönt. Fråga Hector om han vill att du kör `gh pr ready`
-   för att starta CI, i stället för att vänta på ett grönt som aldrig kommer.
+   `/azp run` på ett draft svarar "pipeline triggers exclude this branch/path"
+   och `UnitTests .NET`/`IntegrationTests .NET` dyker aldrig upp. PR:et måste
+   vara open innan testerna kan dra igång, se tystnadstillståndet nedan.
 4. Starta monitorn nedan och nollställ tystnadstimern.
 
 ```bash
@@ -90,21 +89,23 @@ Inga nya kommentarer, ingen push. Kolla olösta trådar:
 gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$pr){reviewThreads(first:100){nodes{isResolved}}}}}' -F owner={owner} -F repo={repo} -F pr={pr}
 ```
 
-- **Finns olösta trådar, eller kommentarer som väntar på Hector**: posta inte
-  `/azp run`. Säg till Hector vad som är kvar. Vänta.
-- **Annars**: posta `/azp run` på PR:et (ensamt, ingen signatur).
+- **Finns olösta trådar, eller kommentarer som väntar på Hector**: dra inte
+  igång testerna. Säg till Hector vad som är kvar. Vänta.
+- **Är PR:et draft**: kör `gh pr ready`. Det är det som drar igång testerna,
+  eftersom pipelinen har `drafts: false`. Att öppna PR:et triggar dem
+  automatiskt, så posta inget `/azp run` här.
+- **Är PR:et redan open**: posta `/azp run` på PR:et (ensamt, ingen signatur).
 
 Kontrollera efteråt att pipelinen faktiskt startade. Azure-checkarna
-(`UnitTests .NET`, `IntegrationTests .NET`) dyker upp först en stund efter
-kommandot, så en checklista som bara innehåller `check-migrations`,
-`CodeRabbit` och `Aikido` betyder att pipelinen inte har startat, inte att
-den är grön. Vänta på att .NET-checkarna finns innan du kallar något grönt.
+(`UnitTests .NET`, `IntegrationTests .NET`) dyker upp först en stund senare,
+så en checklista som bara innehåller `check-migrations`, `CodeRabbit` och
+`Aikido` betyder att pipelinen inte har startat, inte att den är grön. Vänta
+på att .NET-checkarna finns innan du kallar något grönt.
 
 ## Händelse: pipelinen är klar
 
-- **Grönt, PR:et är draft, alla trådar lösta**: `gh pr ready`, så resten av
-  teamet kan börja reviewa. Säg till Hector.
-- **Grönt, PR:et är redan open**: säg till Hector.
+- **Grönt**: säg till Hector. PR:et är redan open, det gjordes innan testerna
+  drogs igång.
 - **Rött, fixen är mekanisk och kan omöjligt peka på något större**: gör
   fixen som ny change, pusha, kör om bara den pipeline som föll.
 - **Rött, allt annat**: fråga Hector.
