@@ -102,6 +102,12 @@ så en checklista som bara innehåller `check-migrations`, `CodeRabbit` och
 `Aikido` betyder att pipelinen inte har startat, inte att den är grön. Vänta
 på att .NET-checkarna finns innan du kallar något grönt.
 
+Samma fälla vid omkörning: checken står kvar på förra körningens resultat i
+någon minut innan den blir `pending`. En monitor som bara väntar på "alla
+checkar icke-pending" läser då av det gamla utfallet direkt. Plocka
+build-id:t ur check-URL:en (`...buildId=129597`) efter att azp svarat
+"successfully started", och vänta på att just det id:t blir klart.
+
 ## Händelse: pipelinen är klar
 
 - **Grönt**: säg till Hector. PR:et är redan open, det gjordes innan testerna
