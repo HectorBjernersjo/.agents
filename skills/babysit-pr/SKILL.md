@@ -17,6 +17,13 @@ händelse, och säger exakt vad du gör i det.
 3. **Om PR:et är draft** och CodeRabbit inte reviewat det än: kommentera
    `@coderabbitai review`. En gång, aldrig igen. **Om PR:et är open**: gör
    inget, CodeRabbit triggas automatiskt på open PR:s.
+
+   Testpipelinen kör inte alls på draft. `DevOps/UnitTests.yml` och
+   `DevOps/IntegrationTests.yml` har `drafts: false` i sin `pr:`-trigger, så
+   `/azp run` svarar "pipeline triggers exclude this branch/path" och
+   `UnitTests .NET`/`IntegrationTests .NET` dyker aldrig upp. Ett draft-PR kan
+   alltså inte bli grönt. Fråga Hector om han vill att du kör `gh pr ready`
+   för att starta CI, i stället för att vänta på ett grönt som aldrig kommer.
 4. Starta monitorn nedan och nollställ tystnadstimern.
 
 ```bash
