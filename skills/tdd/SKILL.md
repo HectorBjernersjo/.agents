@@ -1,38 +1,38 @@
 ---
 name: tdd
-description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+description: Testdriven utveckling. Använd när användaren vill bygga features eller fixa buggar test-först, nämner "red-green-refactor" eller vill ha integrationstester.
 ---
 
-# Test-Driven Development
+# Testdriven utveckling
 
-TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle — consult them before and during the loop, not after.
+TDD är loopen red → green. Den här skillen är referensen som gör att loopen producerar tester värda att behålla: vad ett bra test är, var tester hör hemma, anti-mönstren och loopens regler. Varje avsnitt gäller i varje cykel. Läs dem före och under loopen, inte efteråt.
 
-When exploring the codebase, read `docs/CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+När du utforskar kodbasen, läs `docs/CONTEXT.md` (om den finns) så att testnamn och vokabulären i gränssnitten matchar projektets domänspråk, och respektera ADR:er i området du rör.
 
-## What a good test is
+## Vad ett bra test är
 
-Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "user can checkout with valid cart" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.
+Tester verifierar beteende genom publika gränssnitt, inte implementationsdetaljer. Koden kan bytas ut helt utan att testerna behöver ändras. Ett bra test läses som en spec. "user can checkout with valid cart" säger exakt vilken förmåga som finns, och testet överlever refaktoreringar eftersom det inte bryr sig om intern struktur.
 
-See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
+Se [tests.md](tests.md) för exempel och [mocking.md](mocking.md) för riktlinjer kring mockning.
 
-## Seams — where tests go
+## Seams, där testerna hör hemma
 
-A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
+En **seam** är den publika gränsen du testar vid: gränssnittet där du observerar beteende utan att gräva i insidan. Tester lever vid seams, aldrig mot interna delar.
 
-**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything — agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
+**Testa bara vid seams ni kommit överens om i förväg.** Innan du skriver något test, skriv ner vilka seams som ska testas och bekräfta dem med användaren. Inget test skrivs vid en obekräftad seam. Du kan inte testa allt. Att komma överens om seams i förväg är det som gör att testarbetet hamnar på kritiska flöden och komplex logik istället för på varje edge case.
 
-Ask: "What's the public interface, and which seams should we test?"
+Fråga: "Vad är det publika gränssnittet, och vilka seams ska vi testa?"
 
-When the shape of that interface is itself in question — how deep the module is, where the seam belongs, what the interface should expose — use the `/codebase-design` skill for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
+När formen på gränssnittet i sig är oklar, hur djup modulen ska vara, var seamen hör hemma, vad gränssnittet ska exponera, använd skillen `/codebase-design` för vokabulären. Den är den gemensamma källan för termerna modul, gränssnitt, djup, seam, adapter, leverage och locality, och den är en referens att slå i, inte en session att köra.
 
-## Anti-patterns
+## Anti-mönster
 
-- **Implementation-coupled** — mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
-- **Tautological** — the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.
-- **Horizontal slicing** — writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead — one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
+- **Implementationskopplat**. Mockar interna samarbetspartners, testar privata metoder eller verifierar via en sidokanal (frågar databasen istället för att använda gränssnittet). Tecknet: testet går sönder när du refaktorerar trots att beteendet inte ändrats.
+- **Tautologiskt**. Assertionen räknar fram det förväntade värdet på samma sätt som koden gör (`expect(add(a, b)).toBe(a + b)`, en snapshot härledd för hand på samma sätt, en konstant som assertas lika med sig själv), så testet passerar per konstruktion och kan aldrig säga emot koden. Förväntade värden måste komma från en oberoende sanningskälla: en känd korrekt literal, ett genomräknat exempel, specen.
+- **Horisontell slicing**. Att skriva alla tester först och sedan all implementation. Tester i bulk verifierar _inbillat_ beteende: du testar _formen_ på saker istället för beteende som användaren ser, testerna blir okänsliga för verkliga ändringar och du låser fast teststrukturen innan du förstått implementationen. Jobba i **vertikala slices** istället. Ett test → en implementation → upprepa, där varje test är en **tracer bullet** som svarar på det förra cykeln lärde dig.
 
-## Rules of the loop
+## Loopens regler
 
-- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
-- **One slice at a time.** One seam, one test, one minimal implementation per cycle.
-- **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
+- **Red före green.** Skriv det fallerande testet först, sedan bara så mycket kod som krävs för att det ska passera. Föregrip inte framtida tester och lägg inte till spekulativa features.
+- **En slice i taget.** En seam, ett test, en minimal implementation per cykel.
+- **Refaktorering är inte en del av loopen.** Den hör hemma i granskningssteget (se skillen `code-review`), inte i implementationscykeln red → green.

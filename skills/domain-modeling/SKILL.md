@@ -1,15 +1,15 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a docs/CONTEXT.md, or recording or editing an ADR.
+description: Bygg och vässa ett projekts domänmodell. Använd när ni diskuterar terminologi i kodbasen, skriver eller redigerar en docs/CONTEXT.md, eller skriver eller redigerar en ADR.
 ---
 
-# Domain Modeling
+# Domänmodellering
 
-Actively build and sharpen the project's domain model as you design. This is the *active* discipline — challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `docs/CONTEXT.md` for vocabulary is not this skill — that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
+Bygg och vässa projektets domänmodell aktivt medan du designar. Det här är den *aktiva* disciplinen: ifrågasätta termer, hitta på edge case-scenarier, och skriva ner ordlistan och besluten i samma stund de faller på plats. (Att bara *läsa* `docs/CONTEXT.md` för att hitta ordförråd är inte den här skillen. Det är en enradsvana vilken skill som helst kan ha. Den här skillen är för när du ändrar modellen, inte bara använder den.)
 
-## File structure
+## Filstruktur
 
-Most repos have a single context:
+De flesta repon har en enda kontext:
 
 ```
 /
@@ -21,7 +21,7 @@ Most repos have a single context:
 └── src/
 ```
 
-If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The map points to where each one lives:
+Om det finns en `CONTEXT-MAP.md` i roten har repot flera kontexter. Kartan pekar ut var var och en bor:
 
 ```
 /
@@ -39,38 +39,38 @@ If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The ma
 │           └── adr/
 ```
 
-Create files lazily — only when you have something to write. If no `docs/CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
+Skapa filer lat, bara när du har något att skriva. Finns ingen `docs/CONTEXT.md`, skapa en när den första termen är utredd. Finns ingen `docs/adr/`, skapa den när den första ADR:en behövs.
 
-## During the session
+## Under sessionen
 
-### Challenge against the glossary
+### Ifrågasätt mot ordlistan
 
-When the user uses a term that conflicts with the existing language in `docs/CONTEXT.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+När användaren använder en term som krockar med språket som redan finns i `docs/CONTEXT.md`, säg till direkt. "Din ordlista definierar 'cancellation' som X, men du verkar mena Y. Vilket är det?"
 
-### Sharpen fuzzy language
+### Vässa luddigt språk
 
-When the user uses vague or overloaded terms, propose a precise canonical term. "You're saying 'account' — do you mean the Customer or the User? Those are different things."
+När användaren använder vaga eller överlastade termer, föreslå en precis kanonisk term. "Du säger 'account'. Menar du Customer eller User? Det är olika saker."
 
-### Discuss concrete scenarios
+### Diskutera konkreta scenarier
 
-When domain relationships are being discussed, stress-test them with specific scenarios. Invent scenarios that probe edge cases and force the user to be precise about the boundaries between concepts.
+När domänrelationer diskuteras, stresstesta dem med specifika scenarier. Hitta på scenarier som prövar edge cases och tvingar användaren att vara precis om gränserna mellan begreppen.
 
-### Cross-reference with code
+### Stäm av mot koden
 
-When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"
+När användaren säger hur något fungerar, kolla om koden håller med. Hittar du en motsägelse, lyft den: "Din kod avbryter hela Orders, men du sa nyss att delvis avbokning är möjlig. Vilket stämmer?"
 
-### Update docs/CONTEXT.md inline
+### Uppdatera docs/CONTEXT.md direkt
 
-When a term is resolved, update `docs/CONTEXT.md` right there. Don't batch these up — capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+När en term är utredd, uppdatera `docs/CONTEXT.md` på en gång. Samla inte ihop dem, fånga dem när de händer. Använd formatet i [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
 
-`docs/CONTEXT.md` should be totally devoid of implementation details. Do not treat it as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+`docs/CONTEXT.md` ska vara helt fri från implementationsdetaljer. Behandla den inte som en spec, ett kladdblock eller ett förråd för implementationsbeslut. Den är en ordlista och inget annat.
 
-### Offer ADRs sparingly
+### Erbjud ADR:er sparsamt
 
-Only offer to create an ADR when all three are true:
+Erbjud bara att skapa en ADR när alla tre stämmer:
 
-1. **Hard to reverse** — the cost of changing your mind later is meaningful
-2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
-3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+1. **Svårt att ångra.** Kostnaden för att ändra sig senare är kännbar
+2. **Förvånande utan sammanhang.** En framtida läsare kommer undra "varför gjorde de så här?"
+3. **Resultatet av en riktig avvägning.** Det fanns verkliga alternativ och ni valde ett av specifika skäl
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+Saknas någon av de tre, hoppa över ADR:en. Använd formatet i [ADR-FORMAT.md](./ADR-FORMAT.md).

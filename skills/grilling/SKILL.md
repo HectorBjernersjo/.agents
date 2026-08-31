@@ -1,13 +1,13 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+description: Grilla användaren skoningslöst om en plan, ett beslut eller en idé. Använd när användaren vill stresstesta sitt tänkande eller använder någon 'grill'-triggerfras.
 ---
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+Intervjua användaren skoningslöst tills ni nått en gemensam förståelse. Kartlägg det som ett **designträd**: varje beslut förgrenar sig i de beslut som hänger på det.
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled — the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+Jobba igenom trädet i **rundor**. **Frontlinjen** är varje beslut vars förutsättningar redan är avgjorda, alltså de frågor du kan ställa _nu_ utan att gissa svar du inte hört än. Ställ hela frontlinjen i en runda: numrera varje fråga och ge ditt rekommenderade svar. Vänta sedan på användarens svar innan nästa runda.
 
-Each question should be formatted like so:
+Varje fråga ska formateras så här:
 
 ```
 ❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
@@ -15,13 +15,13 @@ Each question should be formatted like so:
 ➡️ <your recommended answer>
 ```
 
-Each round the user answers reshapes the tree — settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
-You can have a maximum of 5 questions per round. Fewer the more complex and or uncertain they are.
+Varje runda användaren svarar på formar om trädet. Avgjorda beslut flyttar frontlinjen utåt och låser upp frågor som berodde på dem. Räkna om frontlinjen och ställ nästa runda. En fråga vars svar beror på en annan fråga som fortfarande är öppen i den här rundan hör till en _senare_ runda, inte den här.
+Du får ha max 5 frågor per runda. Färre ju mer komplexa och/eller osäkra de är.
 
-Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it — don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report — ask the rest of the frontier now. The _decisions_ are the user's — put each to them and wait.
+Att hitta _fakta_ är ditt jobb, aldrig användarens. När en fråga på frontlinjen kräver ett faktum från miljön (filsystemet, verktyg osv.), skicka iväg en sub-agent för att hitta det. Fråga inte användaren om något du kan slå upp själv. Blockera inte på det: en pågående utforskning är en oavgjord förutsättning, så bara frågorna nedströms väntar på att sub-agenten rapporterar. Ställ resten av frontlinjen nu. _Besluten_ är användarens. Lägg fram vart och ett och vänta.
 
-The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+Sessionen är klar när frontlinjen är tom: varje gren i designträdet besökt, inget lämnat som tyst antagande. Agera inte på den förrän användaren bekräftat att ni nått en gemensam förståelse.
 
-If the user asks you to sync this grilling session to a file, write it to `docs/work/<slug>/grilling.md` — the spec and tickets land in the same folder, so pick the slug they'll use. If the session turns out to cover several features, the grilling stays at that root and the features become subfolders beside it. Fall back to a descriptive name when the grilling isn't tied to a feature. If the file already exists, append to it. Write it as a list of questions and answers under # Questions and Answers.
-If you've also done research or in some other way aquired relevant information that isn't easily found in the repo, write a section # Research for that information as well.
-The point of the file is to carry the raw data of everything we've arrived at during this session in a concise way.
+Om användaren ber dig synka grillsessionen till en fil, skriv den till `docs/work/<slug>/grilling.md`. Spec och tickets hamnar i samma mapp, så välj den slug de kommer använda. Om sessionen visar sig täcka flera features stannar grillningen i den roten och features blir undermappar bredvid den. Fall tillbaka på ett beskrivande namn när grillningen inte hör till en feature. Om filen redan finns, lägg till i den. Skriv den som en lista med frågor och svar under # Questions and Answers.
+Om du också gjort research eller på annat sätt fått fram relevant information som inte lätt hittas i repot, skriv en sektion # Research för den informationen också.
+Poängen med filen är att bära rådatan från allt vi kommit fram till under sessionen på ett koncist sätt.

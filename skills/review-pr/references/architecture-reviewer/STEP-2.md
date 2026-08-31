@@ -1,20 +1,20 @@
-# Step 2
+# Steg 2
 
-Of all the problems you have identified, think through which ones are actually worth solving in this PR.
+Av alla problem du har identifierat, tänk igenom vilka som faktiskt är värda att lösa i den här PR:en.
 
-Write the problems worth solving to:
+Skriv problemen som är värda att lösa till:
 
 ```text
 docs/prs/<branch-slug>/reviews/<review-id>/architecture/problems-filtered.md
 ```
 
-For problems that are worth solving but completely out of scope for this PR, write them to:
+Problem som är värda att lösa men helt utanför scope för den här PR:en skriver du till:
 
 ```text
 docs/prs/<branch-slug>/reviews/<review-id>/architecture/problems-out-of-scope.md
 ```
 
-Then read:
+Läs sedan:
 
 ```text
 <architecture-steps-dir>/STEP-3.md

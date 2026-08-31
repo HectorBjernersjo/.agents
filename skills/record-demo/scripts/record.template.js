@@ -35,7 +35,7 @@ async (page) => {
 
   // En enda context. Login via storageState från en separat context ger cookies men
   // ingen fungerande SignalR-ström (chatbotens svar kommer aldrig), så login spelas
-  // in och klipps bort: to-gif.sh <webm> demo.gif <demoStartSec>.
+  // in och klipps bort: record-demo/scripts/to-gif.sh <webm> demo.gif <demoStartSec>.
   const ctx = await browser.newContext({
     viewport: size,
     ignoreHTTPSErrors: true, // dev-certet på localhost

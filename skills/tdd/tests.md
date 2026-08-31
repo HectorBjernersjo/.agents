@@ -1,8 +1,8 @@
-# Good and Bad Tests
+# Bra och dåliga tester
 
-## Good Tests
+## Bra tester
 
-**Integration-style**: Test through real interfaces, not mocks of internal parts.
+**Integrationsstil**: Testa genom riktiga gränssnitt, inte mockar av interna delar.
 
 ```typescript
 // GOOD: Tests observable behavior
@@ -14,17 +14,17 @@ test("user can checkout with valid cart", async () => {
 });
 ```
 
-Characteristics:
+Kännetecken:
 
-- Tests behavior users/callers care about
-- Uses public API only
-- Survives internal refactors
-- Describes WHAT, not HOW
-- One logical assertion per test
+- Testar beteende som användare/anropare bryr sig om
+- Använder bara det publika API:et
+- Överlever interna refaktoreringar
+- Beskriver VAD, inte HUR
+- En logisk assertion per test
 
-## Bad Tests
+## Dåliga tester
 
-**Implementation-detail tests**: Coupled to internal structure.
+**Tester av implementationsdetaljer**: Kopplade till intern struktur.
 
 ```typescript
 // BAD: Tests implementation details
@@ -35,14 +35,14 @@ test("checkout calls paymentService.process", async () => {
 });
 ```
 
-Red flags:
+Varningstecken:
 
-- Mocking internal collaborators
-- Testing private methods
-- Asserting on call counts/order
-- Test breaks when refactoring without behavior change
-- Test name describes HOW not WHAT
-- Verifying through external means instead of interface
+- Mockar interna samarbetspartners
+- Testar privata metoder
+- Assertar på antal anrop eller ordning
+- Testet går sönder vid refaktorering utan beteendeändring
+- Testnamnet beskriver HUR, inte VAD
+- Verifierar via externa vägar istället för genom gränssnittet
 
 ```typescript
 // BAD: Bypasses interface to verify
@@ -60,7 +60,7 @@ test("createUser makes user retrievable", async () => {
 });
 ```
 
-**Tautological tests**: Expected value restates the implementation, so the test passes by construction.
+**Tautologiska tester**: Det förväntade värdet upprepar implementationen, så testet passerar per konstruktion.
 
 ```typescript
 // BAD: Expected value is recomputed the way the code computes it

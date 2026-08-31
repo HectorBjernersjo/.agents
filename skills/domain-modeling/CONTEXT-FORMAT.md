@@ -1,6 +1,6 @@
-# docs/CONTEXT.md Format
+# Format för docs/CONTEXT.md
 
-## Structure
+## Struktur
 
 ```md
 # {Context Name}
@@ -22,18 +22,18 @@ A person or organization that places orders.
 _Avoid_: Client, buyer, account
 ```
 
-## Rules
+## Regler
 
-- **Be opinionated.** When multiple words exist for the same concept, pick the best one and list the others under `_Avoid_`.
-- **Keep definitions tight.** One or two sentences max. Define what it IS, not what it does.
-- **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
-- **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
+- **Ha åsikter.** När det finns flera ord för samma begrepp, välj det bästa och lista de andra under `_Avoid_`.
+- **Håll definitionerna korta.** Max en eller två meningar. Definiera vad det ÄR, inte vad det gör.
+- **Ta bara med termer som är specifika för det här projektets kontext.** Allmänna programmeringsbegrepp (timeouts, feltyper, utility-mönster) hör inte hemma här även om projektet använder dem mycket. Innan du lägger till en term, fråga: är det här ett begrepp unikt för den här kontexten, eller ett allmänt programmeringsbegrepp? Bara det förra hör hemma.
+- **Gruppera termer under underrubriker** när naturliga kluster dyker upp. Om alla termer hör till ett enda sammanhängande område räcker en platt lista.
 
-## Single vs multi-context repos
+## Repon med en eller flera kontexter
 
-**Single context (most repos):** One `docs/CONTEXT.md` in the repo.
+**En kontext (de flesta repon):** En `docs/CONTEXT.md` i repot.
 
-**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+**Flera kontexter:** En `CONTEXT-MAP.md` i repots rot listar kontexterna, var de bor och hur de hänger ihop:
 
 ```md
 # Context Map
@@ -51,10 +51,10 @@ _Avoid_: Client, buyer, account
 - **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
 ```
 
-The skill infers which structure applies:
+Skillen listar ut vilken struktur som gäller:
 
-- If `CONTEXT-MAP.md` exists, read it to find contexts
-- If only `docs/CONTEXT.md` exists, single context
-- If neither exists, create `docs/CONTEXT.md` lazily when the first term is resolved
+- Finns `CONTEXT-MAP.md`, läs den för att hitta kontexterna
+- Finns bara `docs/CONTEXT.md`, en kontext
+- Finns ingen av dem, skapa `docs/CONTEXT.md` lat när den första termen är utredd
 
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+När det finns flera kontexter, lista ut vilken det aktuella ämnet hör till. Är det oklart, fråga.

@@ -1,8 +1,8 @@
-# HTML Report Format
+# HTML-rapportens format
 
-The architectural review is rendered as a single self-contained HTML file in the OS temp directory. Tailwind and Mermaid both come from CDNs. Mermaid handles graph-shaped diagrams reliably; hand-built divs and inline SVG handle the more editorial visuals (mass diagrams, cross-sections). Mix the two — don't lean on Mermaid for everything, it'll start to look generic.
+Arkitekturgranskningen renderas som en enda självständig HTML-fil i operativsystemets temp-katalog. Tailwind och Mermaid kommer båda från CDN. Mermaid hanterar grafformade diagram pålitligt; handbyggda divs och inline-SVG hanterar de mer redaktionella visualiseringarna (massdiagram, tvärsnitt). Blanda de två. Luta dig inte på Mermaid för allt, då börjar det se generiskt ut.
 
-## Scaffold
+## Skelett
 
 ```html
 <!doctype html>
@@ -35,32 +35,32 @@ The architectural review is rendered as a single self-contained HTML file in the
 
 ## Header
 
-Repo name, date, and a compact legend: solid box = module, dashed line = seam, red arrow = leakage, thick dark box = deep module. No introduction paragraph — straight into the candidates.
+Reponamn, datum och en kompakt förklaring: heldragen ruta = modul, streckad linje = söm, röd pil = läckage, tjock mörk ruta = djup modul. Inget inledande stycke. Rakt in på kandidaterna.
 
-## Candidate card
+## Kandidatkort
 
-The diagrams carry the weight. Prose is sparse, plain, and uses the glossary terms (from the `/codebase-design` skill) without ceremony.
+Diagrammen bär tyngden. Prosan är sparsam, enkel och använder glossariumtermerna (från skillen `/codebase-design`) utan ceremoni.
 
-Each candidate is one `<article>`:
+Varje kandidat är en `<article>`:
 
-- **Title** — short, names the deepening (e.g. "Collapse the Order intake pipeline").
-- **Badge row** — recommendation strength (`Strong` = emerald, `Worth exploring` = amber, `Speculative` = slate), plus a tag for the dependency category (`in-process`, `local-substitutable`, `ports & adapters`, `mock`).
-- **Files** — monospaced list, `font-mono text-sm`.
-- **Before / After diagram** — the centrepiece. Two columns, side by side. See patterns below.
-- **Problem** — one sentence. What hurts.
-- **Solution** — one sentence. What changes.
-- **Wins** — bullets, ≤6 words each. e.g. "Tests hit one interface", "Pricing logic stops leaking", "Delete 4 shallow wrappers".
-- **ADR callout** (if applicable) — one line in an amber-tinted box.
+- **Title**, kort, namnger fördjupningen (t.ex. "Collapse the Order intake pipeline").
+- **Badge row**, rekommendationsstyrka (`Strong` = emerald, `Worth exploring` = amber, `Speculative` = slate), plus en tagg för beroendekategorin (`in-process`, `local-substitutable`, `ports & adapters`, `mock`).
+- **Files**, lista i monospace, `font-mono text-sm`.
+- **Before / After diagram**, mittpunkten. Två kolumner, sida vid sida. Se mönstren nedan.
+- **Problem**, en mening. Vad som gör ont.
+- **Solution**, en mening. Vad som ändras.
+- **Wins**, punkter, max 6 ord var. T.ex. "Tests hit one interface", "Pricing logic stops leaking", "Delete 4 shallow wrappers".
+- **ADR callout** (om tillämpligt), en rad i en amber-tonad ruta.
 
-No paragraphs of explanation. If the diagram needs a paragraph to be understood, redraw the diagram.
+Inga förklarande stycken. Om diagrammet behöver ett stycke för att förstås, rita om diagrammet.
 
-## Diagram patterns
+## Diagrammönster
 
-Pick the pattern that fits the candidate. Mix them. Don't make every diagram look the same — variety is part of the point.
+Välj det mönster som passar kandidaten. Blanda dem. Låt inte alla diagram se likadana ut. Variationen är en del av poängen.
 
-### Mermaid graph (the workhorse for dependencies / call flow)
+### Mermaid-graf (arbetshästen för beroenden / anropsflöde)
 
-Use a Mermaid `flowchart` or `graph` when the point is "X calls Y calls Z, and look at the mess." Wrap it in a Tailwind-styled card so it doesn't feel parachuted in. Style with classDef to colour leakage edges red and the deep module dark. Sequence diagrams work well for "before: 6 round-trips; after: 1."
+Använd en Mermaid `flowchart` eller `graph` när poängen är "X anropar Y anropar Z, och titta på röran." Slå in den i ett Tailwind-stylat kort så att den inte känns fallskärmshoppad in. Styla med classDef för att färga läckagekanter röda och den djupa modulen mörk. Sekvensdiagram funkar bra för "före: 6 rundresor; efter: 1."
 
 ```html
 <div class="rounded-lg border border-slate-200 bg-white p-4">
@@ -75,49 +75,49 @@ Use a Mermaid `flowchart` or `graph` when the point is "X calls Y calls Z, and l
 </div>
 ```
 
-### Hand-built boxes-and-arrows (when Mermaid's layout fights you)
+### Handbyggda rutor och pilar (när Mermaids layout bråkar med dig)
 
-Modules as `<div>`s with borders and labels. Arrows as inline SVG `<line>` or `<path>` elements positioned absolutely over a relative container. Reach for this when you want the "after" diagram to feel like one thick-bordered deep module with greyed-out internals — Mermaid won't render that with the right weight.
+Moduler som `<div>`:ar med ramar och etiketter. Pilar som inline-SVG `<line>`- eller `<path>`-element absolut positionerade över en relativ container. Ta till detta när du vill att "efter"-diagrammet ska kännas som en enda tjockramad djup modul med nedtonade innanmäten. Mermaid renderar inte det med rätt tyngd.
 
-### Cross-section (good for layered shallowness)
+### Tvärsnitt (bra för lagrad grundhet)
 
-Stack horizontal bands (`h-12 border-l-4`) to show layers a call passes through. Before: 6 thin layers each doing nothing. After: 1 thick band labelled with the consolidated responsibility.
+Stapla horisontella band (`h-12 border-l-4`) för att visa lagren ett anrop passerar genom. Före: 6 tunna lager som vart och ett inte gör något. Efter: 1 tjockt band märkt med det konsoliderade ansvaret.
 
-### Mass diagram (good for "interface as wide as implementation")
+### Massdiagram (bra för "interfacet lika brett som implementationen")
 
-Two rectangles per module — one for interface surface area, one for implementation. Before: interface rectangle is nearly as tall as the implementation rectangle (shallow). After: interface rectangle is short, implementation rectangle is tall (deep).
+Två rektanglar per modul, en för interfacets yta, en för implementationen. Före: interface-rektangeln är nästan lika hög som implementations-rektangeln (grund). Efter: interface-rektangeln är kort, implementations-rektangeln är hög (djup).
 
-### Call-graph collapse
+### Kollaps av anropsgraf
 
-Before: a tree of function calls rendered as nested boxes. After: the same tree collapsed into one box, with the now-internal calls shown faded inside it.
+Före: ett träd av funktionsanrop renderat som nästlade rutor. Efter: samma träd kollapsat till en ruta, med de nu interna anropen visade nedtonade inuti.
 
-## Style guidance
+## Stilguide
 
-- Lean editorial, not corporate-dashboard. Generous whitespace. Serif optional for headings (`font-serif` works well with stone/slate).
-- Colour sparingly: one accent (emerald or indigo) plus red for leakage and amber for warnings.
-- Keep diagrams ~320px tall so before/after sits comfortably side by side without scrolling.
-- Use `text-xs uppercase tracking-wider` for module labels inside diagrams — they should read as schematic, not as UI.
-- The only scripts are the Tailwind CDN and the Mermaid ESM import. The report is otherwise static — no app code, no interactivity beyond Mermaid's own rendering.
+- Redaktionellt snarare än corporate dashboard. Generöst med luft. Serif valfritt för rubriker (`font-serif` funkar bra med stone/slate).
+- Färg sparsamt: en accent (emerald eller indigo) plus rött för läckage och amber för varningar.
+- Håll diagrammen runt 320px höga så att före/efter sitter bekvämt sida vid sida utan scroll.
+- Använd `text-xs uppercase tracking-wider` för moduletiketter inuti diagram. De ska läsas som schematiska, inte som UI.
+- De enda scripten är Tailwind-CDN:en och Mermaid-ESM-importen. Rapporten är annars statisk. Ingen appkod, ingen interaktivitet utöver Mermaids egen rendering.
 
-## Top recommendation section
+## Sektionen Top recommendation
 
-One larger card. Candidate name, one sentence on why, anchor link to its card. That's it.
+Ett större kort. Kandidatens namn, en mening om varför, ankarlänk till dess kort. Det är allt.
 
-## Tone
+## Ton
 
-Plain English, concise — but the architectural nouns and verbs come straight from the `/codebase-design` skill. Concision is not an excuse to drift.
+Vanlig prosa, koncist, men arkitekturens substantiv och verb kommer rakt från skillen `/codebase-design`. Koncishet är ingen ursäkt för att glida.
 
-**Use exactly:** module, interface, implementation, depth, deep, shallow, seam, adapter, leverage, locality.
+**Använd exakt:** modul, interface, implementation, djup, djup (adj.), grund, söm, adapter, hävstång, lokalitet.
 
-**Never substitute:** component, service, unit (for module) · API, signature (for interface) · boundary (for seam) · layer, wrapper (for module, when you mean module).
+**Byt aldrig ut mot:** component, service, unit (för modul) · API, signatur (för interface) · boundary (för söm) · layer, wrapper (för modul, när du menar modul).
 
-**Phrasings that fit the style:**
+**Formuleringar som passar stilen:**
 
-- "Order intake module is shallow — interface nearly matches the implementation."
-- "Pricing leaks across the seam."
-- "Deepen: one interface, one place to test."
-- "Two adapters justify the seam: HTTP in prod, in-memory in tests."
+- "Order intake-modulen är grund. Interfacet matchar nästan implementationen."
+- "Pricing läcker över sömmen."
+- "Fördjupa: ett interface, ett ställe att testa."
+- "Två adapters motiverar sömmen: HTTP i prod, in-memory i tester."
 
-**Wins bullets** name the gain in glossary terms: *"locality: bugs concentrate in one module"*, *"leverage: one interface, N call sites"*, *"interface shrinks; implementation absorbs the wrappers"*. Don't write *"easier to maintain"* or *"cleaner code"* — those terms aren't in the glossary and don't earn their place.
+**Wins-punkterna** namnger vinsten i glossariumtermer: *"lokalitet: buggarna koncentreras i en modul"*, *"hävstång: ett interface, N anropsställen"*, *"interfacet krymper; implementationen absorberar wrappersen"*. Skriv inte *"lättare att underhålla"* eller *"renare kod"*. De termerna finns inte i glossariet och förtjänar inte sin plats.
 
-No hedging, no throat-clearing, no "it's worth noting that…". If a sentence could be a bullet, make it a bullet. If a bullet could be cut, cut it. If a term isn't in the `/codebase-design` glossary, reach for one that is before inventing a new one.
+Ingen hedging, inget harklande, inget "det är värt att notera att…". Om en mening kan vara en punkt, gör den till en punkt. Om en punkt kan strykas, stryk den. Om en term inte finns i `/codebase-design`-glossariet, ta en som gör det innan du hittar på en ny.

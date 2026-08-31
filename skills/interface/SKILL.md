@@ -1,16 +1,16 @@
 ---
 name: interface
-description: "Create a markdown file describing the interface of a module"
+description: "Skapa en markdown-fil som beskriver en moduls interface"
 disable-model-invocation: true
 ---
 
-Analyze the selected module, how it works, where it is used and especially its interface.
-If the module is a single file, crate {filename without extensions}.interface.md
-If it's a folder just create interface.md inside that folder.
+Analysera den valda modulen, hur den fungerar, var den används och framför allt dess interface.
+Om modulen är en enda fil, skapa {filnamn utan filändelse}.interface.md
+Om det är en mapp, skapa bara interface.md inuti den mappen.
 
-The goal of the file is to describe the public interface of the module and all information required to use it.
-This is so that I can understand the codebase and review it better without reading every file.
+Målet med filen är att beskriva modulens publika interface och all information som krävs för att använda den.
+Det är för att jag ska kunna förstå kodbasen och granska den bättre utan att läsa varje fil.
 
-Include code blocks containing just the interfaces, like a c# interface class, but without the implementation. Below the interface include any other types that are effectively part of the interface (like input and ouptut structs).
-Also explain the functions in the interface. If there are submodules they can get their own code block and their own explanations under their heading, but keep each class (or equivalient) in one code block
-Error types don't need do be included but stuff like configs, results and request types should usually be included.
+Ta med kodblock som bara innehåller interfacen, som en interface-klass i C#, men utan implementationen. Under interfacet, ta med andra typer som i praktiken är en del av interfacet (som input- och output-structs).
+Förklara också funktionerna i interfacet. Om det finns submoduler kan de få egna kodblock och egna förklaringar under sin rubrik, men håll varje klass (eller motsvarande) i ett kodblock.
+Feltyper behöver inte tas med, men saker som configs, results och request-typer bör oftast vara med.

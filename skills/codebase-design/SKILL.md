@@ -1,35 +1,35 @@
 ---
 name: codebase-design
-description: Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.
+description: Gemensamt ordförråd för att designa djupa moduler. Använd när användaren vill designa eller förbättra en moduls interface, hitta möjligheter att fördjupa, bestämma var en söm ska ligga, göra kod mer testbar eller lättare för AI att navigera, eller när en annan skill behöver vokabulären kring djupa moduler.
 ---
 
-# Codebase Design
+# Codebase design
 
-Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
+Designa **djupa moduler** (deep modules): mycket beteende bakom ett litet interface, placerat vid en ren söm (seam), testbart genom det interfacet. Använd det här språket och de här principerna överallt där kod designas eller struktureras om. Målet är hävstång för anropare, lokalitet för de som underhåller, och testbarhet för alla.
 
-## Glossary
+## Ordlista
 
-Use these terms exactly — don't substitute "component," "service," "API," or "boundary." Consistent language is the whole point.
+Använd exakt de här termerna. Byt inte ut dem mot "komponent", "service", "API" eller "boundary". Konsekvent språk är hela poängen.
 
-**Module** — anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service.
+**Modul** (module). Allt som har ett interface och en implementation. Medvetet skaloberoende: en funktion, klass, paket eller en skiva som spänner över flera lager. _Undvik_: enhet, komponent, service.
 
-**Interface** — everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics. _Avoid_: API, signature (too narrow — they refer only to the type-level surface).
+**Interface**. Allt en anropare måste veta för att använda modulen korrekt: typsignaturen, men också invarianter, ordningskrav, felfall, nödvändig konfiguration och prestandaegenskaper. _Undvik_: API, signatur (för smalt, de syftar bara på typnivån).
 
-**Implementation** — what's inside a module, its body of code. Distinct from **Adapter**: a thing can be a small adapter with a large implementation (a Postgres repo) or a large adapter with a small implementation (an in-memory fake). Reach for "adapter" when the seam is the topic; "implementation" otherwise.
+**Implementation**. Det som finns inuti en modul, dess kodkropp. Skilj från **Adapter**: en sak kan vara en liten adapter med en stor implementation (ett Postgres-repo) eller en stor adapter med en liten implementation (en in-memory fake). Säg "adapter" när sömmen är ämnet, "implementation" annars.
 
-**Depth** — leverage at the interface: the amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is **deep** when a large amount of behaviour sits behind a small interface, **shallow** when the interface is nearly as complex as the implementation.
+**Djup** (depth). Hävstång vid interfacet: mängden beteende en anropare (eller ett test) kan använda per enhet interface den måste lära sig. En modul är **djup** när mycket beteende sitter bakom ett litet interface, **grund** (shallow) när interfacet är nästan lika komplext som implementationen.
 
-**Seam** _(Michael Feathers)_ — a place where you can alter behaviour without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
+**Söm** (seam) _(Michael Feathers)_. En plats där du kan ändra beteende utan att redigera just där; *platsen* där en moduls interface ligger. Var sömmen ska ligga är ett eget designbeslut, skilt från vad som hamnar bakom den. _Undvik_: boundary (krockar med DDD:s bounded context).
 
-**Adapter** — a concrete thing that satisfies an interface at a seam. Describes *role* (what slot it fills), not substance (what's inside).
+**Adapter**. En konkret sak som uppfyller ett interface vid en söm. Beskriver *roll* (vilken lucka den fyller), inte innehåll (vad som finns inuti).
 
-**Leverage** — what callers get from depth: more capability per unit of interface they learn. One implementation pays back across N call sites and M tests.
+**Hävstång** (leverage). Det anropare får av djup: mer kapacitet per enhet interface de lär sig. En implementation betalar tillbaka över N anropsställen och M tester.
 
-**Locality** — what maintainers get from depth: change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers. Fix once, fixed everywhere.
+**Lokalitet** (locality). Det underhållare får av djup: ändringar, buggar, kunskap och verifiering samlas på ett ställe istället för att spridas över anroparna. Fixa en gång, fixat överallt.
 
-## Deep vs shallow
+## Djup mot grund
 
-**Deep module** = small interface + lots of implementation:
+**Djup modul** = litet interface + mycket implementation:
 
 ```
 ┌─────────────────────┐
@@ -41,7 +41,7 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 └─────────────────────┘
 ```
 
-**Shallow module** = large interface + little implementation (avoid):
+**Grund modul** = stort interface + lite implementation (undvik):
 
 ```
 ┌─────────────────────────────────┐
@@ -51,24 +51,24 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 └─────────────────────────────────┘
 ```
 
-When designing an interface, ask:
+När du designar ett interface, fråga:
 
-- Can I reduce the number of methods?
-- Can I simplify the parameters?
-- Can I hide more complexity inside?
+- Kan jag minska antalet metoder?
+- Kan jag förenkla parametrarna?
+- Kan jag gömma mer komplexitet inuti?
 
-## Principles
+## Principer
 
-- **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable, swappable parts — they just aren't part of the interface. A module can have **internal seams** (private to its implementation, used by its own tests) as well as the **external seam** at its interface.
-- **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
-- **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
-- **One adapter means a hypothetical seam. Two adapters means a real one.** Don't introduce a seam unless something actually varies across it.
+- **Djup är en egenskap hos interfacet, inte implementationen.** En djup modul kan internt bestå av små, mockbara, utbytbara delar. De är bara inte en del av interfacet. En modul kan ha **interna sömmar** (privata för implementationen, används av dess egna tester) och dessutom den **externa sömmen** vid sitt interface.
+- **Raderingstestet.** Tänk dig att du raderar modulen. Om komplexiteten försvinner var den en pass-through. Om komplexiteten dyker upp igen hos N anropare gjorde den nytta.
+- **Interfacet är testytan.** Anropare och tester korsar samma söm. Vill du testa *förbi* interfacet har modulen förmodligen fel form.
+- **En adapter betyder en hypotetisk söm. Två adaptrar betyder en riktig.** Inför ingen söm om inget faktiskt varierar över den.
 
-## Designing for testability
+## Designa för testbarhet
 
-Good interfaces make testing natural:
+Bra interface gör testning naturlig:
 
-1. **Accept dependencies, don't create them.**
+1. **Ta emot beroenden, skapa dem inte.**
 
    ```typescript
    // Testable
@@ -80,7 +80,7 @@ Good interfaces make testing natural:
    }
    ```
 
-2. **Return results, don't produce side effects.**
+2. **Returnera resultat, producera inte sidoeffekter.**
 
    ```typescript
    // Testable
@@ -92,23 +92,23 @@ Good interfaces make testing natural:
    }
    ```
 
-3. **Small surface area.** Fewer methods = fewer tests needed. Fewer params = simpler test setup.
+3. **Liten yta.** Färre metoder = färre tester behövs. Färre parametrar = enklare testuppsättning.
 
-## Relationships
+## Relationer
 
-- A **Module** has exactly one **Interface** (the surface it presents to callers and tests).
-- **Depth** is a property of a **Module**, measured against its **Interface**.
-- A **Seam** is where a **Module**'s **Interface** lives.
-- An **Adapter** sits at a **Seam** and satisfies the **Interface**.
-- **Depth** produces **Leverage** for callers and **Locality** for maintainers.
+- En **Modul** har exakt ett **Interface** (ytan den visar för anropare och tester).
+- **Djup** är en egenskap hos en **Modul**, mätt mot dess **Interface**.
+- En **Söm** är där en **Moduls** **Interface** ligger.
+- En **Adapter** sitter vid en **Söm** och uppfyller **Interfacet**.
+- **Djup** ger **Hävstång** för anropare och **Lokalitet** för underhållare.
 
-## Rejected framings
+## Förkastade formuleringar
 
-- **Depth as ratio of implementation-lines to interface-lines** (Ousterhout): rewards padding the implementation. We use depth-as-leverage instead.
-- **"Interface" as the TypeScript `interface` keyword or a class's public methods**: too narrow — interface here includes every fact a caller must know.
-- **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**.
+- **Djup som kvoten implementationsrader genom interfacerader** (Ousterhout): belönar utfyllnad av implementationen. Vi använder djup-som-hävstång istället.
+- **"Interface" som TypeScripts `interface`-nyckelord eller en klass publika metoder**: för smalt. Interface här omfattar varje fakta en anropare måste känna till.
+- **"Boundary"**: krockar med DDD:s bounded context. Säg **söm** eller **interface**.
 
-## Going deeper
+## Gå djupare
 
-- **Deepening a cluster given its dependencies** — see [DEEPENING.md](DEEPENING.md): dependency categories, seam discipline, and replace-don't-layer testing.
-- **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
+- **Fördjupa ett kluster givet dess beroenden**, se [DEEPENING.md](DEEPENING.md): beroendekategorier, sömdisciplin och testning enligt ersätt-istället-för-att-lagra.
+- **Utforska alternativa interface**, se [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): starta parallella sub-agenter som designar interfacet på flera radikalt olika sätt, jämför sedan på djup, lokalitet och sömplacering.

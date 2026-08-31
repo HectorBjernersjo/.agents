@@ -1,16 +1,16 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up.
-argument-hint: "What will the next session be used for?"
+description: Komprimera nuvarande konversation till ett handoff-dokument som en annan agent kan ta över.
+argument-hint: "Vad ska nästa session användas till?"
 disable-model-invocation: true
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace.
+Skriv ett handoff-dokument som sammanfattar nuvarande konversation så att en ny agent kan fortsätta arbetet. Spara det i temp-katalogen för användarens OS, inte i nuvarande workspace.
 
-Include a "suggested skills" section in the document, which suggests skills that the agent should invoke.
+Ta med en sektion "suggested skills" i dokumentet som föreslår vilka skills agenten bör anropa.
 
-Do not duplicate content already captured in other artifacts (PRDs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
+Duplicera inte innehåll som redan finns i andra artefakter (PRD:er, planer, ADR:er, issues, commits, diffar). Referera till dem med sökväg eller URL istället.
 
-Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
+Maska känslig information, som API-nycklar, lösenord eller personuppgifter.
 
-If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
+Om användaren skickade med argument, tolka dem som en beskrivning av vad nästa session ska fokusera på och anpassa dokumentet efter det.

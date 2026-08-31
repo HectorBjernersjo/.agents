@@ -1,33 +1,33 @@
-As the final review step, mark low-value findings as `ignored-by-ai` instead of leaving them pending.
-Keep filtered findings in `review-data.js` with a clear `ignoreReason`.
-For each finding newly marked `ignored-by-ai`, append an `ignored` row with `"ignoredBy":"ai"` to `docs/prs/_review-index/ignored-findings.jsonl`, unless the same `pr`, `findingId`, `fingerprint`, and `event` already exists.
+Som sista review-steg, markera findings med lågt värde som `ignored-by-ai` istället för att lämna dem som pending.
+Behåll bortfiltrerade findings i `review-data.js` med en tydlig `ignoreReason`.
+För varje finding som nyligen markerats `ignored-by-ai`, lägg till en `ignored`-rad med `"ignoredBy":"ai"` i `docs/prs/_review-index/ignored-findings.jsonl`, om inte samma `pr`, `findingId`, `fingerprint` och `event` redan finns.
 
-Mark a finding as `ignored-by-ai` when it:
+Markera ett finding som `ignored-by-ai` när det:
 
-- Raises something already covered by review context or previous ignored findings.
-- Suggests an unnecessary refactor that would make the code worse.
-- Claims something is a bug when it is not actually a bug.
-- Flags behavior that is clearly intentional.
-- Points out pre-existing code that was not changed in this PR, unless it is important enough to include anyway.
-- Duplicates another finding. Merge duplicates into the best single finding where useful.
-- Points out UTF-8 BOM; tests cover this and it does not need a PR comment.
-- Says something is bad when it is actually good.
-- Suggests making a class sealed.
-- Comments on commit messages; PRs are squashed anyway.
-- Claims a null reference risk when there is no real risk.
+- Tar upp något som redan täcks av review-kontexten eller tidigare ignorerade findings.
+- Föreslår en onödig refactor som skulle göra koden sämre.
+- Påstår att något är en bugg när det faktiskt inte är det.
+- Flaggar beteende som uppenbart är avsiktligt.
+- Pekar på kod som fanns sedan tidigare och inte ändrats i den här PR:en, om det inte är viktigt nog att ta med ändå.
+- Är en dubblett av ett annat finding. Slå ihop dubbletter till det bästa enskilda findingen där det är vettigt.
+- Pekar på UTF-8 BOM; tester täcker det och det behöver ingen PR-kommentar.
+- Säger att något är dåligt när det faktiskt är bra.
+- Föreslår att göra en klass sealed.
+- Kommenterar commit-meddelanden; PR:er squashas ändå.
+- Påstår en null reference-risk när det inte finns någon verklig risk.
 
-Do not mark something `ignored-by-ai` just because it is a nitpick or only slightly useful.
+Markera inte något som `ignored-by-ai` bara för att det är en nitpick eller bara lite användbart.
 
-Evaluate every finding by the resulting code change, not by whether the suggestion has any theoretical benefit.
+Bedöm varje finding utifrån den kodändring som blir resultatet, inte utifrån om förslaget har någon teoretisk fördel.
 
-Mark a finding as `ignored-by-ai` when the proposed fix does not make the codebase better overall. Consider readability, simplicity, maintainability, brittleness, duplication, and actual defect prevention together. A local benefit is not enough when the resulting code adds equal or greater cost.
+Markera ett finding som `ignored-by-ai` när den föreslagna fixen inte gör kodbasen bättre som helhet. Väg in läsbarhet, enkelhet, underhållbarhet, skörhet, duplicering och faktiskt förebyggande av defekter tillsammans. En lokal fördel räcker inte när den resulterande koden kostar lika mycket eller mer.
 
-Before keeping a finding, mentally apply the suggested fix and compare the before and after versions. Keep it only when the resulting code is clearly better.
+Innan du behåller ett finding, tillämpa den föreslagna fixen i huvudet och jämför före och efter. Behåll det bara när den resulterande koden är tydligt bättre.
 
-If a claim can be verified by searching docs or writing/running a small test, verify it before deciding.
+Om ett påstående går att verifiera genom att söka i docs eller skriva och köra ett litet test, verifiera det innan du bestämmer dig.
 
-When code looks inconsistent with shared or standard patterns, investigate why before suggesting a change.
+När kod ser inkonsekvent ut jämfört med delade eller standardmönster, ta reda på varför innan du föreslår en ändring.
 
-For refactoring, renaming, or extraction suggestions, think through the result: would the code actually be better, and is the extra abstraction worth it?
+För förslag om refactoring, omdöpning eller extrahering, tänk igenom resultatet: skulle koden faktiskt bli bättre, och är den extra abstraktionen värd det?
 
-Review every finding one at a time. Verify the code carefully for each finding that needs verification.
+Gå igenom varje finding ett i taget. Verifiera koden noggrant för varje finding som behöver verifieras.

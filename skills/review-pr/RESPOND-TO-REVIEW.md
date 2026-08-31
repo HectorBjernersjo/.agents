@@ -1,35 +1,35 @@
-When the user responds to review findings, handle fixes first and then update `docs/prs/<branch-slug>/review-data.js`.
+När användaren svarar på review-findings, hantera fixarna först och uppdatera sedan `docs/prs/<branch-slug>/review-data.js`.
 
-The user may respond to each finding with one of:
+Användaren kan svara på varje finding med ett av följande:
 
 - fix
 - ignore
-- follow-up question
+- följdfråga
 
-For fixes:
+För fixar:
 
-- Implement them one at a time.
-- Set the finding to `status: "implemented"`.
+- Implementera dem en i taget.
+- Sätt findingen till `status: "implemented"`.
 
-For ignores:
+För ignores:
 
-- Set the finding to `status: "ignored-by-human"`.
-- Add a clear `ignoreReason`.
-- Ensure the finding has `files` with repo-relative file paths without line numbers. If missing, derive them from `location`.
-- Ensure the finding has a stable `fingerprint` built from agent/category, primary file, and normalized issue title.
-- Append an `ignored` row with `"ignoredBy":"human"` to `docs/prs/_review-index/ignored-findings.jsonl`, unless the same `pr`, `findingId`, `fingerprint`, and `event` already exists.
+- Sätt findingen till `status: "ignored-by-human"`.
+- Lägg till en tydlig `ignoreReason`.
+- Se till att findingen har `files` med repo-relativa sökvägar utan radnummer. Om de saknas, ta fram dem från `location`.
+- Se till att findingen har ett stabilt `fingerprint` byggt av agent/kategori, primär fil och normaliserad problemtitel.
+- Lägg till en `ignored`-rad med `"ignoredBy":"human"` i `docs/prs/_review-index/ignored-findings.jsonl`, om inte samma `pr`, `findingId`, `fingerprint` och `event` redan finns.
 
-Ignored index row format:
+Format för rad i ignore-indexet:
 
 ```json
 {"event":"ignored","ignoredBy":"human","pr":"<branch-slug>","findingId":3,"files":["src/foo.ts"],"fingerprint":"bug-reviewer:src/foo.ts:null-user-id","agents":["bug-reviewer"],"title":"...","problem":"...","ignoreReason":"...","ignoredAt":"2026-06-26T08:04:00Z"}
 ```
 
-If a finding changes from `ignored-by-human` to another status, append an `unignored` event with the same `pr`, `findingId`, `fingerprint`, and a `changedAt` timestamp. Do not remove old JSONL rows.
+Om ett finding går från `ignored-by-human` till en annan status, lägg till ett `unignored`-event med samma `pr`, `findingId`, `fingerprint` och en `changedAt`-tidsstämpel. Ta inte bort gamla JSONL-rader.
 
-For follow-up questions:
+För följdfrågor:
 
-- Do not implement the finding, even if the question is leading.
-- Answer by verifying against the code.
+- Implementera inte findingen, även om frågan är ledande.
+- Svara genom att verifiera mot koden.
 
-At the end, answer every user question in a table. Include any finding where you think the user may have missed something.
+Svara till sist på alla användarens frågor i en tabell. Ta med alla findings där du tror att användaren kan ha missat något.

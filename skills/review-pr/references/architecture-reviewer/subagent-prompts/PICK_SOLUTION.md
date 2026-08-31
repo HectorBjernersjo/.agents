@@ -1,11 +1,11 @@
-Of all the solutions you proposed, which do you think is the best long-term single concrete fix for the problem?
+Av alla lösningar du föreslog, vilken tror du är den bästa långsiktiga enskilda konkreta fixen för problemet?
 
-Do not optimize only for making a minimal change. Think about what would make the most architectural sense and be easiest to understand.
+Optimera inte bara för att göra en minimal ändring. Tänk på vad som skulle vara mest vettigt arkitekturmässigt och lättast att förstå.
 
-Write that single concrete fix to:
+Skriv den enskilda konkreta fixen till:
 
 ```text
 docs/prs/<branch-slug>/reviews/<review-id>/architecture/<problem-slug>/chosen_solution.md
 ```
 
-When you have written it, report back to the main agent with the path to your chosen single concrete fix.
+När du har skrivit den, rapportera tillbaka till huvudagenten med sökvägen till din valda konkreta fix.

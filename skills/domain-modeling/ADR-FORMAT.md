@@ -1,10 +1,10 @@
-# ADR Format
+# ADR-format
 
-ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+ADR:er bor i `docs/adr/` och numreras löpande: `0001-slug.md`, `0002-slug.md`, osv.
 
-Create the `docs/adr/` directory lazily — only when the first ADR is needed.
+Skapa katalogen `docs/adr/` lat, bara när den första ADR:en behövs.
 
-## Template
+## Mall
 
 ```md
 # {Short title of the decision}
@@ -12,36 +12,36 @@ Create the `docs/adr/` directory lazily — only when the first ADR is needed.
 {1-3 sentences: what's the context, what did we decide, and why.}
 ```
 
-That's it. An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why* — not in filling out sections.
+Det är allt. En ADR kan vara ett enda stycke. Värdet ligger i att dokumentera *att* ett beslut togs och *varför*, inte i att fylla i sektioner.
 
-## Optional sections
+## Valfria sektioner
 
-Only include these when they add genuine value. Most ADRs won't need them.
+Ta bara med de här när de faktiskt tillför något. De flesta ADR:er behöver dem inte.
 
-- **Status** frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) — useful when decisions are revisited
-- **Considered Options** — only when the rejected alternatives are worth remembering
-- **Consequences** — only when non-obvious downstream effects need to be called out
+- **Status** i frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`), användbart när beslut omprövas
+- **Considered Options**, bara när de förkastade alternativen är värda att komma ihåg
+- **Consequences**, bara när icke-uppenbara följdeffekter behöver lyftas
 
-## Numbering
+## Numrering
 
-Scan `docs/adr/` for the highest existing number and increment by one.
+Leta upp det högsta befintliga numret i `docs/adr/` och öka med ett.
 
-## When to offer an ADR
+## När du ska erbjuda en ADR
 
-All three of these must be true:
+Alla tre måste stämma:
 
-1. **Hard to reverse** — the cost of changing your mind later is meaningful
-2. **Surprising without context** — a future reader will look at the code and wonder "why on earth did they do it this way?"
-3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+1. **Svårt att ångra.** Kostnaden för att ändra sig senare är kännbar
+2. **Förvånande utan sammanhang.** En framtida läsare kommer titta på koden och undra "varför i hela friden gjorde de så här?"
+3. **Resultatet av en riktig avvägning.** Det fanns verkliga alternativ och ni valde ett av specifika skäl
 
-If a decision is easy to reverse, skip it — you'll just reverse it. If it's not surprising, nobody will wonder why. If there was no real alternative, there's nothing to record beyond "we did the obvious thing."
+Om ett beslut är lätt att ångra, hoppa över det. Ni ångrar det bara. Om det inte är förvånande kommer ingen undra varför. Om det inte fanns något riktigt alternativ finns det inget att dokumentera utöver "vi gjorde det uppenbara".
 
-### What qualifies
+### Vad som kvalificerar
 
-- **Architectural shape.** "We're using a monorepo." "The write model is event-sourced, the read model is projected into Postgres."
-- **Integration patterns between contexts.** "Ordering and Billing communicate via domain events, not synchronous HTTP."
-- **Technology choices that carry lock-in.** Database, message bus, auth provider, deployment target. Not every library — just the ones that would take a quarter to swap out.
-- **Boundary and scope decisions.** "Customer data is owned by the Customer context; other contexts reference it by ID only." The explicit no-s are as valuable as the yes-s.
-- **Deliberate deviations from the obvious path.** "We're using manual SQL instead of an ORM because X." Anything where a reasonable reader would assume the opposite. These stop the next engineer from "fixing" something that was deliberate.
-- **Constraints not visible in the code.** "We can't use AWS because of compliance requirements." "Response times must be under 200ms because of the partner API contract."
-- **Rejected alternatives when the rejection is non-obvious.** If you considered GraphQL and picked REST for subtle reasons, record it — otherwise someone will suggest GraphQL again in six months.
+- **Arkitekturens form.** "Vi kör monorepo." "Skrivmodellen är event-sourced, läsmodellen projiceras in i Postgres."
+- **Integrationsmönster mellan kontexter.** "Ordering och Billing kommunicerar via domänhändelser, inte synkron HTTP."
+- **Teknikval som ger inlåsning.** Databas, meddelandebuss, auth-leverantör, deploymål. Inte varje bibliotek, bara de som skulle ta ett kvartal att byta ut.
+- **Gräns- och omfångsbeslut.** "Kunddata ägs av Customer-kontexten, andra kontexter refererar till den enbart via ID." De uttalade nej:en är lika värdefulla som ja:en.
+- **Medvetna avsteg från den uppenbara vägen.** "Vi skriver SQL för hand istället för att använda en ORM eftersom X." Allt där en rimlig läsare skulle anta motsatsen. De här hindrar nästa utvecklare från att "fixa" något som var avsiktligt.
+- **Begränsningar som inte syns i koden.** "Vi kan inte använda AWS på grund av compliance-krav." "Svarstider måste vara under 200ms på grund av avtalet med partner-API:et."
+- **Förkastade alternativ när förkastandet inte är uppenbart.** Om ni övervägde GraphQL och valde REST av subtila skäl, skriv ner det. Annars föreslår någon GraphQL igen om sex månader.

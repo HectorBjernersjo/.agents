@@ -1,9 +1,9 @@
 ---
 name: create-pr
-description: Use when the user asks you to create a pr or pr:s
+description: Använd när användaren ber dig skapa ett PR eller flera PR:s
 ---
 
-Användaren vill skapa upp ett pr från det de har byggt.
+Användaren vill skapa upp ett PR från det de har byggt.
 
 Feature-stackarna ligger direkt på master och tweaks-committen (base) kommer
 in via merge i working copyn, så ett PR är bara ett segment av stacken:
@@ -12,11 +12,11 @@ bookmark på segmentets sista change + push. Ingen duplicering, inget jj-pr.
 - Diffen för hela featuren: `jj diff -r 'trunk()..(@- ~ base)' --git`
   (feature-heden är @:s förälder minus base). För ett enskilt segment:
   `jj diff -r '<föregående segment-head>..<segment-head>' --git`.
-  Diffa aldrig @ själv — den är merge-committen med base.
+  Diffa aldrig @ själv, den är merge-committen med base.
   (git-CLI:t finns bara i master.)
 
 ## Branch + push
-1. `jj bookmark set <branch-namn> -r <segment-head>` — hoppa över om
+1. `jj bookmark set <branch-namn> -r <segment-head>`. Hoppa över om
    bookmarken redan sitter rätt.
 2. `jj git push --bookmark <branch-namn> --allow-new`
 
@@ -26,35 +26,100 @@ Uppdateringar av ett befintligt PR kräver ingen bookmark-hantering: squasha
 in i stackens changes (bookmarken följer med när changen skrivs om) och kör
 `jj git push --bookmark <branch-namn>` igen.
 
-## Skapa pr:et
-Skapa pr:et med gh cli:t, gör den som en draft och ge användaren en länk.
-Lägg till Employee taggen på pr:et.
+## Skapa PR:et
+Skapa PR:et med gh cli:t, gör den som en draft och ge användaren en länk.
+Lägg till Employee-taggen på PR:et.
 
 ## PR description
-Innehåller diffen UI-ändringar, kör `pr-media`-skillen och lägg gif:en under `## Demo` i beskrivningen.
+Innehåller diffen synliga UI-ändringar, spela in med `record-demo` och publicera med `pr-media`, som lägger gif:en under `## Demo` i beskrivningen.
 
 Fokusera på varför jag har gjort det som det är, inte så mycket på exakt vad som har ändrats.
-Om pr:et är något lite större eller där det annars är aktuellt kan du även beskriva flödet som man behöver förså i pr:et.
+Om PR:et är något lite större eller där det annars är aktuellt kan du även beskriva flödet som man behöver förstå i PR:et.
 Håll den kortfattad, du behöver inte ta med varenda ändring.
-Pr descriptionen ska vara på svenska, den kan ofta vara rätt lik user story descriptionen, men kanske med lite mer tekniska detaljer där det är relevant.
+PR-descriptionen ska vara på svenska, den kan ofta vara rätt lik user story-descriptionen, men kanske med lite mer tekniska detaljer där det är relevant.
 
-Avsluta pr descriptionen med `AB#{user story-id}` så att pr:et länkas till storyn i Azure DevOps. Id:t kommer från `ado-create-story` om `/create-user-story` kördes nyss i samma session — annars fråga användaren efter det.
+Avsluta PR-descriptionen med en rad som både länkar och stänger work itemet i Azure DevOps när PR:et mergas:
 
-## Stacked PRs — när flera prs beror på varandra
+- User story: `Closed AB#{id}`
+- Bug: `Fixes AB#{id}`
+
+Nyckelordet måste stå direkt före referensen. Bara `AB#{id}` skapar en länk men flyttar inget, och `Fixes user story AB#{id}` blir också bara en länk. Ett nyckelord gäller bara den första referensen efter det, så flera work items får varsitt: `Closed AB#1, Closed AB#2`. Övergången sker först när PR:et mergas till master, så i en stack är det bara det som till slut går in i master som stänger något.
+
+Id:t kommer från `ado-create-story` om `/create-user-story` kördes nyss i samma session, annars fråga användaren efter det.
+
+Exempel på för lång pr description:
+
+```markdown
+Varför
+
+IntegrationTests .NET föll på #30148 (ett rent TypeScript/CSS-PR) med
+
+FlexHrm.AiModule.Tests.Chatbot.ChatbotServiceFlowTests.AcceptToolConfirmation_Waits_For_Open_RejectToolConfirmation_Stream_Instead_Of_Returning_Busy
+System.InvalidOperationException : Generation is already registered for conversation ...
+
+Det är inte ett flakigt test utan en riktig bugg i konversationslåset, som bara råkar synas som flakighet.
+Mekanismen
+
+Låset är två kolumner på ChatbotConversation-raden, LockToken och LockedUntilUtc. ConversationLock sätter dem med en bulk-update via UpdateBuilder, som går rakt mot databasen och inte rör entiteten i NHibernate-sessionen. Men ChatbotService laddar konversationen innan låset tas, så entiteten i minnet har fortfarande LockToken = null.
+
+När genereringen sen lägger till ett meddelande sätter AddMessage UtcTimeLastMessage, entiteten blir dirty, och nästa FlushAsync skriver en UPDATE på raden. ChatbotConversationMap hade ingen DynamicUpdate(), så UPDATE:n skriver alla kolumner från minnet, inklusive LockToken = NULL. Låset är släppt i databasen medan genereringen fortfarande kör och är registrerad i ConversationGenerationCancellation.
+
+I testet pollar Accept låset var 100 ms. Landar en poll i fönstret mellan den flushen och att reject-strömmen disposar sin registrering tar Accept låset, anropar Register och smäller. I produktion är det värre: ett nytt SendMessage kan ta låset mitt i en pågående generering. På samma server blir det ett 500 i stället för ConversationBusy, på en annan server (registret är in-process) kör två genereringar parallellt på samma konversation.
+Fixen
+
+DynamicUpdate() på ChatbotConversationMap. Då skriver flushen bara dirty kolumner och lämnar låskolumnerna ifred. Nytt test i ConversationLockTests laddar entiteten, tar låset, smutsar ner och flushar, och kontrollerar att låset inte går att ta igen. Rött utan fixen, grönt med.
+Demo
+
+Chatboten i web med fixen: Flexie ber om godkännande för en frånvaroansökan, ansökan skapas efter Godkänn och svaret strömmar klart. Låset tas och släpps genom hela flödet (bekräftelse, verktygskörning, fortsatt generering) utan att flushen av konversationen släpper det i förtid.
+```
+
+Exempel på bättre, kortare pr description:
+```markdown
+När en användare skickar ett meddelande till en konversation låser vi den genom att sätta två kolumner på ChatbotConversation-raden: LockToken och LockedUntilUtc.
+
+Låset sätts med UpdateBuilder, som ändrar databasen direkt utan att röra den ChatbotConversation-entitet som redan ligger i NHibernate-sessionen. Entiteten i minnet har alltså fortfarande LockToken = null. När genereringen sen lägger till ett meddelande blir entiteten dirty, och nästa FlushAsync skriver en UPDATE med alla kolumner, inklusive LockToken = null. Låset är borta mitt i genereringen, och ett nytt meddelande kan starta en generering till på samma konversation.
+
+Fixen är DynamicUpdate() på ChatbotConversation-mappningen. Då skriver flushen bara de kolumner som faktiskt ändrats i sessionen, och det gamla null-värdet följer inte med.
+
+Demo
+
+Chatboten funkar som vanligt efter ändringen:
+<gif>
+(Om användaren t.ex. har bett dig om en video som visar att den fortfarande funkar som vanligt)
+
+Closed AB#12345
+```
+
+Annat exempel på för lång description:
+```markdown
+Flexie har varit ute i prod ett tag och introt som pekade ut chattknappen och förklarade chatten i två steg när den öppnades behövs inte längre. Det lade till ett extra klick innan man kunde börja skriva och låg mitt i öppningsflödet.
+
+`ChatbotIntroController` tas bort helt, tillsammans med kopplingen i `Chatbot` och `ChatbotToggleButtonHandler` och de två guid:arna i `IntroJsEnum`. Övriga intro.js-guider i HRM påverkas inte, det är bara chatbotens som försvinner.
+
+Closed AB#12345
+```
+
+Bättre:
+```markdown
+Flexie har varit ute i prod ett tag och introt som pekade ut chattknappen och förklarade chatten i två steg när den öppnades behövs inte längre. Vi tar därför bort introjs från chatboten.
+Closed AB#12345
+```
+
+## Stacked PRs, när flera PR:s beror på varandra
 Segmenten ligger redan på varandra i stacken, så brancherna är kedjade av
 sig själva. Den formella stacken (badgen "1/N" + stack-panelen) skapas
 separat via API:t:
 
 1. Pusha varje segments bookmark, nerifrån och upp.
-2. Skapa pr 2..N med `gh pr create --base <föregående branch>` (drafts som
-   vanligt) och referera botten-pr:et i beskrivningen.
-3. Länka ihop dom till en formell stack (botten-till-topp; varje pr:s base
+2. Skapa PR 2..N med `gh pr create --base <föregående branch>` (drafts som
+   vanligt) och referera botten-PR:et i beskrivningen.
+3. Länka ihop dom till en formell stack (botten-till-topp; varje PR:s base
    måste matcha föregåendes head):
    ```
    echo '{"pull_requests": [<botten-nr>, <topp-nr>]}' | \
      gh api --method POST repos/flexapplicationsvisma/hrm/stacks --input -
    ```
-   Fler prs läggs på toppen senare med `POST repos/.../stacks/{stack_number}/add`.
+   Fler PR:s läggs på toppen senare med `POST repos/.../stacks/{stack_number}/add`.
 
-När botten-pr:et mergas retargetar GitHub nästa pr mot master automatiskt,
+När botten-PR:et mergas retargetar GitHub nästa PR mot master automatiskt,
 även vid squash-merge.

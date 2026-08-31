@@ -1,11 +1,11 @@
 ---
 name: create-user-story
-description: Use when the user asks you to create or edit a User Story in Azure DevOps
+description: Använd när användaren ber dig skapa eller redigera en User Story i Azure DevOps
 ---
 
 Användaren vill ha hjälp med att skapa en user story från deras pr, eller redigera en som redan finns. Användaren kommer att säga vilket pr det gäller.
 
-- Kör "jj diff -r 'trunk()..(@- ~ base)' --git" för att se vad featuren har gjort — stacken ovanpå master, utan tweaks (feature-heden är @:s förälder minus base). Gäller det ett enskilt PR-segment: diffa segmentets range istället. (Funkar i alla HRM-feature-workspaces; git-CLI:t finns bara i master.)
+- Kör "jj diff -r 'trunk()..(@- ~ base)' --git" för att se vad featuren har gjort. Stacken ovanpå master, utan tweaks (feature-heden är @:s förälder minus base). Gäller det ett enskilt PR-segment: diffa segmentets range istället. (Funkar i alla HRM-feature-workspaces; git-CLI:t finns bara i master.)
 
 ## Redigera en befintlig story
 Om användaren pekar på en befintlig story (ett id, en länk, eller "storyn för det här pr:et"):
@@ -34,7 +34,7 @@ Ska vara i listform, också på ganska hög "oteknisk nivå" (beroende lite på 
 Du behöver inte göra en massa punkter som säger samma sak, bättre med färre, tydliga punkter.
 
 ## Release Note
-Skriv bara en release note om pr:et innehåller en ändring som användaren faktiskt ser eller märker av. Interna verktyg, refaktoreringar och rena tekniska ändringar ska inte ha någon release note — föreslå då ingen, och utelämna release note-flaggorna när storyn skapas.
+Skriv bara en release note om pr:et innehåller en ändring som användaren faktiskt ser eller märker av. Interna verktyg, refaktoreringar och rena tekniska ändringar ska inte ha någon release note. Föreslå då ingen, och utelämna release note-flaggorna när storyn skapas.
 Om pr:et behöver en: den ska vara på engelska och ha en header (bara några ord) och en text (max en till några meningar)
 Fokusera bara på vad som ändras för användaren, ingenting tekniskt.
 
@@ -167,7 +167,9 @@ Om det är något vi inte har gjort nog för, säg till.
 
 
 ## Skapa eller uppdatera user storyn i Azure DevOps
-När användaren har godkänt innehållet skapar du storyn med scriptet `ado-create-story` (ligger i PATH). Kör inte `az` direkt — det är blockerat.
+När användaren har godkänt innehållet skapar du storyn med scriptet `ado-create-story` (ligger i PATH). Kör inte `az` direkt, det är blockerat.
+
+Körs du från `/implement-feature` väntar du inte på godkännande: skapa storyn direkt och rapportera klassning och risknivå med motivering i stället, så Hector kan justera med `ado-update-story` efteråt.
 
 ```
 ado-create-story \
@@ -195,4 +197,4 @@ ado-show-story --id <id>                              # läs storyns fält som j
 
 Impact och likelihood måste alltid anges tillsammans eftersom risknivån räknas om.
 
-Kom ihåg id:t som scriptet returnerar — det används som `AB#{id}` i pr descriptionen när `/create-pr` körs.
+Kom ihåg id:t som scriptet returnerar, det används som `AB#{id}` i pr descriptionen när `/create-pr` körs.

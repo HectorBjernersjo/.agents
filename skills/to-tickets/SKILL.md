@@ -1,79 +1,81 @@
 ---
 name: to-tickets
-description: Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, written as one markdown file per ticket under docs/work/.
+description: Bryt ner en plan, spec eller den pågående konversationen till en uppsättning tracer-bullet-tickets, där varje ticket deklarerar vad som blockerar den, skrivna som en markdown-fil per ticket under docs/work/.
 disable-model-invocation: true
 ---
 
-# To Tickets
+# Till tickets
 
-Break a plan, spec, or conversation into a set of **tickets** — tracer-bullet vertical slices, each declaring the tickets that **block** it.
+Bryt ner en plan, spec eller konversation till en uppsättning **tickets**. Vertikala tracer-bullet-slices, där varje ticket deklarerar vilka tickets som **blockerar** den.
 
-Tickets live as markdown files in the repo: one file per ticket in `tickets/` beside the spec they come from — `docs/work/<feature-slug>/tickets/`.
+Om repot har `docs/agents/issue-tracker.md` styr den filen var tickets bor och hur de skapas, läses, blockeras och stängs. Läs den först. Beskrivningarna av filer och sökvägar nedan gäller repon som saknar den.
+
+Annars lever tickets som markdown-filer i repot: en fil per ticket i `tickets/` bredvid specen de kommer från, alltså `docs/work/<feature-slug>/tickets/`.
 
 ## Process
 
-### 1. Gather context
+### 1. Samla kontext
 
-Work from whatever is already in the conversation context. If the user passes a reference (a spec path, an issue number or URL) as an argument, fetch it and read its full body and comments.
+Utgå från det som redan finns i konversationens kontext. Om användaren skickar en referens (en sökväg till en spec, ett issue-nummer eller en URL) som argument, hämta den och läs hela innehållet inklusive kommentarer.
 
-### 2. Explore the codebase (optional)
+### 2. Utforska kodbasen (valfritt)
 
-If you have not already explored the codebase, do so to understand the current state of the code. Ticket titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
+Om du inte redan utforskat kodbasen, gör det för att förstå kodens nuläge. Tickettitlar och beskrivningar ska använda projektets domänordlista och respektera ADR:er i området du rör.
 
-Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
+Leta efter möjligheter att prefaktorera koden så att implementationen blir enklare. "Make the change easy, then make the easy change."
 
-### 3. Draft vertical slices
+### 3. Skissa vertikala slices
 
-Break the work into **tracer bullet** tickets.
+Bryt ner arbetet i **tracer bullet**-tickets.
 
 <vertical-slice-rules>
 
-- Each slice cuts a narrow but COMPLETE path through every layer (schema, API, UI, tests) — vertical, NOT a horizontal slice of one layer
-- A completed slice is demoable or verifiable on its own
-- Each slice is sized to fit in a single fresh context window
-- Any prefactoring should be done first
+- Varje slice skär en smal men KOMPLETT väg genom varje lager (schema, API, UI, tester). Vertikal, INTE en horisontell slice av ett lager
+- En färdig slice går att demoa eller verifiera på egen hand
+- Varje slice är dimensionerad för att rymmas i ett enda färskt kontextfönster
+- All prefaktorering ska göras först
 
 </vertical-slice-rules>
 
-Give each ticket its **blocking edges** — the other tickets that must complete before it can start. A ticket with no blockers can start immediately.
+Ge varje ticket sina **blockeringar**, alltså de andra tickets som måste bli klara innan den kan börja. En ticket utan blockeringar kan börja direkt.
 
-**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — rename a column, retype a shared symbol — whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket — green is promised only there.
+**Breda refaktoreringar är undantaget från vertikal slicing.** En **bred refaktorering** är en mekanisk ändring, byta namn på en kolumn, ändra typ på en delad symbol, vars **sprängradie** sprider sig över hela kodbasen, så att en enda ändring knäcker tusentals anropsställen på en gång och ingen vertikal slice kan landa grön. Tvinga inte in den i en tracer bullet. Sekvensera den som **expand-contract**. Först expand: lägg till den nya formen bredvid den gamla så inget går sönder. Sedan migrera anropsställena i batchar dimensionerade efter sprängradie (per paket, per katalog), varje batch sin egen ticket blockerad av expand, så CI hålls grön batch för batch eftersom den gamla formen fortfarande finns. Till sist contract: ta bort den gamla formen när ingen anropare finns kvar, i en ticket blockerad av varje migreringsbatch. När inte ens batcharna kan hålla sig gröna på egen hand, behåll sekvensen men låt dem dela en integrationsbranch som alla blockerar en avslutande integrera-och-verifiera-ticket. Grönt utlovas bara där.
 
-### 4. Quiz the user
+### 4. Fråga ut användaren
 
-Present the proposed breakdown as a numbered list. For each ticket, show:
+Presentera den föreslagna nedbrytningen som en numrerad lista. För varje ticket, visa:
 
-- **Title**: short descriptive name
-- **Blocked by**: which other tickets (if any) must complete first
-- **What it delivers**: the end-to-end behaviour this ticket makes work
+- **Title**: kort beskrivande namn
+- **Blocked by**: vilka andra tickets (om några) som måste bli klara först
+- **What it delivers**: det end-to-end-beteende den här ticketen får att fungera
 
-Ask the user:
+Fråga användaren:
 
-- Does the granularity feel right? (too coarse / too fine)
-- Are the blocking edges correct — does each ticket only depend on tickets that genuinely gate it?
-- Should any tickets be merged or split further?
+- Känns granulariteten rätt? (för grov / för fin)
+- Är blockeringarna korrekta, beror varje ticket bara på tickets som faktiskt gatear den?
+- Borde några tickets slås ihop eller delas ytterligare?
 
-Iterate until the user approves the breakdown.
+Iterera tills användaren godkänner nedbrytningen.
 
-### 5. Write the ticket files
+### 5. Skriv ticket-filerna
 
-Write one file per approved ticket at `docs/work/<feature-slug>/tickets/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's "Blocked by" lists the numbers/titles it depends on. Use the ticket template below — one ticket per file, never a single combined file.
+Skriv en fil per godkänd ticket på `docs/work/<feature-slug>/tickets/<NN>-<slug>.md`, numrerade från `01` i beroendeordning (blockerare först). Varje fils "Blocked by" listar numren/titlarna den beror på. Använd ticket-mallen nedan. En ticket per fil, aldrig en enda sammanslagen fil.
 
-Work the **frontier**: any ticket whose blockers are all done. A merged ticket's file is deleted, so a "Blocked by" pointing at a file that no longer exists is satisfied. For a purely linear chain that means top to bottom.
+Jobba på **frontlinjen**: varje ticket vars blockerare alla är klara. En mergad tickets fil raderas, så en "Blocked by" som pekar på en fil som inte längre finns är uppfylld. För en helt linjär kedja betyder det uppifrån och ner.
 
-Do NOT close or modify any parent spec or ticket.
+Stäng INTE och ändra INTE någon överordnad spec eller ticket.
 
 <ticket-template>
 
 # <NN> — <Ticket title>
 
-**What to build:** the end-to-end behaviour this ticket makes work, from the user's perspective — not a layer-by-layer implementation list.
+**What to build:** det end-to-end-beteende den här ticketen får att fungera, ur användarens perspektiv. Inte en lager-för-lager-lista över implementationen.
 
-**Blocked by:** the numbers/titles of the tickets that gate this one, or "None — can start immediately".
+**Blocked by:** numren/titlarna på de tickets som gatear den här, eller "None — can start immediately".
 
-- [ ] Acceptance criterion 1
-- [ ] Acceptance criterion 2
+- [ ] Acceptanskriterium 1
+- [ ] Acceptanskriterium 2
 
 </ticket-template>
 
-Avoid specific file paths or code snippets — they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
+Undvik specifika filsökvägar och kodsnuttar. De blir inaktuella snabbt. Undantag: om en prototyp producerat en snutt som fångar ett beslut mer exakt än prosa kan (state machine, reducer, schema, typform), lägg in den inline och notera kort att den kommer från en prototyp. Skala ner till de beslutsrika delarna. Ingen fungerande demo, bara det viktiga.

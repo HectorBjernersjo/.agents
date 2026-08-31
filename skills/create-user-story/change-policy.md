@@ -1,179 +1,179 @@
 # Local - Change Management & Secure Development Lifecycle (SDLC)
 
-Policy DEV-POL-03, version 1.3, status Active, classification Internal.
-Responsible: Björn Lindqvist. Reviewed by: Oskar Anderstål. Approved by: Jane Lundgren Ericsson. Last review 2026-02-04.
+Policy DEV-POL-03, version 1.3, status Active, klassning Internal.
+Ansvarig: Björn Lindqvist. Granskad av: Oskar Anderstål. Godkänd av: Jane Lundgren Ericsson. Senast granskad 2026-02-04.
 
 Referenskopia för `/create-user-story`. Avsnitt 3 och 5 är de som styr fälten på en user story.
 
-## 1. Purpose
-This document defines the mandatory controls for testing and deploying production changes. It ensures all development is secure, efficient, and compliant with standards like ISO 27001.
+## 1. Syfte
+Det här dokumentet definierar de obligatoriska kontrollerna för att testa och deploya ändringar till produktion. Det ser till att all utveckling är säker, effektiv och följer standarder som ISO 27001.
 
-## 2. Scope
-This policy applies to all changes affecting the Flex HRM production environment.
+## 2. Omfattning
+Policyn gäller alla ändringar som påverkar Flex HRM:s produktionsmiljö.
 
-Applicability: mandatory for all personnel within the Product & Development department, including full-time employees, part-time staff, and external parties (consultants and contractors) who have access to the Flex HRM codebase or infrastructure.
+Tillämplighet: obligatorisk för all personal på avdelningen Product & Development, inklusive heltidsanställda, deltidsanställda och externa parter (konsulter och underleverantörer) som har tillgång till Flex HRM:s kodbas eller infrastruktur.
 
-Asset scope:
-- Application Code: all source code, scripts, and artifacts (packages) destined for production.
-- Infrastructure: Azure resources and configurations managed via Infrastructure as Code (Terraform).
-- Database: schema migrations and data structure changes.
-- Dependencies: all 3rd-party libraries, frameworks, and APIs.
+Omfattade tillgångar:
+- Applikationskod: all källkod, alla script och artefakter (paket) som ska till produktion.
+- Infrastruktur: Azure-resurser och konfiguration som hanteras via Infrastructure as Code (Terraform).
+- Databas: schemamigreringar och ändringar av datastrukturer.
+- Beroenden: alla tredjepartsbibliotek, ramverk och API:er.
 
-Lifecycle phases: the scope covers the entire lifecycle from requirements planning and risk analysis to deployment and ongoing operations.
+Livscykelfaser: omfattningen täcker hela livscykeln, från kravplanering och riskanalys till deploy och löpande drift.
 
-## 3. Change Classification & Authorization
-Authorization for changes is integrated into the CI/CD pipeline. For Standard and Normal changes, authorization is intrinsically granted upon the successful completion of Peer Review and all automated pipeline gates. During the review process, the reviewer is responsible for verifying that the change is classified correctly.
+## 3. Change classification och auktorisering
+Auktorisering av ändringar är inbyggd i CI/CD-pipelinen. För Standard och Normal Change ges auktoriseringen automatiskt när peer review och alla automatiska pipeline-gates har gått igenom. Under reviewen ansvarar reviewern för att verifiera att ändringen är rätt klassad.
 
-| Classification | Definition | Authorization requirements |
+| Klassning | Definition | Krav för auktorisering |
 |---|---|---|
-| Standard Change | Low-risk, routine change following established procedures. | Peer Review + CI/CD Pipeline Pass. |
-| Normal Change | Planned change impacting security, data, or core business logic. | CI/CD pass, Peer Review, 5x5 Risk Matrix (STRIDE mandatory if High/Critical risk). |
-| Emergency Change (Hotfix) | Unplanned change required to restore service or mitigate P1 impact. | Risk Analysis, Peer Review, Retrospective Post-Mortem. |
+| Standard Change | Rutinändring med låg risk som följer etablerade rutiner. | Peer review + CI/CD-pipeline som går igenom. |
+| Normal Change | Planerad ändring som påverkar säkerhet, data eller central affärslogik. | CI/CD som går igenom, peer review, 5x5-riskmatris (STRIDE obligatoriskt vid High/Critical risk). |
+| Emergency Change (Hotfix) | Oplanerad ändring som krävs för att återställa tjänsten eller begränsa P1-påverkan. | Riskanalys, peer review, retrospektiv post-mortem. |
 
-### 3.1 Decision Logic & Criteria
-Use this logic to determine the change classification and view the specific triggers for each category. Use "No Change" for backlog items or tasks that do not involve a deployment to production or modification of the production environment.
+### 3.1 Beslutslogik och kriterier
+Använd den här logiken för att avgöra klassningen och se vad som triggar varje kategori. Använd "No Change" för backlog-items eller tasks som inte innebär någon deploy till produktion eller ändring av produktionsmiljön.
 
-Step 1: Is this restoring service for a P1 incident?
-- YES → Emergency Change (Hotfix). Examples: production is down; payroll run is incorrect; active exploit discovered; personal data incident/breach.
+Steg 1: Återställer det här tjänsten vid en P1-incident?
+- JA → Emergency Change (Hotfix). Exempel: produktion är nere, lönekörningen är felaktig, ett aktivt exploit har upptäckts, persondataincident/intrång.
 
-Step 2: Determine if Normal or Standard. If the answer to Step 1 is NO, does it touch ANY of these areas?
-- Database: schema changes, migrations, new tables, or column modifications.
-- Security: authentication, authorization (RBAC), encryption, or key management.
-- Data: handling, storage, or transmission of PII or sensitive data (e.g., salary details, sick leave, employee information).
-- Critical Calculations & Legal Compliance: changes to logic that impact salary calculations, legal standings or employment lifecycle (onboarding/termination).
-- External: inbound/outbound APIs or third-party integrations.
-- Infra: deployment pipelines, environment configuration, or new NuGet/NPM dependencies.
-- Scope: affects multiple modules or cross-cutting concerns.
+Steg 2: Avgör om det är Normal eller Standard. Om svaret på steg 1 är NEJ, rör ändringen NÅGOT av de här områdena?
+- Databas: schemaändringar, migreringar, nya tabeller eller ändrade kolumner.
+- Säkerhet: autentisering, auktorisering (RBAC), kryptering eller nyckelhantering.
+- Data: hantering, lagring eller överföring av PII eller känslig data (t.ex. löneuppgifter, sjukfrånvaro, anställdinformation).
+- Kritiska beräkningar och legal compliance: ändringar i logik som påverkar löneberäkningar, juridisk ställning eller anställningslivscykeln (onboarding/avslut).
+- Externt: inkommande/utgående API:er eller tredjepartsintegrationer.
+- Infra: deploy-pipelines, miljökonfiguration eller nya NuGet/NPM-beroenden.
+- Omfattning: påverkar flera moduler eller cross-cutting concerns.
 
-If YES to ANY → Normal Change. If NO to ALL → Standard Change.
+JA på NÅGON → Normal Change. NEJ på ALLA → Standard Change.
 
-## 4. The Secure SDLC Process
+## 4. Secure SDLC-processen
 
-### 4.1 Plan (Requirements & Initiation)
-- Change Initiation: changes are initiated based on business requirements documented in the product backlog.
-- Team-Based Approval: authorization to proceed with a change is owned by the respective development team. By moving a Work Item into an active sprint or "In Progress" state, the team acknowledges that requirements are understood and aligned with the "Definition of Done."
-- Work Items: all changes must be linked to a tracked Work Item.
-- Risk Analysis for Normal & Emergency Changes: a 5x5 Risk Matrix (see section 14) is applied to every Work Item (assessing Security, Stability, and Business impact).
-- Standard Changes: exempt from individual risk matrix application as they are pre-approved low-risk routine activities.
-- Critical Risk (Threat Modeling): for Normal Changes where the Risk Analysis result is Critical, a formal Threat Model (using STRIDE) is mandatory. Findings and mitigations must be documented in the Work Item.
-- DRP Impact: any change identified as impacting the Disaster Recovery Plan (DRP) must be formally notified to Team Platform & Operations (Team PAO) during the planning phase.
+### 4.1 Plan (krav och initiering)
+- Initiering av ändring: ändringar initieras utifrån affärskrav som är dokumenterade i produktbacklogen.
+- Teambaserat godkännande: rätten att gå vidare med en ändring ägs av respektive utvecklingsteam. Genom att flytta ett Work Item in i en aktiv sprint eller till "In Progress" bekräftar teamet att kraven är förstådda och i linje med "Definition of Done".
+- Work Items: alla ändringar måste vara kopplade till ett spårat Work Item.
+- Riskanalys för Normal och Emergency Change: en 5x5-riskmatris (se avsnitt 14) tillämpas på varje Work Item (bedömer påverkan på säkerhet, stabilitet och affär).
+- Standard Change: undantagna från individuell riskmatris eftersom de är förhandsgodkända rutinaktiviteter med låg risk.
+- Critical risk (threat modeling): för Normal Change där riskanalysen landar på Critical är en formell threat model (med STRIDE) obligatorisk. Fynd och åtgärder ska dokumenteras i Work Itemet.
+- DRP-påverkan: alla ändringar som bedöms påverka Disaster Recovery Plan (DRP) ska formellt anmälas till Team Platform & Operations (Team PAO) under planeringsfasen.
 
-### 4.2 Code (Development & Review)
-- Branch Policies: direct commits to main are prohibited, also force push is disabled.
-- Peer Review & Functional Validation: every production change requires approval from at least two authorized humans, including one independent reviewer who is not the original author or initiator of the change. Peer review serves as the primary technical and functional approval gate. The independent reviewer is responsible for:
-  - Security & Code Quality: ensuring the code meets security and performance standards.
-  - Requirement Verification: validating that the code accurately implements the requirements defined in the linked Work Item (serving as the internal User Acceptance verification).
-  - Accountability: confirming that no single individual has the ability to both create and approve a change into a protected branch.
-  - Classification Validation: the reviewer must explicitly validate that the change classification is correct. If a change is marked as "Standard" but affects areas that should classify the change as Normal, the reviewer must reject the classification and enforce the "Normal" change workflow.
-- Standards: code must adhere to OWASP Top 10 guidelines.
-- SAST: automated static analysis is performed daily.
-- DAST: dynamic analysis is executed weekly against the Stage environment.
+### 4.2 Code (utveckling och review)
+- Branch-policies: direkta commits till main är förbjudna, och force push är avstängt.
+- Peer review och funktionell validering: varje produktionsändring kräver godkännande från minst två behöriga människor, varav en oberoende reviewer som inte är ändringens ursprungliga författare eller initiativtagare. Peer review är den primära tekniska och funktionella godkännandepunkten. Den oberoende reviewern ansvarar för:
+  - Säkerhet och kodkvalitet: att koden uppfyller kraven på säkerhet och prestanda.
+  - Kravverifiering: att koden faktiskt implementerar kraven i det länkade Work Itemet (fungerar som intern User Acceptance-verifiering).
+  - Ansvar: att bekräfta att ingen enskild person kan både skapa och godkänna en ändring in i en skyddad branch.
+  - Validering av klassning: reviewern måste uttryckligen validera att change classification är korrekt. Om en ändring är markerad som "Standard" men rör områden som borde klassa den som Normal, ska reviewern underkänna klassningen och kräva flödet för "Normal" Change.
+- Standarder: koden ska följa riktlinjerna i OWASP Top 10.
+- SAST: automatisk statisk analys körs dagligen.
+- DAST: dynamisk analys körs veckovis mot Stage-miljön.
 
-### 4.3 Build & Test (Verification)
-CI Pipeline: the pipeline enforces technical compliance by requiring successful compilation, Unit Tests, and Integration Tests before any change is eligible for promotion.
+### 4.3 Build och test (verifiering)
+CI-pipeline: pipelinen tvingar fram teknisk efterlevnad genom att kräva lyckad kompilering, unit tests och integrationstester innan en ändring kan gå vidare.
 
-### 4.4 Dependencies (Supply Chain)
-- Package Managers: managed via NuGet or NPM.
-- Scanning (SCA): automated Software Composition Analysis scans all third-party libraries.
-- SBOM Maintenance: a Software Bill of Materials is automatically generated and maintained via the SCA tool.
-- Policy Compliance: every dependency must comply with the Flex HRM Third-Party Policy.
-- Vulnerability Handling: High/Critical findings are remediated with the highest priority as soon as possible.
-- License Compliance: "Copyleft" (e.g., GPL) licenses are prohibited.
+### 4.4 Beroenden (supply chain)
+- Pakethanterare: hanteras via NuGet eller NPM.
+- Scanning (SCA): automatisk Software Composition Analysis scannar alla tredjepartsbibliotek.
+- SBOM-underhåll: en Software Bill of Materials genereras och underhålls automatiskt via SCA-verktyget.
+- Policyefterlevnad: varje beroende måste följa Flex HRM Third-Party Policy.
+- Sårbarhetshantering: High/Critical-fynd åtgärdas med högsta prioritet så snart som möjligt.
+- Licensefterlevnad: "copyleft"-licenser (t.ex. GPL) är förbjudna.
 
-### 4.5 Deploy (Release)
-- Artifacts: a strictly versioned artifact is created for every release cycle.
-- Contents: the artifact includes all Pull Requests merged since the previous release.
-- Promotion: Deploy to Dev -> Stage (Smoke Tests) -> Production.
-- Automated Enforcement: the pipeline prevents unilateral deployments; code cannot reach production without satisfying the Peer Review and CI/CD requirements.
-- Transparency: release notes are automatically published to https://www.flexhrm.com/release-notes.
+### 4.5 Deploy (release)
+- Artefakter: en strikt versionerad artefakt skapas för varje releasecykel.
+- Innehåll: artefakten innehåller alla pull requests som mergats sedan förra releasen.
+- Promotion: deploy till Dev -> Stage (smoke tests) -> Production.
+- Automatisk kontroll: pipelinen förhindrar ensidiga deploys. Kod kan inte nå produktion utan att uppfylla kraven på peer review och CI/CD.
+- Transparens: release notes publiceras automatiskt på https://www.flexhrm.com/release-notes.
 
-### 4.6 Database Management & Data Protection
-- Automation: schema changes are managed via FluentMigrator in the pipeline.
-- Data Protection (Test Environments): Dev and Stage environments strictly use mocked or synthetic data.
-- Access: developers have no direct access (Read/Write) to production data.
-- Privileged Access: Team PAO has restricted access protected by MFA and Network/VPN restrictions.
+### 4.6 Databashantering och dataskydd
+- Automatisering: schemaändringar hanteras via FluentMigrator i pipelinen.
+- Dataskydd (testmiljöer): Dev- och Stage-miljöerna använder enbart mockad eller syntetisk data.
+- Åtkomst: utvecklare har ingen direkt åtkomst (läs/skriv) till produktionsdata.
+- Privilegierad åtkomst: Team PAO har begränsad åtkomst skyddad av MFA och nätverks-/VPN-restriktioner.
 
 ## 5. Definition of Done
-Mandatory checks for every change. Both automated gates enforced by Azure DevOps and manual verification steps performed by the Developer or Lead.
+Obligatoriska kontroller för varje ändring. Både automatiska gates som Azure DevOps tvingar fram och manuella verifieringssteg som utvecklaren eller leadet gör.
 
-| Requirement | Description |
+| Krav | Beskrivning |
 |---|---|
-| Traceability | Mandatory linked Work Item for every Pull Request (PR). |
-| Four-Eyes Principle | Peer Review enforced; minimum 1 required approval per PR. |
-| Automated Validation | Build validation (compilation) enforced on PR level. |
-| Automated Verification | Successful completion of Unit and Integration test suites. |
-| Comment resolution | All Peer Review comments must be marked as "Resolved" before merging. |
-| Change Classification | "Change Classification" field must be populated on the User Story. |
-| Risk Assessment | 5x5 Risk Matrix + justification required for Normal/Emergency changes. |
-| Functional Verification | Manual or local verification (unit, integration, or e2e) of all acceptance criteria. |
-| Secure Coding | Adherence to OWASP best practices to protect against common vulnerabilities. |
-| Secret Management | Verification that no secrets, API keys, or credentials are included in the source code. |
-| Documentation | Any related documentation has been updated to reflect the changes. |
+| Spårbarhet | Obligatoriskt länkat Work Item för varje pull request (PR). |
+| Fyra ögon-principen | Peer review krävs, minst 1 godkännande per PR. |
+| Automatisk validering | Build-validering (kompilering) krävs på PR-nivå. |
+| Automatisk verifiering | Unit- och integrationstestsviterna går igenom. |
+| Kommentarer lösta | Alla peer review-kommentarer ska vara markerade som "Resolved" innan merge. |
+| Change Classification | Fältet "Change Classification" måste vara ifyllt på User Storyn. |
+| Riskbedömning | 5x5-riskmatris + motivering krävs för Normal/Emergency Change. |
+| Funktionell verifiering | Manuell eller lokal verifiering (unit, integration eller e2e) av alla acceptanskriterier. |
+| Säker kod | Följer OWASP best practices för skydd mot vanliga sårbarheter. |
+| Hemligheter | Verifierat att inga secrets, API-nycklar eller credentials finns i källkoden. |
+| Dokumentation | All relaterad dokumentation är uppdaterad så att den speglar ändringarna. |
 
-## 6. Infrastructure (IaC)
-Infrastructure changes (Terraform) follow the standard SDLC flow (Work Item -> PR -> CI/CD).
+## 6. Infrastruktur (IaC)
+Infrastrukturändringar (Terraform) följer det vanliga SDLC-flödet (Work Item -> PR -> CI/CD).
 
-## 7. Rollback & Recovery
-- Immediate Remediation (Azure Portal): members of Team PAO are authorized to manually revert to the previous stable version via the Azure Portal for urgent restoration.
-- Standard Roll-forward (CI/CD Pipeline): the standard method for both critical and non-critical issues. Involves reverting a commit or applying a fix, followed by automated deployment of a new package.
-- Re-deployment of Previous Version: Azure DevOps can be used to re-trigger a deployment of a specific previous stable artifact.
-- Verification: any rollback or roll-forward must undergo Smoke Tests in the Stage environment.
+## 7. Rollback och återställning
+- Omedelbar åtgärd (Azure Portal): medlemmar i Team PAO får manuellt gå tillbaka till föregående stabila version via Azure Portal vid brådskande återställning.
+- Standardmetod roll-forward (CI/CD-pipeline): standardmetoden för både kritiska och icke-kritiska problem. Innebär att en commit revertas eller en fix läggs på, följt av automatisk deploy av ett nytt paket.
+- Omdeploy av tidigare version: Azure DevOps kan användas för att trigga om en deploy av en specifik tidigare stabil artefakt.
+- Verifiering: varje rollback eller roll-forward måste genomgå smoke tests i Stage-miljön.
 
-## 8. Operate (Monitoring)
-- Telemetry: Azure Monitor tracks performance and errors.
-- Security: GSOC/SIEM monitors for anomalies.
-- Support: Team PAO maintains a 24/7 On-Call rotation.
+## 8. Drift (övervakning)
+- Telemetri: Azure Monitor följer prestanda och fel.
+- Säkerhet: GSOC/SIEM övervakar avvikelser.
+- Support: Team PAO har jour dygnet runt.
 
-## 9. Emergency Procedure (Hotfix)
-- Trigger: P1 Incidents only.
-- Authorization: Development Manager must explicitly approve any deviation from the standard release cycle.
-- Post-Mortem: Work Item, Risk Analysis, and RCA created within 1 business day.
+## 9. Nödprocedur (hotfix)
+- Trigger: endast P1-incidenter.
+- Auktorisering: Development Manager måste uttryckligen godkänna alla avsteg från den ordinarie releasecykeln.
+- Post-mortem: Work Item, riskanalys och RCA skapas inom 1 arbetsdag.
 
-## 10. Identity & Access
-- Identity Provider: Microsoft Entra ID governs all access.
-- MFA: enforced for all users.
-- Offboarding: access revoked upon termination.
+## 10. Identitet och åtkomst
+- Identitetsleverantör: Microsoft Entra ID styr all åtkomst.
+- MFA: krävs för alla användare.
+- Offboarding: åtkomst dras in när anställningen avslutas.
 
-## 11. Assurance & Competence
-- Penetration Test: performed annually by a third-party vendor.
-- Training: developers undergo quarterly Secure Coding training (Q1-Q4) via Secure Code Warrior, focusing on the OWASP Top 10.
+## 11. Kvalitetssäkring och kompetens
+- Penetrationstest: görs årligen av en extern leverantör.
+- Utbildning: utvecklare går kvartalsvis Secure Coding-utbildning (Q1-Q4) via Secure Code Warrior, med fokus på OWASP Top 10.
 
-## 12. Business Continuity & Disaster Recovery
-- DRP Alignment: the Disaster Recovery Plan is reviewed and updated every quarter.
-- Responsibility: Team PAO leads the quarterly review, tabletop exercise and regular DR drills. Detailed in the DRP documentation.
+## 12. Kontinuitet och disaster recovery
+- DRP-uppföljning: Disaster Recovery Plan granskas och uppdateras varje kvartal.
+- Ansvar: Team PAO leder kvartalsgranskningen, tabletop-övningar och regelbundna DR-övningar. Beskrivs i DRP-dokumentationen.
 
-## 13. Records & Retention
-To satisfy ISO 27001 evidence requirements, the following records are retained for a minimum period of 1 year:
-- Work Items: including requirements, risk analysis, and associated documentation.
-- Peer Reviews: full history of approvals, comments.
-- Deployment Evidence: releases are retained for 1 year within the CI/CD platform.
+## 13. Dokumentation och lagring
+För att uppfylla ISO 27001:s krav på bevis sparas följande i minst 1 år:
+- Work Items: inklusive krav, riskanalys och tillhörande dokumentation.
+- Peer reviews: fullständig historik över godkännanden och kommentarer.
+- Deploy-bevis: releaser sparas i 1 år i CI/CD-plattformen.
 
-Note on Release Retention: effective as of 2026-Q2, the retention policy for releases has been extended to 1 year to align with audit requirements. Prior to this date, a shorter retention period was in place.
+Not om lagring av releaser: från och med 2026-Q2 har lagringstiden för releaser förlängts till 1 år för att matcha revisionskraven. Före det datumet gällde en kortare lagringstid.
 
-Note on Release Artifacts: releases are retained for 1 year while binary artifacts (packages) are removed to optimize storage. The environment maintains Reproducible Builds and full versioning within GIT, allowing for the generation of historical packages if required. Due to backward compatibility constraints, rollbacks are typically limited to the previous stable version (N-1).
+Not om release-artefakter: releaser sparas i 1 år medan binära artefakter (paket) tas bort för att spara lagringsutrymme. Miljön har reproducerbara builds och full versionering i GIT, så historiska paket kan genereras vid behov. På grund av begränsningar i bakåtkompatibilitet är rollbacks normalt begränsade till föregående stabila version (N-1).
 
-## 14. Appendix: Risk Assessment Matrix
-Used for Risk Analysis of Normal and Emergency changes.
+## 14. Bilaga: riskmatris
+Används för riskanalys av Normal och Emergency Change.
 
-Likelihood scale:
-- Rare: not expected to occur.
-- Unlikely: not expected, but possible in exceptional circumstances.
-- Possible: could occur at some point.
-- Likely: there is a strong possibility that the event will occur in the near future.
-- Almost Certain: likely to occur soon and often.
+Sannolikhetsskala:
+- Rare: förväntas inte inträffa.
+- Unlikely: förväntas inte, men möjligt under exceptionella omständigheter.
+- Possible: kan inträffa någon gång.
+- Likely: det finns en stark möjlighet att händelsen inträffar inom en snar framtid.
+- Almost Certain: inträffar sannolikt snart och ofta.
 
-Consequence (impact) scale:
-- Negligible: very minor consequences that would not disrupt normal operations.
-- Minor: could result in a small disruption, but easy to manage and recover from.
-- Moderate: would cause a noticeable disruption or harm; might require extra resources to recover.
-- Major: significant disruption, harm, or financial loss. Recovery is challenging/time-consuming.
-- Catastrophic: extreme disruption, long-term harm, or major financial loss. Recovery might be unattainable.
+Konsekvensskala (impact):
+- Negligible: mycket små konsekvenser som inte stör normal drift.
+- Minor: kan ge en liten störning, men lätt att hantera och återhämta sig från.
+- Moderate: ger en märkbar störning eller skada. Kan kräva extra resurser för återställning.
+- Major: betydande störning, skada eller ekonomisk förlust. Återställning är svår/tidskrävande.
+- Catastrophic: extrem störning, långvarig skada eller stor ekonomisk förlust. Återställning kan vara omöjlig.
 
-## 15. Change Log
+## 15. Ändringslogg
 
-| Date | Version | Name | Change |
+| Datum | Version | Namn | Ändring |
 |---|---|---|---|
-| 2026-02-04 | 1.0 | Oskar Anderstål (Development Manager) | Initial documentation of our current SDLC & Change management. |
-| 2026-03-06 | 1.1 | Oskar Anderstål (Development Manager) | Changed from daily to weekly for DAST-scans to reflect reality. |
-| 2026-03-20 | 1.2 | Oskar Anderstål (Development Manager) | Added Change Classification "No Change" since some user stories (work items) are no formal changes. Added a new section for Definition of Done. |
-| 2026-03-23 | 1.3 | Oskar Anderstål (Development Manager) | Peer review now requires approval from at least two humans, including one independent reviewer who is not the author/initiator. Removed information about AI-review. |
+| 2026-02-04 | 1.0 | Oskar Anderstål (Development Manager) | Första dokumentationen av vår nuvarande SDLC och change management. |
+| 2026-03-06 | 1.1 | Oskar Anderstål (Development Manager) | Ändrade DAST-scanningar från dagligen till veckovis för att spegla verkligheten. |
+| 2026-03-20 | 1.2 | Oskar Anderstål (Development Manager) | Lade till klassningen "No Change" eftersom vissa user stories (work items) inte är formella ändringar. Lade till ett nytt avsnitt för Definition of Done. |
+| 2026-03-23 | 1.3 | Oskar Anderstål (Development Manager) | Peer review kräver nu godkännande från minst två människor, varav en oberoende reviewer som inte är författare/initiativtagare. Tog bort information om AI-review. |

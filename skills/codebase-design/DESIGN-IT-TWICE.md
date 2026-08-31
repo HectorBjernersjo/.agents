@@ -1,44 +1,44 @@
-# Design It Twice
+# Design it twice
 
-When the user wants to explore alternative interfaces for a chosen deepening candidate, use this parallel sub-agent pattern. Based on "Design It Twice" (Ousterhout) — your first idea is unlikely to be the best.
+När användaren vill utforska alternativa interface för en vald fördjupningskandidat, använd det här mönstret med parallella sub-agenter. Bygger på "Design It Twice" (Ousterhout). Din första idé är sällan den bästa.
 
-Uses the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**, **seam**, **adapter**, **leverage**.
+Använder ordförrådet i [SKILL.md](SKILL.md): **modul**, **interface**, **söm**, **adapter**, **hävstång**.
 
 ## Process
 
-### 1. Frame the problem space
+### 1. Rama in problemrymden
 
-Before spawning sub-agents, write a user-facing explanation of the problem space for the chosen candidate:
+Innan du startar sub-agenter, skriv en förklaring av problemrymden för den valda kandidaten, riktad till användaren:
 
-- The constraints any new interface would need to satisfy
-- The dependencies it would rely on, and which category they fall into (see [DEEPENING.md](DEEPENING.md))
-- A rough illustrative code sketch to ground the constraints — not a proposal, just a way to make the constraints concrete
+- Begränsningarna ett nytt interface skulle behöva uppfylla
+- Beroendena det skulle luta sig mot, och vilken kategori de tillhör (se [DEEPENING.md](DEEPENING.md))
+- En grov illustrerande kodskiss som gör begränsningarna konkreta. Inget förslag, bara ett sätt att göra dem greppbara
 
-Show this to the user, then immediately proceed to Step 2. The user reads and thinks while the sub-agents work in parallel.
+Visa det här för användaren och gå sedan direkt vidare till steg 2. Användaren läser och tänker medan sub-agenterna jobbar parallellt.
 
-### 2. Spawn sub-agents
+### 2. Starta sub-agenter
 
-Spawn 3+ sub-agents in parallel. Each must produce a **radically different** interface for the deepened module.
+Starta 3+ sub-agenter parallellt. Var och en ska producera ett **radikalt annorlunda** interface för den fördjupade modulen.
 
-Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+Ge varje sub-agent en separat teknisk brief (filsökvägar, kopplingsdetaljer, beroendekategori från [DEEPENING.md](DEEPENING.md), vad som ligger bakom sömmen). Briefen är oberoende av problemrymdsförklaringen till användaren i steg 1. Ge varje agent en egen designbegränsning:
 
-- Agent 1: "Minimize the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
-- Agent 2: "Maximise flexibility — support many use cases and extension."
-- Agent 3: "Optimise for the most common caller — make the default case trivial."
-- Agent 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
+- Agent 1: "Minimera interfacet. Sikta på max 1 till 3 ingångspunkter. Maximera hävstång per ingångspunkt."
+- Agent 2: "Maximera flexibilitet. Stöd många användningsfall och utbyggnad."
+- Agent 3: "Optimera för den vanligaste anroparen. Gör standardfallet trivialt."
+- Agent 4 (om tillämpligt): "Designa kring ports & adapters för beroenden som korsar sömmen."
 
-Include both [SKILL.md](SKILL.md) vocabulary and docs/CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
+Ta med både ordförrådet i [SKILL.md](SKILL.md) och ordförrådet i docs/CONTEXT.md i briefen så att varje sub-agent namnger saker konsekvent med arkitekturspråket och projektets domänspråk.
 
-Each sub-agent outputs:
+Varje sub-agent levererar:
 
-1. Interface (types, methods, params — plus invariants, ordering, error modes)
-2. Usage example showing how callers use it
-3. What the implementation hides behind the seam
-4. Dependency strategy and adapters (see [DEEPENING.md](DEEPENING.md))
-5. Trade-offs — where leverage is high, where it's thin
+1. Interface (typer, metoder, parametrar, plus invarianter, ordning, felfall)
+2. Användningsexempel som visar hur anropare använder det
+3. Vad implementationen gömmer bakom sömmen
+4. Beroendestrategi och adaptrar (se [DEEPENING.md](DEEPENING.md))
+5. Avvägningar. Var hävstången är hög, var den är tunn
 
-### 3. Present and compare
+### 3. Presentera och jämför
 
-Present designs sequentially so the user can absorb each one, then compare them in prose. Contrast by **depth** (leverage at the interface), **locality** (where change concentrates), and **seam placement**.
+Presentera designerna en i taget så att användaren hinner ta in var och en, jämför dem sedan i löpande text. Ställ dem mot varandra på **djup** (hävstång vid interfacet), **lokalitet** (var ändringar samlas) och **sömplacering**.
 
-After comparing, give your own recommendation: which design you think is strongest and why. If elements from different designs would combine well, propose a hybrid. Be opinionated — the user wants a strong read, not a menu.
+Ge sedan din egen rekommendation: vilken design du tycker är starkast och varför. Om delar från olika designer skulle passa ihop, föreslå en hybrid. Ha åsikter. Användaren vill ha en tydlig bedömning, inte en meny.

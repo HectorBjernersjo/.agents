@@ -1,18 +1,18 @@
-# Step 4
+# Steg 4
 
-Now that the agents have reported back, filter which solutions are actually worth implementing.
+Nu när agenterna har rapporterat tillbaka, filtrera fram vilka lösningar som faktiskt är värda att implementera.
 
-For each one, ask yourself: would the code actually become cleaner and easier to understand if we implemented this, or would it just move complexity around?
+Fråga dig själv för varje lösning: skulle koden faktiskt bli renare och lättare att förstå om vi implementerade den här, eller skulle den bara flytta runt komplexiteten?
 
-In the architecture artifact root, create or update:
+I arkitektur-artefaktroten, skapa eller uppdatera:
 
 ```text
 docs/prs/<branch-slug>/reviews/<review-id>/architecture/solutions-filtered.md
 ```
 
-Under `# Filtered points`, write all problems with their picked solution and a rationalization, including pros and cons on why it is or is not worth implementing.
+Under `# Filtered points`, skriv alla problem med sin valda lösning och en motivering, inklusive för- och nackdelar kring varför den är eller inte är värd att implementera.
 
-When you are done, read:
+När du är klar, läs:
 
 ```text
 <architecture-steps-dir>/STEP-5.md

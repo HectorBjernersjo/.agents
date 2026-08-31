@@ -1,10 +1,10 @@
 ---
 name: review-pr
-description: Runs multiple reviewing agents in parallel to review the current PR and handles follow-up responses to review findings
+description: Kör flera reviewing-agenter parallellt för att reviewa aktuell PR och hanterar uppföljande svar på review-findings
 disable-model-invocation: true
 ---
 
-Use this PR review file structure:
+Använd den här filstrukturen för PR-reviews:
 
 ```text
 docs/prs/
@@ -31,10 +31,10 @@ docs/prs/
                 └── report.md
 ```
 
-`review-data.js` is the source of truth for the current PR review. `review.html` is a static view copied from this skill's `template.html`.
-`docs/prs/_review-index/ignored-findings.jsonl` is an append-only historical search index of ignored findings from all PRs.
+`review-data.js` är sanningskällan för den aktuella PR-reviewen. `review.html` är en statisk vy som kopieras från den här skillens `template.html`.
+`docs/prs/_review-index/ignored-findings.jsonl` är ett append-only historiskt sökindex över ignorerade findings från alla PR:er.
 
-The `review-data.js` file must be strict JSON-compatible JavaScript:
+Filen `review-data.js` måste vara strikt JSON-kompatibel JavaScript:
 
 ```js
 window.reviewData = {
@@ -58,107 +58,107 @@ window.reviewData = {
 };
 ```
 
-Include `"architecture-reviewer"` in `review.agents` only when it was run.
+Ta bara med `"architecture-reviewer"` i `review.agents` när den faktiskt kördes.
 
-Use quoted object keys, no comments, and no trailing commas inside the object so agents can parse it by stripping `window.reviewData =` and the trailing semicolon.
+Använd citerade objektnycklar, inga kommentarer och inga avslutande kommatecken inuti objektet, så att agenter kan parsa filen genom att strippa `window.reviewData =` och det avslutande semikolonet.
 
-Historical ignored finding index rows must be one JSON object per line:
+Rader i det historiska indexet över ignorerade findings måste vara ett JSON-objekt per rad:
 
 ```json
 {"event":"ignored","ignoredBy":"human","pr":"<branch-slug>","findingId":3,"files":["src/foo.ts"],"fingerprint":"bug-reviewer:src/foo.ts:null-user-id","agents":["bug-reviewer"],"title":"...","problem":"...","ignoreReason":"...","ignoredAt":"2026-06-26T08:04:00Z"}
 ```
 
-Use `ignored-findings.jsonl` to find candidate previous ignores, then verify the new finding is the same concern before suppressing it.
+Använd `ignored-findings.jsonl` för att hitta kandidater bland tidigare ignorerade findings, och verifiera sedan att det nya findingen faktiskt handlar om samma sak innan du undertrycker det.
 
-## Step 1
-If there are any uncommitted changes (except in package json other such files that arent at all related to this pr), tell the user to commit them before you proceed, so `git diff origin/master...` works properly.
+## Steg 1
+Om det finns ocommittade ändringar (förutom i package.json och liknande filer som inte alls hör till den här PR:en), säg åt användaren att committa dem innan du fortsätter, så att `git diff origin/master...` fungerar som det ska.
 
-## Step 2
-Derive `<branch-slug>` from the current git branch by ignoring `users/<username>` (if that is part of the branch) and only using the rest to create a slug.
+## Steg 2
+Ta fram `<branch-slug>` från aktuell git-branch genom att ignorera `users/<username>` (om det är en del av branch-namnet) och bara använda resten för att skapa en slug.
 
-If `docs/work/` holds a folder matching that slug, read its `spec.md` and the ticket being implemented first, and pass their paths to the reviewing agents — findings should be judged against what the work set out to do. `/land` deletes this PR's review artifacts once the work merges.
-Get the current PR files with `git diff --name-only origin/master...`.
+Om `docs/work/` har en mapp som matchar den sluggen, läs dess `spec.md` och den ticket som implementeras först, och skicka med deras sökvägar till reviewing-agenterna. Findings ska bedömas mot vad arbetet var tänkt att göra. `/land` tar bort den här PR:ens review-artefakter när arbetet mergats.
+Hämta filerna i aktuell PR med `git diff --name-only origin/master...`.
 
-Before starting the reviewers, look for previously ignored findings that mention any of the current PR files:
+Innan du startar reviewers, leta efter tidigare ignorerade findings som nämner någon av filerna i aktuell PR:
 
-- Prefer searching `docs/prs/_review-index/ignored-findings.jsonl` for exact repo-relative file paths from the current PR.
-- Each matching JSONL row is a candidate previous ignore.
-- Because the index is append-only, use the latest event for the same `pr`, `findingId`, and `fingerprint` to decide whether a previous ignore is still active.
-- When compiling new findings later, suppress a finding only when it is clearly the same concern as a candidate previous ignore: overlapping `files`, same/similar `agents` or category, and matching `fingerprint` or substantially matching `title`/`problem`.
+- Sök i första hand i `docs/prs/_review-index/ignored-findings.jsonl` efter exakta repo-relativa sökvägar från aktuell PR.
+- Varje matchande JSONL-rad är en kandidat för tidigare ignorering.
+- Eftersom indexet är append-only, använd senaste eventet för samma `pr`, `findingId` och `fingerprint` för att avgöra om en tidigare ignorering fortfarande gäller.
+- När du senare sammanställer nya findings, undertryck ett finding bara när det tydligt handlar om samma sak som en tidigare ignorering: överlappande `files`, samma eller liknande `agents` eller kategori, och matchande `fingerprint` eller i stort sett matchande `title`/`problem`.
 
-## Step 3
-Create the next zero-padded review directory under `docs/prs/<branch-slug>/reviews/` (`review-001`, `review-002`, ...).
-Each reviewing agent will write its own complete report to `<agent-name>/report.md`.
+## Steg 3
+Skapa nästa nollutfyllda review-mapp under `docs/prs/<branch-slug>/reviews/` (`review-001`, `review-002`, ...).
+Varje reviewing-agent skriver sin egen kompletta rapport till `<agent-name>/report.md`.
 
-## Step 4
-Decide whether this PR is large enough for `architecture-reviewer`. Default to skipping it.
+## Steg 4
+Avgör om PR:en är stor nog för `architecture-reviewer`. Hoppa över den som default.
 
-Run `architecture-reviewer` only when the PR clearly has broad architectural impact, such as:
+Kör `architecture-reviewer` bara när PR:en tydligt har bred arkitekturell påverkan, till exempel:
 
-- It adds more than than 400 non-generated lines.
-- It makes significant architectural changes to existing contracts or flows.
-- It introduces or rewires a decently large feature flow.
+- Den lägger till mer än 400 icke-genererade rader.
+- Den gör betydande arkitekturella ändringar i befintliga kontrakt eller flöden.
+- Den introducerar eller kopplar om ett någorlunda stort feature-flöde.
 
-Small local fixes, test-only changes, renames, formatting, copy changes, and contained refactors should not run `architecture-reviewer`.
+Små lokala fixar, ändringar som bara rör tester, omdöpningar, formatering, textändringar och avgränsade refactors ska inte köra `architecture-reviewer`.
 
-Start "bug-reviewer", "code-standard-reviewer", "naming-reviewer", "simplification-reviewer", "nitpick-reviewer" and "slop-reviewer".
-Also start "architecture-reviewer" only if the PR passed the architecture threshold above.
-Pass them the resolved `<branch-slug>` and `<review-id>` so all agents write to the same review run. 
-If starting `architecture-reviewer`, also pass architecture steps dir: this skill's `references/architecture-reviewer/` directory. 
-Don't tell the agents anything more than that plus "go".
-Spawn them all in the same call, not one at a time. And make them blocking.
+Starta "bug-reviewer", "code-standard-reviewer", "naming-reviewer", "simplification-reviewer", "nitpick-reviewer" och "slop-reviewer".
+Starta också "architecture-reviewer", men bara om PR:en passerade arkitekturtröskeln ovan.
+Skicka med den framtagna `<branch-slug>` och `<review-id>` så att alla agenter skriver till samma review-körning.
+Om du startar `architecture-reviewer`, skicka också med arkitektur-stegmappen: den här skillens `references/architecture-reviewer/`-mapp.
+Säg inget mer till agenterna än det, plus "go".
+Spawna alla i samma anrop, inte en i taget. Och gör dem blockerande.
 
-## Step 5
-When all of the reviewers are done, compile their findings into `docs/prs/<branch-slug>/review-data.js` and copy this skill's `template.html` to `docs/prs/<branch-slug>/review.html`.
-Make sure to include all of the agents' points in the final compilation.
-If multiple agents point out the exact same problem, combine it into one point in the table, you can still describe the agents solution in the description.
-And pick exacly one solution which you think is best to put as the suggested fix.
+## Steg 5
+När alla reviewers är klara, sammanställ deras findings i `docs/prs/<branch-slug>/review-data.js` och kopiera den här skillens `template.html` till `docs/prs/<branch-slug>/review.html`.
+Se till att alla agenters punkter kommer med i den slutliga sammanställningen.
+Om flera agenter pekar på exakt samma problem, slå ihop det till en punkt i tabellen. Du kan fortfarande beskriva agenternas respektive lösning i beskrivningen.
+Och välj exakt en lösning som du tycker är bäst att lägga som föreslagen fix.
 När du skriver alla findings till review-data.js, översätt dom till svenska, och använd ett simpelt språk, undvik jargong och förutsätt inte att användaren har så bra koll på kodbasen.
 
-If `docs/prs/<branch-slug>/review-data.js` already exists, read it before overwriting it and preserve review state from the existing `findings` array:
+Om `docs/prs/<branch-slug>/review-data.js` redan finns, läs den innan du skriver över den och bevara review-tillståndet från den befintliga `findings`-arrayen:
 
-- Match existing findings to newly generated findings by stable identity: prefer the same `id` if the finding is clearly the same, otherwise match by title plus location/problem.
-- Preserve `status` and `ignoreReason` for matched findings.
-- Keep existing findings with `status: "implemented"`, `status: "ignored-by-human"`, or `status: "ignored-by-ai"` even if they are no longer present in the newest agent reports, so the PR-level review keeps its resolved/ignored history.
+- Matcha befintliga findings mot nya findings via stabil identitet: använd i första hand samma `id` om det tydligt är samma finding, annars matcha på titel plus plats/problem.
+- Bevara `status` och `ignoreReason` för matchade findings.
+- Behåll befintliga findings med `status: "implemented"`, `status: "ignored-by-human"` eller `status: "ignored-by-ai"` även om de inte längre finns i de senaste agentrapporterna, så att reviewen på PR-nivå behåller sin historik över lösta och ignorerade findings.
 
-Each finding must include:
+Varje finding måste innehålla:
 
-- `id`: index number
-- `fingerprint`: stable string for the same underlying concern across review runs, built from agent/category, primary file, and normalized issue name
-- `severity`: `High`, `Medium`, or `Low`
-- `needsHumanCheck`: number from 1 to 10. See ### Needs human check guide for how to rank.
-- `status`: `pending`, `implemented`, `ignored-by-human`, or `ignored-by-ai`. Default new findings to `pending`.
-- `ignoreReason`: required when status starts with `ignored`; omit or leave empty otherwise.
-- `title`: short description
-- `problem`: a useful one-paragraph problem summary shown directly in the table, so the reader usually does not need to expand the row
-- `description`: the full original description from the agent reports, preserving Markdown and fenced code blocks
-- `fix`: the full suggested fix, preserving Markdown and fenced code blocks
-- `location`: list of locations if applicable, preferably as an array of strings so each location renders on its own line
-- `files`: repo-relative file paths touched by this finding, without line numbers, for example `["src/foo.ts"]`
-- `agents`: all agents that found the issue
+- `id`: indexnummer
+- `fingerprint`: stabil sträng för samma underliggande problem över flera review-körningar, byggd av agent/kategori, primär fil och normaliserat problemnamn
+- `severity`: `High`, `Medium` eller `Low`
+- `needsHumanCheck`: tal från 1 till 10. Se ### Guide för needs human check för hur du rankar.
+- `status`: `pending`, `implemented`, `ignored-by-human` eller `ignored-by-ai`. Nya findings får `pending` som default.
+- `ignoreReason`: krävs när status börjar med `ignored`; utelämna eller lämna tom annars.
+- `title`: kort beskrivning
+- `problem`: en användbar problemsammanfattning i ett stycke som visas direkt i tabellen, så att läsaren oftast inte behöver fälla ut raden
+- `description`: den fullständiga originalbeskrivningen från agentrapporterna, med Markdown och kodblock bevarade
+- `fix`: den fullständiga föreslagna fixen, med Markdown och kodblock bevarade
+- `location`: lista med platser om tillämpligt, helst som en array av strängar så att varje plats renderas på egen rad
+- `files`: repo-relativa sökvägar till filer som berörs av findingen, utan radnummer, till exempel `["src/foo.ts"]`
+- `agents`: alla agenter som hittade problemet
 
-Write them in order of severity, highest first. Preserve Markdown and fenced code blocks in `description` and `fix` so the template can render them correctly.
+Skriv dem i ordning efter severity, högst först. Bevara Markdown och kodblock i `description` och `fix` så att mallen kan rendera dem korrekt.
 
-## Step 6
-As the last review step, read this skill's `COMMENT-FILTER.md` and apply it to the completed findings one at a time.
+## Steg 6
+Som sista review-steg, läs den här skillens `COMMENT-FILTER.md` och tillämpa den på de färdiga findingsen en i taget.
 
-After finishing Step 6 and writing `review-data.js` and `review.html`, give the user a direct browser-openable path to `review.html`. Don't make it a link, give the exact path so they can copy.
-Make the path work for the user's operating environment:
+När steg 6 är klart och `review-data.js` och `review.html` är skrivna, ge användaren en sökväg till `review.html` som går att öppna direkt i webbläsaren. Gör den inte till en länk, ge den exakta sökvägen så att den går att kopiera.
+Se till att sökvägen fungerar i användarens miljö:
 
-- If running in WSL and the user is likely opening the file from a Windows browser, run `wslpath -w "<absolute-path-to-review.html>"` and give the resulting `\\wsl.localhost\...` UNC path in a plain copy-pasteable text block. Do not give only a Linux `file:///home/...` URL in this case.
-- Otherwise, give an appropriate `file://` URL or absolute path for the current OS.
-- If it's a symlink, give the path to the canonical file location.
+- Om du kör i WSL och användaren troligen öppnar filen från en Windows-webbläsare, kör `wslpath -w "<absolute-path-to-review.html>"` och ge den resulterande `\\wsl.localhost\...`-UNC-sökvägen i ett vanligt kopierbart textblock. Ge inte bara en Linux-URL som `file:///home/...` i det fallet.
+- Annars, ge en lämplig `file://`-URL eller absolut sökväg för aktuellt OS.
+- Om det är en symlink, ge sökvägen till den kanoniska filen.
 
-## Responding to review findings
-When the user later responds to findings from a generated review, read this skill's `RESPOND-TO-REVIEW.md` and follow it.
+## Svara på review-findings
+När användaren senare svarar på findings från en genererad review, läs den här skillens `RESPOND-TO-REVIEW.md` och följ den.
 
-### Needs human check guide
-Low numbers mean the agent would theoretically be comfortable implementing the fix without asking the user.
-High numbers mean the finding may need human judgment because the agent is less certain it is correct.
-Things to consider when setting the "Needs human check" score:
-- If it's pre existing the score should be higher.
-- If it might be out of scope for this pr it should be higher (at least if it's a bigger change).
-- If it only or mostly touches code from this pr it should be lower.
-- Bigger changes should be higher and smaller changes lower.
-- If you there may be a deliberate reason for the current behavior it should be higher.
-- If there are many possible fixes to a problem and you're not sure this is the best one.
+### Guide för needs human check
+Låga tal betyder att agenten i teorin skulle vara bekväm med att implementera fixen utan att fråga användaren.
+Höga tal betyder att findingen kan kräva mänskligt omdöme eftersom agenten är mindre säker på att den stämmer.
+Saker att tänka på när du sätter "Needs human check"-poängen:
+- Om problemet fanns sedan tidigare ska poängen vara högre.
+- Om det kan ligga utanför scope för den här PR:en ska den vara högre (åtminstone om det är en större ändring).
+- Om det bara eller mest rör kod från den här PR:en ska den vara lägre.
+- Större ändringar ska vara högre och mindre ändringar lägre.
+- Om det kan finnas en medveten anledning till nuvarande beteende ska den vara högre.
+- Om det finns många möjliga fixar på ett problem och du inte är säker på att den här är bäst.

@@ -1,30 +1,30 @@
 ---
 name: land
-description: Retire a finished piece of work — graduate what's worth keeping into the glossary and ADRs, then delete the scaffolding under docs/work/.
+description: Avsluta ett färdigt arbete. Lyft upp det som är värt att behålla till glossaryt och ADR:erna, radera sen arbetsmaterialet under docs/work/.
 disable-model-invocation: true
 ---
 
-Scaffolding under `docs/work/` is deleted as work lands, never marked done. This skill runs the last step: the folder is empty of tickets, so decide what survives and remove the rest.
+Arbetsmaterialet under `docs/work/` raderas när arbetet landar, det markeras aldrig som klart. Den här skillen kör sista steget: mappen är tom på tickets, så bestäm vad som överlever och ta bort resten.
 
-Run it when the last ticket of a feature merges, or the last feature of an effort.
+Kör den när sista ticketen i en feature mergas, eller sista featuren i ett större arbete.
 
 ## Process
 
-1. **Confirm it's actually done.** Every ticket file gone, and the work merged. If tickets remain, stop and say which.
+1. **Bekräfta att det faktiskt är klart.** Alla tickets stängda (i trackern enligt `docs/agents/issue-tracker.md`, annars: alla ticket-filer borta), och arbetet mergat. Finns det tickets kvar, stanna och säg vilka.
 
-2. **Read the folder** — `grilling.md`, `spec.md`, `map.md`, resolved decision tickets.
+2. **Läs mappen.** `grilling.md`, `spec.md`, `map.md`, avgjorda beslutstickets.
 
-3. **Graduate what survives.** For each decision in there, ask: is it still true, and would a future agent fail to work it out from the code and tests alone?
+3. **Lyft upp det som överlever.** För varje beslut där inne, fråga: stämmer det fortfarande, och skulle en framtida agent misslyckas med att lista ut det från bara koden och testerna?
 
-   - New or sharpened domain terms → `docs/CONTEXT.md`
-   - Decisions where the *why* isn't visible in the code, especially rejected alternatives someone would otherwise retry → an ADR in `docs/adr/`
+   - Nya eller vässade domäntermer: `docs/CONTEXT.md`
+   - Beslut där *varför* inte syns i koden, särskilt förkastade alternativ som någon annars skulle prova igen: en ADR i `docs/adr/`
 
-   Use `/domain-modeling` for both formats. Be strict: most of a spec describes behaviour that the code now describes better. A decision that the code makes obvious doesn't need an ADR.
+   Använd `/domain-modeling` för båda formaten. Var sträng: det mesta i en spec beskriver beteende som koden nu beskriver bättre. Ett beslut som koden gör självklart behöver ingen ADR.
 
-4. **Show the user** what you're about to write and what you're about to delete, and wait for a yes.
+4. **Visa användaren** vad du tänker skriva och vad du tänker radera, och vänta på ett ja.
 
-5. **Delete**, on approval:
-   - the `docs/work/<slug>/` folder (or just the `<feature-slug>/` subfolder if other features in the effort are still live)
-   - `docs/prs/<branch-slug>/` for the merged branches, keeping `docs/prs/_review-index/` — it's cross-PR history
+5. **Radera**, efter godkännande:
+   - mappen `docs/work/<slug>/` (eller bara undermappen `<feature-slug>/` om andra features i samma arbete fortfarande är igång)
+   - `docs/prs/<branch-slug>/` för de mergade brancherna, men behåll `docs/prs/_review-index/`, det är historik över flera PR:s
 
-Deleting is safe: the content stays in version control under the same slug if anyone ever needs it. Leaving it is not — a shipped spec still sitting in `docs/work/` reads as planned work, and the next agent will try to build it again.
+Att radera är säkert: innehållet finns kvar i versionshistoriken under samma slug om någon nånsin behöver det. Att låta det ligga är inte säkert. En levererad spec som fortfarande ligger i `docs/work/` ser ut som planerat arbete, och nästa agent kommer försöka bygga den igen.

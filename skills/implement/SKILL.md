@@ -1,17 +1,17 @@
 ---
 name: implement
-description: "Implement a piece of work based on a spec or set of tickets."
+description: "Implementera ett stycke arbete utifrån en spec eller en uppsättning tickets."
 disable-model-invocation: true
 ---
 
-Implement the work described by the user in the spec or tickets.
+Implementera det arbete användaren beskriver i specen eller ticketsen.
 
-Use /tdd where possible, at pre-agreed seams.
+Använd /tdd där det går, vid sömmar ni kommit överens om i förväg.
 
-Run typechecking regularly, single test files regularly, and the full test suite once at the end.
+Kör typecheck regelbundet, enskilda testfiler regelbundet, och hela testsviten en gång på slutet.
 
-If something you learn while building contradicts the spec, update the spec before you finish. It outlives every ticket, so a stale one misleads the next session.
+Om något du lär dig under bygget motsäger specen, uppdatera specen innan du är klar. Den överlever varje ticket, så en inaktuell spec vilseleder nästa session.
 
-Once done, use /code-review to review the work.
+När du är klar, använd /code-review för att reviewa arbetet.
 
-Commit your work to the current branch. When the ticket is merged, delete its file — that's what marks it done. If it was the last one, run /land.
+Committa ditt arbete till aktuell branch. När ticketen är mergad, stäng den: i en tracker enligt `docs/agents/issue-tracker.md`, annars genom att ta bort dess fil. Om det var den sista, kör /land.

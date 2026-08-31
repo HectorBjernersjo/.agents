@@ -1,25 +1,25 @@
-# When to Mock
+# När du ska mocka
 
-Mock at **system boundaries** only:
+Mocka bara vid **systemgränser**:
 
-- External APIs (payment, email, etc.)
-- Databases (sometimes - prefer test DB)
-- Time/randomness
-- File system (sometimes)
+- Externa API:er (betalning, e-post osv.)
+- Databaser (ibland, föredra en test-DB)
+- Tid/slump
+- Filsystem (ibland)
 
-Don't mock:
+Mocka inte:
 
-- Your own classes/modules
-- Internal collaborators
-- Anything you control
+- Dina egna klasser/moduler
+- Interna samarbetspartners
+- Något du själv kontrollerar
 
-## Designing for Mockability
+## Designa för mockbarhet
 
-At system boundaries, design interfaces that are easy to mock:
+Vid systemgränser, designa gränssnitt som är lätta att mocka:
 
-**1. Use dependency injection**
+**1. Använd dependency injection**
 
-Pass external dependencies in rather than creating them internally:
+Skicka in externa beroenden istället för att skapa dem internt:
 
 ```typescript
 // Easy to mock
@@ -34,9 +34,9 @@ function processPayment(order) {
 }
 ```
 
-**2. Prefer SDK-style interfaces over generic fetchers**
+**2. Föredra SDK-liknande gränssnitt framför generiska fetchers**
 
-Create specific functions for each external operation instead of one generic function with conditional logic:
+Skapa specifika funktioner för varje extern operation istället för en generisk funktion med villkorslogik:
 
 ```typescript
 // GOOD: Each function is independently mockable
@@ -52,8 +52,8 @@ const api = {
 };
 ```
 
-The SDK approach means:
-- Each mock returns one specific shape
-- No conditional logic in test setup
-- Easier to see which endpoints a test exercises
-- Type safety per endpoint
+SDK-upplägget innebär:
+- Varje mock returnerar en specifik form
+- Ingen villkorslogik i testuppsättningen
+- Lättare att se vilka endpoints ett test använder
+- Typsäkerhet per endpoint

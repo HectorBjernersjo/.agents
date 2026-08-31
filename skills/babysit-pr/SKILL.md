@@ -1,57 +1,96 @@
 ---
 name: babysit-pr
-description: Watches a PR for new comments, answers the ones it is 100% sure about, and posts /azp run when the PR has been quiet for an hour
+description: Vaktar ett PR efter nya kommentarer, svarar bottar på det den är säker på, skickar resten vidare till Hector, och postar /azp run när PR:et varit tyst i 10 minuter
 ---
 
-Användaren vill att du vaktar ett pr. Användaren säger vilket pr, annars ta pr:et för nuvarande branch (`gh pr view`).
+Hector säger vilket PR, annars ta PR:et för nuvarande branch (`gh pr view`).
+Du är en tillståndsmaskin. Varje avsnitt nedan är ett tillstånd eller en
+händelse, och säger exakt vad du gör i det.
 
-## Setup
-1. Läs igenom pr:et och alla befintliga kommentarstrådar först så att du har kontexten — vad pr:et gör, vad som redan har diskuterats och avfärdats.
-2. Starta en persistent Monitor som pollar efter nya kommentarer (både issue-kommentarer och review-kommentarer) varje minut. Filtrera bort dina egna kommentarer (kolla inloggat konto med `gh api user --jq .login`). Mönster:
+## Start
+
+1. Läs PR:et och alla befintliga kommentarstrådar. Vad PR:et gör, vad som
+   redan diskuterats och avfärdats.
+2. Läs `docs/prs/<slug>/review-data.js` om den finns (sluggen är branchen
+   utan `users/hebj01/`). Där står de findings Hector redan avfärdat, med
+   `ignoreReason`. CodeRabbit tar ofta upp samma saker igen.
+3. **Om PR:et är draft** och CodeRabbit inte reviewat det än: kommentera
+   `@coderabbitai review`. En gång, aldrig igen. **Om PR:et är open**: gör
+   inget, CodeRabbit triggas automatiskt på open PR:s.
+4. Starta monitorn nedan och nollställ tystnadstimern.
 
 ```bash
 me=$(gh api user --jq .login)
 last=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+head=$(gh pr view {pr} --json headRefOid --jq .headRefOid)
 while true; do
   now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   gh api "repos/{owner}/{repo}/issues/{pr}/comments?since=$last" \
     --jq ".[] | select(.user.login != \"$me\") | \"issue-comment \(.user.login): \(.body)\"" || true
   gh api "repos/{owner}/{repo}/pulls/{pr}/comments?since=$last" \
     --jq ".[] | select(.user.login != \"$me\") | \"review-comment id=\(.id) \(.user.login): \(.body)\"" || true
+  h=$(gh pr view {pr} --json headRefOid --jq .headRefOid)
+  [[ $h != "$head" ]] && { echo "push $h"; head=$h; }
   last=$now; sleep 60
 done
 ```
 
-## När en ny kommentar kommer
-Svara bara på kommentarer där du är **100% säker** på att du har koll — t.ex. när CodeRabbit eller en annan bot lägger en kommentar om något vi redan har gått igenom och medvetet valt, eller något du kan verifiera är fel genom att läsa koden. 
-Om du är ganska säker men inte helt säker kan du svara coderabbit med en fråga där du förklarar vad du tänker.
-Är du inte helt säker: svara inte, sammanfatta istället kommentaren för Hector så tar han den.
+## Händelse: ny kommentar från någon annan än mig
 
-- Svara i rätt tråd: review-kommentarer besvaras med `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body=...`, issue-kommentarer med `gh pr comment`.
-- Signera alltid varje kommentar du skriver med:
+Nollställ tystnadstimern. Sen beror det på vem som skrev.
+
+**En bot** (CodeRabbit eller annan):
+- Är du säker på att du har koll, till exempel något vi redan gått igenom
+  och medvetet valt, eller något du kan verifiera är fel genom att läsa
+  koden: svara i tråden.
+- Är du nästan säker: svara med en fråga där du förklarar vad du tänker.
+- Annars: svara inte. Sammanfatta kommentaren för Hector.
+
+**En människa**: svara aldrig. Sammanfatta kommentaren för Hector, han tar
+den.
+
+Svara i rätt tråd. Review-kommentarer med
+`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body=...`,
+issue-kommentarer med `gh pr comment`. Signera varje kommentar du skriver med
 
 ```
-— {Vem du är, claude, cursor eller codex eller nåt} on behalf of Hector
+/ {claude, cursor, codex eller vad du är} on behalf of Hector
 ```
 
-- Resolva inga trådar — det gör Hector eller coderabbit själv.
-- Om en kommentar leder till kodändringar (Hector ber dig fixa något): squasha in fixen i rätt change i stacken (bookmarken följer med när changen skrivs om) och pusha med `jj git push --bookmark <branch-namn>`.
+Resolva inga trådar. Det gör Hector eller CodeRabbit själv.
 
-## Om alla kommentarer är resolvade och det inte har kommit några nya på 10 min:
-Kolla om det finns olösta review-trådar:
+## Händelse: ny push
+
+Oavsett om det är din egen fix eller Hectors: nollställ tystnadstimern.
+
+## Händelse: Hector ber dig fixa något utifrån en kommentar
+
+1. Gör fixen som en **ny change** ovanpå stacken, inte insquashad. Reviewers
+   ska kunna se att det är fixat.
+2. `jj git push --bookmark <branch-namn>`.
+3. Svara kort i tråden att det är fixat, med signatur.
+
+## Tillstånd: 10 minuter tyst
+
+Inga nya kommentarer, ingen push. Kolla olösta trådar:
 
 ```bash
 gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$pr){reviewThreads(first:100){nodes{isResolved}}}}}' -F owner={owner} -F repo={repo} -F pr={pr}
 ```
 
-- Inga olösta trådar (och inga obesvarade kommentarer som väntar på Hector) → posta kommentaren `/azp run` på pr:et så att pipelinen körs.
-- Finns det olösta trådar → posta inte `/azp run`, säg till Hector vad som är kvar.
-- När testerna är klara så verifiera att dom gick igenom. Om dom failade så gör såhär:
-    - Om det är en simpel och mekanisk fix och det här omöjligt kan peka på något större problem: gör den, pusha upp och kör testerna igen
-    - Annars fråga Hector
-- Failar bara en av pipelinesen räcker det med att du kör om den om du fixar något.
+- **Finns olösta trådar, eller kommentarer som väntar på Hector**: posta inte
+  `/azp run`. Säg till Hector vad som är kvar. Vänta.
+- **Annars**: posta `/azp run` på PR:et.
 
-Monitorn fortsätter tills användaren säger stopp eller pr:et mergas/stängs.
+## Händelse: pipelinen är klar
 
-## När Hector ber dig fixa något utifrån kommentarer
-Gör alla fixes som en ny change istället för i samma change. Så reviewers lätt kan se att jag har fixat det.
+- **Grönt, PR:et är draft, alla trådar lösta**: `gh pr ready`, så resten av
+  teamet kan börja reviewa. Säg till Hector.
+- **Grönt, PR:et är redan open**: säg till Hector.
+- **Rött, fixen är mekanisk och kan omöjligt peka på något större**: gör
+  fixen som ny change, pusha, kör om bara den pipeline som föll.
+- **Rött, allt annat**: fråga Hector.
+
+## Slut
+
+Monitorn kör tills PR:et mergas eller stängs, eller Hector säger stopp.

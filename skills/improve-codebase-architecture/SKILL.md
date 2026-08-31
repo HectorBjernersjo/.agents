@@ -1,71 +1,71 @@
 ---
 name: improve-codebase-architecture
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
+description: Skanna en kodbas efter möjligheter att fördjupa moduler, presentera dem som en visuell HTML-rapport, och grilla sedan igenom den du väljer.
 disable-model-invocation: true
 ---
 
-# Improve Codebase Architecture
+# Förbättra kodbasens arkitektur
 
-Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
+Lyft fram arkitektonisk friktion och föreslå **fördjupningsmöjligheter**, refactors som gör grunda moduler djupa. Målet är testbarhet och att AI ska kunna navigera koden.
 
-This command is _informed_ by the project's domain model and built on a shared design vocabulary:
+Det här kommandot _informeras_ av projektets domänmodell och bygger på ett gemensamt designordförråd:
 
-- Run the `/codebase-design` skill for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, "the interface is the test surface", "one adapter = hypothetical seam, two = real"). Use these terms exactly in every suggestion — don't drift into "component," "service," "API," or "boundary."
-- The domain language in `docs/CONTEXT.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate.
+- Kör skillen `/codebase-design` för arkitekturvokabulären (**modul**, **interface**, **djup**, **söm**, **adapter**, **hävstång**, **lokalitet**) och dess principer (raderingstestet, "interfacet är testytan", "en adapter = hypotetisk söm, två = riktig"). Använd de termerna exakt i varje förslag. Glid inte över i "component", "service", "API" eller "boundary".
+- Domänspråket i `docs/CONTEXT.md` ger namn åt bra sömmar; ADR:er i `docs/adr/` dokumenterar beslut som det här kommandot inte ska ta upp igen.
 
 ## Process
 
-### 1. Explore
+### 1. Utforska
 
-**Scope before you scan — YAGNI.** Deepening a module pays off by making future changes to it easier, so put extra weight on the parts of the codebase that have recently changed. Decide *where* to look before you look:
+**Avgränsa innan du skannar. YAGNI.** Att fördjupa en modul lönar sig genom att framtida ändringar i den blir enklare, så lägg extra vikt vid de delar av kodbasen som nyligen ändrats. Bestäm *var* du ska titta innan du tittar:
 
-- If the user named a direction — a module, a subsystem, a pain point — take it, and skip the inference below.
-- Otherwise, walk back a good stretch of the commit history (`git log --oneline`) to find the codebase's hot spots — the files and areas that keep coming up — and let those paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net.
+- Om användaren pekat ut en riktning, en modul, ett delsystem, en smärtpunkt, ta den och hoppa över slutledningen nedan.
+- Annars, gå tillbaka en bra bit i commithistoriken (`git log --oneline`) för att hitta kodbasens hot spots, filerna och områdena som dyker upp om och om igen, och låt de sökvägarna dra din uppmärksamhet först. Om ändringarna är utspridda utan tydlig hot spot, vidga nätet.
 
-Read the project's domain glossary (`docs/CONTEXT.md`) and any ADRs in the area you're touching first.
+Läs projektets domänglossarium (`docs/CONTEXT.md`) och eventuella ADR:er i området du rör först.
 
-Then spawn a sub-agent to walk the codebase. Don't follow rigid heuristics — explore organically and note where you experience friction:
+Starta sedan en subagent som går igenom kodbasen. Följ inte stela heuristiker. Utforska organiskt och notera var du upplever friktion:
 
-- Where does understanding one concept require bouncing between many small modules?
-- Where are modules **shallow** — interface nearly as complex as the implementation?
-- Where have pure functions been extracted just for testability, but the real bugs hide in how they're called (no **locality**)?
-- Where do tightly-coupled modules leak across their seams?
-- Which parts of the codebase are untested, or hard to test through their current interface?
+- Var kräver förståelsen av ett koncept att man hoppar mellan många små moduler?
+- Var är moduler **grunda**, interfacet nästan lika komplext som implementationen?
+- Var har rena funktioner brutits ut bara för testbarhetens skull, medan de riktiga buggarna gömmer sig i hur de anropas (ingen **lokalitet**)?
+- Var läcker hårt kopplade moduler över sina sömmar?
+- Vilka delar av kodbasen är otestade, eller svåra att testa genom sitt nuvarande interface?
 
-Apply the **deletion test** to anything you suspect is shallow: would deleting it concentrate complexity, or just move it? A "yes, concentrates" is the signal you want.
+Tillämpa **raderingstestet** på allt du misstänker är grunt: skulle radering koncentrera komplexiteten, eller bara flytta den? Ett "ja, koncentrerar" är signalen du letar efter.
 
-### 2. Present candidates as an HTML report
+### 2. Presentera kandidaterna som en HTML-rapport
 
-Write a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user — `xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows — and tell them the absolute path.
+Skriv en självständig HTML-fil till operativsystemets temp-katalog så att inget hamnar i repot. Hämta temp-katalogen från `$TMPDIR`, med `/tmp` som fallback (eller `%TEMP%` på Windows), och skriv till `<tmpdir>/architecture-review-<timestamp>.html` så att varje körning får en ny fil. Öppna den åt användaren, `xdg-open <path>` på Linux, `open <path>` på macOS, `start <path>` på Windows, och berätta den absoluta sökvägen.
 
-The report uses **Tailwind via CDN** for layout and styling, and **Mermaid via CDN** for diagrams where a graph/flow/sequence reliably communicates the structure. Mix Mermaid with hand-crafted CSS/SVG visuals — use Mermaid when relationships are graph-shaped (call graphs, dependencies, sequences), and hand-built divs/SVG when you want something more editorial (mass diagrams, cross-sections, collapse animations). Each candidate gets a **before/after visualisation**. Be visual.
+Rapporten använder **Tailwind via CDN** för layout och styling, och **Mermaid via CDN** för diagram där en graf, ett flöde eller en sekvens kommunicerar strukturen på ett pålitligt sätt. Blanda Mermaid med handgjorda CSS/SVG-visualiseringar. Använd Mermaid när relationerna är grafformade (anropsgrafer, beroenden, sekvenser), och handbyggda divs/SVG när du vill ha något mer redaktionellt (massdiagram, tvärsnitt, kollapsanimationer). Varje kandidat får en **före/efter-visualisering**. Var visuell.
 
-For each candidate, render a card with:
+För varje kandidat, rendera ett kort med:
 
-- **Files** — which files/modules are involved
-- **Problem** — why the current architecture is causing friction
-- **Solution** — plain English description of what would change
-- **Benefits** — explained in terms of locality and leverage, and how tests would improve
-- **Before / After diagram** — side-by-side, custom-drawn, illustrating the shallowness and the deepening
-- **Recommendation strength** — one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
+- **Files**, vilka filer/moduler som är inblandade
+- **Problem**, varför den nuvarande arkitekturen orsakar friktion
+- **Solution**, beskrivning i vanlig prosa av vad som skulle ändras
+- **Benefits**, förklarade i termer av lokalitet och hävstång, och hur testerna skulle bli bättre
+- **Before / After diagram**, sida vid sida, egenritat, som illustrerar det grunda och fördjupningen
+- **Recommendation strength**, en av `Strong`, `Worth exploring`, `Speculative`, renderad som en badge
 
-End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
+Avsluta rapporten med en sektion **Top recommendation**: vilken kandidat du skulle ta dig an först och varför.
 
-**Use docs/CONTEXT.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `docs/CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
+**Använd vokabulären i docs/CONTEXT.md för domänen, och vokabulären i `/codebase-design` för arkitekturen.** Om `docs/CONTEXT.md` definierar "Order", prata om "Order intake-modulen", inte "FooBarHandler", och inte "Order-servicen".
 
-**ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _"contradicts ADR-0007 — but worth reopening because…"_). Don't list every theoretical refactor an ADR forbids.
+**ADR-konflikter**: om en kandidat motsäger en befintlig ADR, lyft bara fram den när friktionen är verklig nog att motivera att ADR:en tas upp igen. Markera det tydligt i kortet (t.ex. en varningsruta: _"motsäger ADR-0007, men värd att öppna igen eftersom…"_). Lista inte varje teoretisk refactor en ADR förbjuder.
 
-See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.
+Se [HTML-REPORT.md](HTML-REPORT.md) för hela HTML-skelettet, diagrammönster och stilguide.
 
-Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
+Föreslå INTE interfaces ännu. När filen är skriven, fråga användaren: "Vilken av dessa vill du utforska?"
 
-### 3. Grilling loop
+### 3. Grilling-loop
 
-Once the user picks a candidate, run the `/grilling` skill to walk the decision tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+När användaren valt en kandidat, kör skillen `/grilling` för att gå igenom beslutsträdet tillsammans med dem: begränsningar, beroenden, formen på den fördjupade modulen, vad som sitter bakom sömmen, vilka tester som överlever.
 
-Side effects happen inline as decisions crystallize — run the `/domain-modeling` skill to keep the domain model current as you go:
+Sidoeffekter sker inline allteftersom besluten kristalliseras. Kör skillen `/domain-modeling` för att hålla domänmodellen uppdaterad under tiden:
 
-- **Naming a deepened module after a concept not in `docs/CONTEXT.md`?** Add the term to `docs/CONTEXT.md`. Create the file lazily if it doesn't exist.
-- **Sharpening a fuzzy term during the conversation?** Update `docs/CONTEXT.md` right there.
-- **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing — skip ephemeral reasons ("not worth it right now") and self-evident ones.
-- **Want to explore alternative interfaces for the deepened module?** Run the `/codebase-design` skill and use its design-it-twice parallel sub-agent pattern.
+- **Döper en fördjupad modul efter ett koncept som inte finns i `docs/CONTEXT.md`?** Lägg till termen i `docs/CONTEXT.md`. Skapa filen vid behov om den inte finns.
+- **Vässar en luddig term under samtalet?** Uppdatera `docs/CONTEXT.md` på en gång.
+- **Användaren avvisar kandidaten med ett bärande skäl?** Erbjud en ADR, formulerat som: _"Vill du att jag dokumenterar det här som en ADR så att framtida arkitekturgranskningar inte föreslår det igen?"_ Erbjud bara när skälet faktiskt skulle behövas av en framtida utforskare för att undvika samma förslag igen. Hoppa över flyktiga skäl ("inte värt det just nu") och självklara.
+- **Vill utforska alternativa interfaces för den fördjupade modulen?** Kör skillen `/codebase-design` och använd dess design-it-twice-mönster med parallella subagenter.
