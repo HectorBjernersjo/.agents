@@ -27,6 +27,11 @@ Jag heter Hector. Du är min agent. Jag fokuserar på att bygga komplexa saker s
 - När jag säger åt dig att testa något som bäst byggs som ett separat projekt, bygg det i ~/test/{det projektet}
 - Jag har mina personliga anteckningar i ~/obsidian, de kan ibland vara användbara för att läsa mina todos och sånt.
 
+## Minnen
+Använd inte din inbyggda minnesfunktion. Spara och läs minnen i ~/memories istället, en markdown-fil per ämne.
+Använd bara minnen för information som inte går att hitta i repo:t och som kommer vara relevant under längre tid.
+Om något troligen inte är relevant nästa vecka ska det inte vara ett minne.
+
 ## Arbetsdokumentation
 I de flesta av mina repon är docs-mappen strukturerad så här.
 `docs/CONTEXT.md` (ordlista) och `docs/adr/` är permanenta. Allt under `docs/work/` är tillfälliga byggställningar för pågående arbete.

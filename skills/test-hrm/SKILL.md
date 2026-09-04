@@ -121,12 +121,14 @@ Gäller båda klienterna, web-widgeten och Flexie-panelen i Nova.
 
 ## Smoke test: "testa att chatboten fortfarande funkar"
 
-Ber Hector bara om det, utan att peka på en specifik feature, är scenariot
-alltid samma. Kör web-widgeten i Flex.Net.Web, inte Nova. Be Flexie skapa en
-sjukfrånvaroansökan för hela nästa vecka, vänta in förslaget och acceptera
-det. Det övar hela kedjan: strömmat svar, verktygsanrop, och bekräftelse
-tillbaka till boten. Skriv prompten på svenska, ungefär "Skapa en
-sjukfrånvaroansökan för hela nästa vecka".
+Här är några förslag på vad du kan göra om du "bara ska testa så att chatboten funkar".
+Det är främst när ändringen är något som inte borde synas men i teorin skulle kunna sabba chatboten.
+
+- Be den registrera sjukfrånvaro åt dig hela nästa vecka och se till att du får upp rätt bekträftelsedialog och att den går att acceptera.
+- Ställ en fråga till den, typ "Hur reggar man frånvaro" och se till så att den korrekt söker i dokumentationen.
+- Om pr:et rör nåt annat så ska du såklart testa att det funkar istället/också.
+
+Gör det alltid i web, du kan skippa nova eftersom den inte är i prod än (om du inte specifikt också ändrade i Nova, testa i så fall den också)
 
 Ska det in i ett PR spelas det in med `record-demo`, klipp så att acceptansen
 och botens kvittens är med i slutet.

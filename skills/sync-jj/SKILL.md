@@ -4,6 +4,20 @@ description: Använd bara när du blir ombedd
 disable-model-invocation: true
 ---
 
-Dra ner dom senaste ändringarna från master och rebasea våran tweaks-ändring på den, då borde alla andra branches också hänga med.
-Om det blir några konflikter så lös dom.
-Om något av våra existerande worktrees eller branches ändringar var med i den nya master (alltså att vi troligen har mergeat den), så ska du ta bort det worktreet och den branchen/dom jj-ändringarna.
+Kör från `main`:
+
+```sh
+jj workspace update-stale
+jj git fetch
+jj rebase -s 'roots(master..(bookmarks() | parents(working_copies())))' -d master
+```
+
+Revseten väljer `base` och roten i varje aktiv feature-stack. Jj rebasar deras
+descendants och workspace-merges i samma operation. Rebasea inte varje workspace
+separat och kör inte `workspace update-stale` i alla mappar.
+
+Lös konflikter som den här rebasen skapar. Rör inte konflikter som fanns innan.
+
+Om en befintlig feature redan kom med i nya master är den troligen mergad. Ta då
+bort dess workspace, bookmark och jj-changes. Gör inga extra loggkontroller om
+rebasens output inte ger anledning till det.

@@ -45,6 +45,8 @@ Avsluta PR-descriptionen med en rad som både länkar och stänger work itemet i
 
 Nyckelordet måste stå direkt före referensen. Bara `AB#{id}` skapar en länk men flyttar inget, och `Fixes user story AB#{id}` blir också bara en länk. Ett nyckelord gäller bara den första referensen efter det, så flera work items får varsitt: `Closed AB#1, Closed AB#2`. Övergången sker först när PR:et mergas till master, så i en stack är det bara det som till slut går in i master som stänger något.
 
+Om du någon gång ska uppdatera pr descriptionen. Kolla först om jag eller nån annan har ändrat på den sen du satte den så du inte skriver över något.
+
 Id:t kommer från `ado-create-story` om `/create-user-story` kördes nyss i samma session, annars fråga användaren efter det.
 
 Exempel på för lång pr description:

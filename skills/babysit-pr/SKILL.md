@@ -22,7 +22,8 @@ händelse, och säger exakt vad du gör i det.
    `DevOps/IntegrationTests.yml` har `drafts: false` i sin `pr:`-trigger, så
    `/azp run` på ett draft svarar "pipeline triggers exclude this branch/path"
    och `UnitTests .NET`/`IntegrationTests .NET` dyker aldrig upp. PR:et måste
-   vara open innan testerna kan dra igång, se tystnadstillståndet nedan.
+   vara open innan testerna kan dra igång, och att öppna det startar dem inte
+   av sig självt: det krävs alltid ett `/azp run`, se tystnadstillståndet nedan.
 4. Starta monitorn nedan och nollställ tystnadstimern.
 
 ```bash
@@ -91,10 +92,11 @@ gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository
 
 - **Finns olösta trådar, eller kommentarer som väntar på Hector**: dra inte
   igång testerna. Säg till Hector vad som är kvar. Vänta.
-- **Är PR:et draft**: kör `gh pr ready`. Det är det som drar igång testerna,
-  eftersom pipelinen har `drafts: false`. Att öppna PR:et triggar dem
-  automatiskt, så posta inget `/azp run` här.
-- **Är PR:et redan open**: posta `/azp run` på PR:et (ensamt, ingen signatur).
+- **Är PR:et draft**: kör `gh pr ready` först, annars svarar azp att
+  triggern exkluderar branchen. Att öppna PR:et startar inga tester av sig
+  självt (verifierat på #30235: tolv minuter open utan .NET-checkar).
+- **Sen, oavsett om PR:et var draft eller redan open**: posta `/azp run` på
+  PR:et (ensamt, ingen signatur).
 
 Kontrollera efteråt att pipelinen faktiskt startade. Azure-checkarna
 (`UnitTests .NET`, `IntegrationTests .NET`) dyker upp först en stund senare,
