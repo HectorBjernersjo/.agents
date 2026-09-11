@@ -1,6 +1,6 @@
 ---
 name: babysit-pr
-description: Vaktar ett PR efter nya kommentarer, svarar bottar på det den är säker på, skickar resten vidare till Hector, och drar igång testerna när PR:et varit tyst i 10 minuter
+description: Vaktar ett PR efter nya kommentarer, svarar bottar på det den är säker på, skickar resten vidare till Hector, och drar igång testerna när CodeRabbit är klar med sin review
 ---
 
 Hector säger vilket PR, annars ta PR:et för nuvarande branch (`gh pr view`).
@@ -23,8 +23,8 @@ händelse, och säger exakt vad du gör i det.
    `/azp run` på ett draft svarar "pipeline triggers exclude this branch/path"
    och `UnitTests .NET`/`IntegrationTests .NET` dyker aldrig upp. PR:et måste
    vara open innan testerna kan dra igång, och att öppna det startar dem inte
-   av sig självt: det krävs alltid ett `/azp run`, se tystnadstillståndet nedan.
-4. Starta monitorn nedan och nollställ tystnadstimern.
+   av sig självt: det krävs alltid ett `/azp run`, se reviewtillståndet nedan.
+4. Starta monitorn nedan.
 
 ```bash
 me=$(gh api user --jq .login)
@@ -42,9 +42,10 @@ while true; do
 done
 ```
 
-## Händelse: ny kommentar från någon annan än mig
+CodeRabbits egna statuskommentarer kommer in genom samma monitor, så det är
+där du ser när reviewen är klar.
 
-Nollställ tystnadstimern. Sen beror det på vem som skrev.
+## Händelse: ny kommentar från någon annan än mig
 
 **En bot** (CodeRabbit eller annan):
 - Är du säker på att du har koll, till exempel något vi redan gått igenom
@@ -73,7 +74,8 @@ startar aldrig. Posta `/azp run` helt ensamt i kommentaren.
 
 ## Händelse: ny push
 
-Oavsett om det är din egen fix eller Hectors: nollställ tystnadstimern.
+Oavsett om det är din egen fix eller Hectors: CodeRabbit reviewar om de nya
+commitsen, så du är tillbaka på att vänta in reviewen.
 
 ## Händelse: Hector ber dig fixa något utifrån en kommentar
 
@@ -82,9 +84,17 @@ Oavsett om det är din egen fix eller Hectors: nollställ tystnadstimern.
 2. `jj git push --bookmark <branch-namn>`.
 3. Svara kort i tråden att det är fixat, med signatur.
 
-## Tillstånd: 10 minuter tyst
+## Tillstånd: CodeRabbit är klar
 
-Inga nya kommentarer, ingen push. Kolla olösta trådar:
+CodeRabbit säger själv till i sin sammanfattningskommentar. "Currently
+processing new changes in this PR" betyder att den fortfarande jobbar. Klar
+är den när kommentaren innehåller `Review finished`, `No actionable comments
+were generated` eller en walkthrough utan processing-raden.
+
+Hör du inget alls från CodeRabbit inom en kvart efter att den triggats, säg
+till Hector i stället för att vänta vidare.
+
+När reviewen är klar, kolla olösta trådar:
 
 ```bash
 gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$pr){reviewThreads(first:100){nodes{isResolved}}}}}' -F owner={owner} -F repo={repo} -F pr={pr}
@@ -93,8 +103,9 @@ gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository
 - **Finns olösta trådar, eller kommentarer som väntar på Hector**: dra inte
   igång testerna. Säg till Hector vad som är kvar. Vänta.
 - **Är PR:et draft**: kör `gh pr ready` först, annars svarar azp att
-  triggern exkluderar branchen. Att öppna PR:et startar inga tester av sig
-  självt (verifierat på #30235: tolv minuter open utan .NET-checkar).
+  triggern exkluderar branchen. Sätt ingen reviewer än, det görs först när
+  testerna är gröna. Att öppna PR:et startar inga tester av sig självt
+  (verifierat på #30235: tolv minuter open utan .NET-checkar).
 - **Sen, oavsett om PR:et var draft eller redan open**: posta `/azp run` på
   PR:et (ensamt, ingen signatur).
 
@@ -112,8 +123,17 @@ build-id:t ur check-URL:en (`...buildId=129597`) efter att azp svarat
 
 ## Händelse: pipelinen är klar
 
-- **Grönt**: säg till Hector. PR:et är redan open, det gjordes innan testerna
-  drogs igång.
+- **Grönt**: kolla olösta trådar igen med samma query som ovan. Kommentarer
+  kan ha kommit in medan testerna körde.
+  - Alla resolvade och inget väntar på Hector: lägg till Team Employee som
+    reviewer och Employee-taggen,
+    `gh pr edit {pr} --add-reviewer {owner}/<team-slug> --add-label Employee`.
+    Sluggen hittar du med `gh api orgs/{owner}/teams`. Säg till Hector att
+    PR:et är ute för review. Det är först här reviewer och tagg sätts,
+    `create-pr` lämnar dem tomma.
+  - Annars: säg till Hector vad som är kvar. Sätt reviewer och tagg när sista
+    tråden är resolvad, så länge testerna fortfarande är gröna på senaste
+    pushen.
 - **Rött, fixen är mekanisk och kan omöjligt peka på något större**: gör
   fixen som ny change, pusha, kör om bara den pipeline som föll.
 - **Rött, allt annat**: fråga Hector.

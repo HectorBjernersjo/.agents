@@ -9,7 +9,7 @@ Du får rapportera medelstora refactors inom det ändrade featureområdet när d
 Börja med att köra:
 
 ```bash
-git --no-pager diff -U50 origin/master...
+jj diff --git --context 50 --from 'fork_point(trunk() | @)' --to '@-'
 ```
 
 för att få diffen för PR:et du granskar.

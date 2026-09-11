@@ -79,14 +79,6 @@
       color: var(--muted);
     }
 
-    .topbar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-
     .summary {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -442,12 +434,6 @@
 </head>
 <body>
   <main>
-    <section class="topbar">
-      <div>
-        <h1 id="review-title">PR Review</h1>
-      </div>
-    </section>
-
     <section class="summary" id="summary"></section>
 
     <div class="filters" id="filters"></div>
@@ -670,7 +656,6 @@
 
     function renderHeader() {
       document.title = review.title || "PR Review";
-      document.querySelector("#review-title").textContent = review.title || "PR Review";
     }
 
     function renderSummary() {

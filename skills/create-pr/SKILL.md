@@ -28,7 +28,8 @@ in i stackens changes (bookmarken följer med när changen skrivs om) och kör
 
 ## Skapa PR:et
 Skapa PR:et med gh cli:t, gör den som en draft och ge användaren en länk.
-Lägg till Employee-taggen på PR:et.
+Sätt ingen reviewer och ingen Employee-tagg. `babysit-pr` lägger på båda
+först när testerna är gröna och alla trådar är resolvade.
 
 ## PR description
 Innehåller diffen synliga UI-ändringar, spela in med `record-demo` och publicera med `pr-media`, som lägger gif:en under `## Demo` i beskrivningen.
@@ -105,6 +106,28 @@ Bättre:
 ```markdown
 Flexie har varit ute i prod ett tag och introt som pekade ut chattknappen och förklarade chatten i två steg när den öppnades behövs inte längre. Vi tar därför bort introjs från chatboten.
 Closed AB#12345
+```
+
+Ett till exempel på onödigt lång description:
+```markdown
+Verktygen som kräver godkännande har hittills ägt allt själva: schema mot modellen, validering, bekräftelseformulär och exekvering i en och samma klass. Det gör dem svåra att återanvända utanför chatten och gör det lätt att råka exekvera utan att passera bekräftelsen.
+
+Vi bryter därför ut en `ConfirmableAction<TInput>` per åtgärd, med `Validate` och `Execute`, och en `ConfirmationFormBuilder<TInput>` som bygger kortet från samma input. Toolet blir en tunn adapter: det äger namn, schema och tillgänglighet mot modellen och pekar på sin action. Actions registreras aldrig som `IAiTool`, så modellen har ingen väg till `Execute` annat än via bekräftelseflödet.
+
+Kortet byggs nu av `ConfirmationCardBuilder`. När användaren redigerar och godkänner mergas de postade fälten in i den sparade inputen på servern, formuläret normaliserar (byte av bil nollar mätarställningen, byte av frånvaroorsak tar bort barnet) och actionen validerar innan något sparas. Fält delas i `InputField`, som mappar mot en egenskap på inputen, och `DisplayField`, beräknade visningsvärden som klienten inte kan skriva över. Bekräftelsemeddelandet renderas som markdown i webben.
+
+`ToolArgumentValidator` lever kvar som brygga mot det gamla flödet i `ChatbotService` och försvinner i nästa PR i serien.
+
+Closed AB#37459
+```
+
+Bättre
+```markdown
+Målet är att helt bryta ut confirmation från toolsen. Ett tool ska köras och returna direkt, sen kan det ge en artifact som visas upp för användaren med en accept knapp. Men det ska ske utanför tool loopen. Detta för att simplifiera och göra det lättare för mcp och programatisk toolcalling som kommer senare.
+
+Vi delar upp så att toolet bara är det som körs, sen returnerar den ett ConfirmationForm (en artifact) med en accept knapp. När man accepterar den körs den ConfirmableAction som hör till formuläret.
+
+Closed AB#37459
 ```
 
 ## Stacked PRs, när flera PR:s beror på varandra

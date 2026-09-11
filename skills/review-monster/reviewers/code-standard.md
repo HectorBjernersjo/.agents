@@ -3,7 +3,7 @@ Ditt mål är att granska det aktuella PR:et och hitta alla ställen där vår k
 
 Börja med att köra:
 ```
-git --no-pager diff origin/master...
+jj diff --git --from 'fork_point(trunk() | @)' --to '@-'
 ```
 för att få diffen för PR:et du granskar.
 

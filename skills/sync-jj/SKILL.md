@@ -21,3 +21,6 @@ Lös konflikter som den här rebasen skapar. Rör inte konflikter som fanns inna
 Om en befintlig feature redan kom med i nya master är den troligen mergad. Ta då
 bort dess workspace, bookmark och jj-changes. Gör inga extra loggkontroller om
 rebasens output inte ger anledning till det.
+
+Du behöver bara bygga och köra tester om du behövde göra stora ändringar för att fixa konflikter.
+Annars kan du skippa det.

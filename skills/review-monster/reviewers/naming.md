@@ -3,7 +3,7 @@ Ditt mål är att granska det aktuella PR:et och leta efter alla namn som kunde 
 
 Börja med att köra:
 ```
-git --no-pager diff -U50 origin/master...
+jj diff --git --context 50 --from 'fork_point(trunk() | @)' --to '@-'
 ```
 för att få diffen för PR:et du granskar.
 
