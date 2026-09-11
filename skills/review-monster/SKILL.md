@@ -1,6 +1,6 @@
 ---
-name: review-pr
-description: Kör flera reviewing-agenter parallellt för att reviewa aktuell PR och hanterar uppföljande svar på review-findings
+name: review-monster
+description: Kör flera reviewer-subagenter parallellt för att reviewa aktuell PR och hanterar uppföljande svar på review-findings
 disable-model-invocation: true
 ---
 
@@ -91,6 +91,32 @@ Skapa nästa nollutfyllda review-mapp under `docs/prs/<branch-slug>/reviews/` (`
 Varje reviewing-agent skriver sin egen kompletta rapport till `<agent-name>/report.md`.
 
 ## Steg 4
+Reviewerna är inte egna agenttyper. Varje reviewer är en färdig prompt i den här skillens `reviewers/`-mapp, och du startar en `general-purpose`-subagent per reviewer med den prompten:
+
+| reviewer | prompt |
+|---|---|
+| bug-reviewer | `reviewers/bug.md` |
+| code-standard-reviewer | `reviewers/code-standard.md` |
+| naming-reviewer | `reviewers/naming.md` |
+| simplification-reviewer | `reviewers/simplification.md` |
+| nitpick-reviewer | `reviewers/nitpick.md` |
+| slop-reviewer | `reviewers/slop.md` |
+| architecture-reviewer | `reviewers/architecture.md` (bara vid arkitekturtröskeln nedan) |
+| footgun-reviewer | `reviewers/footgun.md` (startas inte som default) |
+
+Subagentens prompt ska vara exakt:
+
+```text
+Läs `<absolut sökväg till skillen>/reviewers/<fil>` och följ den.
+<branch-slug> = <värde>
+<review-id> = <värde>
+<architecture-steps-dir> = <absolut sökväg till skillen>/references/architecture-reviewer   (bara för architecture-reviewer)
+go
+```
+
+Säg inget mer till subagenterna än det.
+Spawna alla i samma anrop, inte en i taget. Och gör dem blockerande.
+
 Avgör om PR:en är stor nog för `architecture-reviewer`. Hoppa över den som default.
 
 Kör `architecture-reviewer` bara när PR:en tydligt har bred arkitekturell påverkan, till exempel:
@@ -100,13 +126,6 @@ Kör `architecture-reviewer` bara när PR:en tydligt har bred arkitekturell påv
 - Den introducerar eller kopplar om ett någorlunda stort feature-flöde.
 
 Små lokala fixar, ändringar som bara rör tester, omdöpningar, formatering, textändringar och avgränsade refactors ska inte köra `architecture-reviewer`.
-
-Starta "bug-reviewer", "code-standard-reviewer", "naming-reviewer", "simplification-reviewer", "nitpick-reviewer" och "slop-reviewer".
-Starta också "architecture-reviewer", men bara om PR:en passerade arkitekturtröskeln ovan.
-Skicka med den framtagna `<branch-slug>` och `<review-id>` så att alla agenter skriver till samma review-körning.
-Om du startar `architecture-reviewer`, skicka också med arkitektur-stegmappen: den här skillens `references/architecture-reviewer/`-mapp.
-Säg inget mer till agenterna än det, plus "go".
-Spawna alla i samma anrop, inte en i taget. Och gör dem blockerande.
 
 ## Steg 5
 När alla reviewers är klara, sammanställ deras findings i `docs/prs/<branch-slug>/review-data.js` och kopiera den här skillens `template.html` till `docs/prs/<branch-slug>/review.html`.
