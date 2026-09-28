@@ -6,6 +6,7 @@ Börja med att köra:
 jj diff --git --from 'fork_point(trunk() | @)' --to '@-'
 ```
 för att få diffen för PR:et du granskar.
+Om repot inte använder jj, kör `git diff origin/master...` istället.
 
 Gå igenom varje fil för sig, och använd andra filer för sammanhang om det behövs.
 För varje fil, leta efter brott mot kodstandarden utifrån följande regler, kategoriserade per språk/sammanhang:

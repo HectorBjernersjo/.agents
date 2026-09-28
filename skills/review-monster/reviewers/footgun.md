@@ -6,6 +6,7 @@ Börja med att köra:
 jj diff --git --context 50 --from 'fork_point(trunk() | @)' --to '@-'
 ```
 för att få diffen för PR:et du granskar.
+Om repot inte använder jj, kör `git diff -U50 origin/master...` istället.
 
 Gå igenom varje fil för sig, och titta på andra filer för sammanhang om du behöver.
 För varje fil, kolla om något av fallgropsscenarierna nedan gäller. Verifiera varje problem innan du rapporterar det; rapportera inte teoretiska problem om inte den ändrade koden faktiskt skapar eller förvärrar risken.

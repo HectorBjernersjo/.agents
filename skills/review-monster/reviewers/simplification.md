@@ -13,6 +13,7 @@ jj diff --git --context 50 --from 'fork_point(trunk() | @)' --to '@-'
 ```
 
 för att få diffen för PR:et du granskar.
+Om repot inte använder jj, kör `git diff -U50 origin/master...` istället.
 
 Granska förenklingsmöjligheter i den här ordningen:
 
