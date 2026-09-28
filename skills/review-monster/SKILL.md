@@ -71,13 +71,13 @@ Rader i det historiska indexet över ignorerade findings måste vara ett JSON-ob
 Använd `ignored-findings.jsonl` för att hitta kandidater bland tidigare ignorerade findings, och verifiera sedan att det nya findingen faktiskt handlar om samma sak innan du undertrycker det.
 
 ## Steg 1
-Om det finns ocommittade ändringar (förutom i package.json och liknande filer som inte alls hör till den här PR:en), säg åt användaren att committa dem innan du fortsätter, så att `git diff origin/master...` fungerar som det ska.
+Om det finns ocommittade ändringar (förutom i package.json och liknande filer som inte alls hör till den här PR:en), säg åt användaren att committa dem innan du fortsätter, så att diffen fungerar som den ska.
 
 ## Steg 2
 Ta fram `<branch-slug>` från aktuell git-branch genom att ignorera `users/<username>` (om det är en del av branch-namnet) och bara använda resten för att skapa en slug.
 
 Om `docs/work/` har en mapp som matchar den sluggen, läs dess `spec.md` och den ticket som implementeras först, och skicka med deras sökvägar till reviewing-agenterna. Findings ska bedömas mot vad arbetet var tänkt att göra. `/land` tar bort den här PR:ens review-artefakter när arbetet mergats.
-Hämta filerna i aktuell PR med `git diff --name-only origin/master...`.
+Hämta filerna i aktuell PR med `jj diff --name-only --from 'fork_point(trunk() | @)' --to '@-'` om repot använder jj, annars med `git diff --name-only origin/master...`.
 
 Innan du startar reviewers, leta efter tidigare ignorerade findings som nämner någon av filerna i aktuell PR:
 
