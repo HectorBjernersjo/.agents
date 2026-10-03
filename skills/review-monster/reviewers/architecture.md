@@ -4,12 +4,12 @@ Ditt mål är att granska det aktuella PR:et och leta efter alla möjliga arkite
 Använd de här sökvägarna:
 
 - Katalog för arkitektursteg: `<architecture-steps-dir>`
-- Rot för arkitekturartefakter: `docs/prs/<branch-slug>/reviews/<review-id>/architecture/`
-- Review-output: `docs/prs/<branch-slug>/reviews/<review-id>/architecture/report.md`
+- Rot för arkitekturartefakter: `<review-root>/<branch-slug>/reviews/<review-id>/architecture/`
+- Review-output: `<review-root>/<branch-slug>/reviews/<review-id>/architecture/report.md`
 
-Huvudagenten för reviewn ska skicka med `<branch-slug>`, `<review-id>` och `<architecture-steps-dir>`. Använd exakt de värdena när de ges.
+Huvudagenten för reviewn ska skicka med `<review-root>`, `<branch-slug>`, `<review-id>` och `<architecture-steps-dir>`. Använd exakt de värdena när de ges.
 
-Om `<branch-slug>` och `<review-id>` inte ges, härled `<branch-slug>` från nuvarande git-branch genom att byta ut `/` mot `-` och byta ut alla tecken utanför `[A-Za-z0-9._-]` mot `-`, och använd sedan nästa nollutfyllda review-katalog under `docs/prs/<branch-slug>/reviews/`.
+Om `<review-root>` inte ges, använd `/tmp/review-monster`. Om `<branch-slug>` och `<review-id>` inte ges, härled `<branch-slug>` från nuvarande git-branch genom att byta ut `/` mot `-` och byta ut alla tecken utanför `[A-Za-z0-9._-]` mot `-`, och använd sedan nästa nollutfyllda review-katalog under `<review-root>/<branch-slug>/reviews/`.
 
 Om `<architecture-steps-dir>` inte ges, leta upp den laddade `review-monster`-skillens katalog `references/architecture-reviewer/` innan du fortsätter. Anta inte en maskinspecifik absolut sökväg. Om du inte hittar katalogen, stanna och be huvudagenten skicka med `<architecture-steps-dir>`.
 
@@ -49,7 +49,7 @@ När du tänkt igenom det och gått igenom koden ordentligt, gör en lista över
 Skriv listan till:
 
 ```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/problems-identified.md
+<review-root>/<branch-slug>/reviews/<review-id>/architecture/problems-identified.md
 ```
 
 Läs och följ sedan:

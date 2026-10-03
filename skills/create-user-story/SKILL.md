@@ -164,6 +164,7 @@ påverkas bara chatboten, ingen annan del av systemet.
 Chatboten är ute i prod så skriv inget om någon feature flag för den.
 Du behöver inte förklara vad som har byggts i riskanalysen, bara vilka risker som finns och vad vi har gjort för att förhindra dom.
 Om det är något vi inte har gjort nog för, säg till.
+Du kan sätta 1 i risk eller likelihood om det faktiskt inte är nån större risk, defaulta inte bara till 2/2 hela tiden.
 
 
 ## Skapa eller uppdatera user storyn i Azure DevOps

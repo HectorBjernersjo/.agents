@@ -16,6 +16,6 @@ För varje fil, kolla om något av fallgropsscenarierna nedan gäller. Verifiera
 - Vi kör flera backend-instanser. Koden får inte anta att det bara finns en backend-process. Flagga kod som lagrar delat applikationstillstånd enbart i minnet, förlitar sig på processlokala lås/räknare/cachar/timers för korrekthet, antar att bakgrundsjobb körs som singleton över hela flottan, eller på annat sätt går sönder när requests för samma användare/entitet hanteras av olika backend-instanser. Om lokalt minne bara är en optimering och korrektheten fortfarande kommer från en delad, beständig källa, flagga det inte.
 - De flesta kunder ligger i azure men vi har några som self-hostar och några som ligger på vår gamla windows-hosting "iver". Se till att koden inte går sönder för dem.
 
-När du är klar, skriv din kompletta rapport till `docs/prs/<branch-slug>/reviews/<review-id>/footgun/report.md`. Skapa katalogen om den inte finns.
+När du är klar, skriv din kompletta rapport till `<review-root>/<branch-slug>/reviews/<review-id>/footgun/report.md`. Skapa katalogen om den inte finns.
 Rapportera sedan tillbaka till huvudagenten för reviewn med sökvägen till filen.
 Ta med en relativt detaljerad förklaring av varje fallgrop tillsammans med en enda konkret fix.

@@ -5,7 +5,7 @@ Optimera inte bara för att göra en minimal ändring. Tänk på vad som skulle 
 Skriv den enskilda konkreta fixen till:
 
 ```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/<problem-slug>/chosen_solution.md
+<review-root>/<branch-slug>/reviews/<review-id>/architecture/<problem-slug>/chosen_solution.md
 ```
 
 När du har skrivit den, rapportera tillbaka till huvudagenten med sökvägen till din valda konkreta fix.

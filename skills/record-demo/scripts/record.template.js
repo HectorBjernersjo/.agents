@@ -23,7 +23,7 @@ async (page) => {
     const inst = p.locator('input[name=Kundinstans]');
     if ((await inst.count()) && !(await inst.inputValue())) await inst.fill(KUNDINSTANS);
     await p.fill('input[name=Anvandarnamn]', 'DEMO.CEO');
-    await p.fill('input[name=Losenord]', '');
+    await p.fill('input[name=Losenord]', 'password');
     await p.click('#LoginButton');
     // Redirecten till Home sker via JS efter att sidan laddat, networkidle räcker inte.
     await p.waitForURL((u) => !u.pathname.startsWith('/Login'), { timeout: 45000 });

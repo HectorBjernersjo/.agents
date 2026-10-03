@@ -3,7 +3,7 @@
 Skriv till sist den slutliga listan över punkter du tyckte var värda att implementera till:
 
 ```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/report.md
+<review-root>/<branch-slug>/reviews/<review-id>/architecture/report.md
 ```
 
 Det här är den enda delen av arkitektur-reviewen som implementeraren faktiskt kommer läsa, så se till att varje punkt har en bra beskrivning av problemet och en enda, mycket detaljerad och konkret fix.

@@ -11,7 +11,7 @@ händelse, och säger exakt vad du gör i det.
 
 1. Läs PR:et och alla befintliga kommentarstrådar. Vad PR:et gör, vad som
    redan diskuterats och avfärdats.
-2. Läs `docs/prs/<slug>/review-data.js` om den finns (sluggen är branchen
+2. Läs `/tmp/review-monster/<slug>/review-data.js` om den finns (sluggen är branchen
    utan `users/hebj01/`). Där står de findings Hector redan avfärdat, med
    `ignoreReason`. CodeRabbit tar ofta upp samma saker igen.
 3. **Om PR:et är draft** och CodeRabbit inte reviewat det än: kommentera
@@ -134,6 +134,8 @@ build-id:t ur check-URL:en (`...buildId=129597`) efter att azp svarat
   - Annars: säg till Hector vad som är kvar. Sätt reviewer och tagg när sista
     tråden är resolvad, så länge testerna fortfarande är gröna på senaste
     pushen.
+- **Rött**: läs först varför med `ado-run-log --id <build-id>`. Id:t hittar du
+  med `ado-list-runs unit|integration --pr {pr}` om du inte har det.
 - **Rött, fixen är mekanisk och kan omöjligt peka på något större**: gör
   fixen som ny change, pusha, kör om bara den pipeline som föll.
 - **Rött, allt annat**: fråga Hector.
@@ -141,3 +143,8 @@ build-id:t ur check-URL:en (`...buildId=129597`) efter att azp svarat
 ## Slut
 
 Monitorn kör tills PR:et mergas eller stängs, eller Hector säger stopp.
+Om du ser att pr:et har mergeats, då kan du ta bort workspacet för featuren och avsluta alla processer som hör till det om det finns några.
+
+
+## Info
+Du kan köra om bara unit test eller integration tests med `/azp run UnitTests .Net` eller `/azp run IntegrationTests .Net`. Gör det bara om hector säger det.

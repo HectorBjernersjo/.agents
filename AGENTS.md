@@ -22,6 +22,7 @@ Jag heter Hector. Du är min agent. Jag fokuserar på att bygga komplexa saker s
 - När du stöter på ett hinder eller ett problem du inte kan lösa utan att avvika rejält från vad jag sagt, jobba inte runt det. Stanna, förklara och fråga hur vi ska gå vidare.
 - Ofta jobbar andra agenter i samma katalog samtidigt som du.
   Om något inte kompilerar just nu på grund av en annan agents ändring, stasha eller ändra inget, vänta bara ett par minuter tills den är klar.
+- Innan du ställer en fråga, kolla först om du kan svara på den själv genom att läsa koden eller nån annan information du har.
 
 ## Min setup
 - När jag säger åt dig att testa något som bäst byggs som ett separat projekt, bygg det i ~/test/{det projektet}
@@ -49,7 +50,7 @@ Om det visar sig vara flera features, lägg till en `map.md` och flytta ner varj
 
 **Att något finns betyder att det är ofärdigt.** Inget markeras någonsin som klart, det raderas. En mergad tickets fil tas bort, dess beteende lever nu i koden och testerna, så en `Blocked by:` som pekar på en fil som är borta är uppfylld. När sista ticketen är borta lyfter `/land` in det som är värt att behålla i `docs/CONTEXT.md` och `docs/adr/`, och raderar sedan mappen.
 
-Namnge branchen efter `<slug>` så att PR-reviews under `docs/prs/` leder tillbaka till arbetsmappen.
+Namnge branchen efter `<slug>` så att PR-reviews under `/tmp/review-monster/` leder tillbaka till arbetsmappen.
 
 ## Ditt skrivande
 

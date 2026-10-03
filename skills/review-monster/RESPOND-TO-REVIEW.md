@@ -1,4 +1,4 @@
-När användaren svarar på review-findings, hantera fixarna först och uppdatera sedan `docs/prs/<branch-slug>/review-data.js`.
+När användaren svarar på review-findings, hantera fixarna först och uppdatera sedan `<review-root>/<branch-slug>/review-data.js`.
 
 Användaren kan svara på varje finding med ett av följande:
 
@@ -17,7 +17,7 @@ För ignores:
 - Lägg till en tydlig `ignoreReason`.
 - Se till att findingen har `files` med repo-relativa sökvägar utan radnummer. Om de saknas, ta fram dem från `location`.
 - Se till att findingen har ett stabilt `fingerprint` byggt av agent/kategori, primär fil och normaliserad problemtitel.
-- Lägg till en `ignored`-rad med `"ignoredBy":"human"` i `docs/prs/_review-index/ignored-findings.jsonl`, om inte samma `pr`, `findingId`, `fingerprint` och `event` redan finns.
+- Lägg till en `ignored`-rad med `"ignoredBy":"human"` i `<review-root>/_review-index/ignored-findings.jsonl`, om inte samma `pr`, `findingId`, `fingerprint` och `event` redan finns.
 
 Format för rad i ignore-indexet:
 

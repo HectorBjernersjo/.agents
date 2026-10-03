@@ -36,13 +36,15 @@ annars Windows-fnm.
 
 Alla i bakgrunden, logga till scratchpad. `ASPNETCORE_URLS` styr Kestrel och
 vinner över `launchSettings.json`, så använd den i stället för
-`--launch-profile`. Förslag: Web 56876/56877, Nova.Api 7393, Vite 5273. Är
-någon upptagen (`ss -ltnp`), ta nästa tiotal.
+`--launch-profile`. Web kör på https 56868 eller 56869 (56867 är http-porten i Hectors instans), ta den första
+som är ledig. Bara de portarna (och 56866) är registrerade i Visma Connect, så
+välj aldrig någon annan för Web. Nova.Api 7393, Vite 5273. Är någon av dem
+upptagen (`ss -ltnp`), ta nästa tiotal.
 
 ```
 export DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH ASPNETCORE_ENVIRONMENT=Development
-# Flex.Net.Web (https://localhost:56876)
-cd Flex.Net/Flex.Net.Web && ASPNETCORE_URLS='https://localhost:56876;http://localhost:56877' \
+# Flex.Net.Web (https://localhost:56868)
+cd Flex.Net/Flex.Net.Web && ASPNETCORE_URLS='https://localhost:56868' \
   dotnet run --no-launch-profile \
   --property:AllowMissingPrunePackageData=true --property:NuGetAudit=false
 # Nova.Api (https://localhost:7393). getdocument-steget failar från WSL, stäng av det.
@@ -62,9 +64,9 @@ Flex.Net.Web, måste du köra `npm run build` innan du testar, annars testar
 du den gamla bundlen och ser inte din ändring. Vänta på porten med en
 `until curl ...; do sleep 2; done` i bakgrunden.
 
-Forms-login funkar på vilken port som helst. OIDC-redirect och
-Skatteverket-inloggning gör det inte (redirect-URI:n är registrerad på
-56866), så de kan inte testas från en egen instans.
+Forms-login funkar på vilken port som helst. Visma Connect funkar på 56866
+och 56867 till 56869. Skatteverket-inloggning funkar bara på 56866 och kan inte
+testas från en egen instans.
 
 Stoppa det du startat när du är klar.
 
@@ -72,9 +74,16 @@ Stoppa det du startat när du är klar.
 
 Flex.Net.Web har forms-login på roten när OIDC är av. Fälten heter
 `Kundinstans`, `Anvandarnamn`, `Losenord`, knappen är `#LoginButton`.
-Logga in som `DEMO.CEO` med tomt lösenord. Är `Kundinstans` tom och krävs,
+Logga in som `DEMO.CEO` med lösenordet `password`. Är `Kundinstans` tom och krävs,
 använd `FLEX1`. Redirecten till Home sker via JS efter att login-sidan
 svarat, så `networkidle` räcker inte, vänta på att url:en lämnar `/Login`.
+
+När HRM kör med Visma Connect (MT-läge, `VismaConnect:IsOn` och
+`Multitenancy` på) skickar roten dig till Connects inloggning i stage i stället.
+Logga in med `hector.bjernersjo+ceo@flexapplications.se` och lösenordet
+`TjabbaTjenareDu`. Frågar Connect efter tenant, välj Flex AB. Du blir den
+användare som `FlexSlop.VismaConnectSetup` senast kopplade kontot till, oftast
+SYSTEMBOLAGET.CEO i Systembolaget. Det här funkar på port 56866 och 56867 till 56869.
 
 Nova (NovaFrontend) behöver ingen inloggning lokalt. Nova.Api kör med
 `debug-auth.json` (symlinkad av `setup_worktree`) och identifierar alla

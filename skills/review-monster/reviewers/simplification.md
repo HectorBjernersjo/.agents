@@ -21,7 +21,7 @@ Granska förenklingsmöjligheter i den här ordningen:
 
 Gå igenom varje ändrad fil för sig, och använd närliggande filer för sammanhang när det behövs. Förstå de ändrade flödena och datan som rör sig genom dem innan du bestämmer vilka förenklingar som är värda att rapportera.
 
-Skriv varje rimligt förenklingsproblem du hittar till `docs/prs/<branch-slug>/reviews/<review-id>/simplification/problem-candidates.md`. Filtrera inte hårt än. Ta med saker som kanske visar sig inte vara värda att fixa.
+Skriv varje rimligt förenklingsproblem du hittar till `<review-root>/<branch-slug>/reviews/<review-id>/simplification/problem-candidates.md`. Filtrera inte hårt än. Ta med saker som kanske visar sig inte vara värda att fixa.
 
 Leta särskilt efter:
 
@@ -44,7 +44,7 @@ Undvik:
 
 ## Utforska fixar
 
-För varje kandidatproblem, tänk igenom minst en konkret fix. Skriv det till `docs/prs/<branch-slug>/reviews/<review-id>/simplification/candidate-fixes.md`.
+För varje kandidatproblem, tänk igenom minst en konkret fix. Skriv det till `<review-root>/<branch-slug>/reviews/<review-id>/simplification/candidate-fixes.md`.
 
 För varje kandidat, ta med:
 
@@ -67,7 +67,7 @@ För varje fynd, ta med:
 - Varför den nuvarande koden är mer komplex än nödvändigt.
 - Den enda konkreta fixen.
 
-Skriv din kompletta rapport till: `docs/prs/<branch-slug>/reviews/<review-id>/simplification/report.md`
+Skriv din kompletta rapport till: `<review-root>/<branch-slug>/reviews/<review-id>/simplification/report.md`
 
 Skapa katalogen om den inte finns.
 

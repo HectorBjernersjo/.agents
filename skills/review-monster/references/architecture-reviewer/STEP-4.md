@@ -7,7 +7,7 @@ Fråga dig själv för varje lösning: skulle koden faktiskt bli renare och lät
 I arkitektur-artefaktroten, skapa eller uppdatera:
 
 ```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/solutions-filtered.md
+<review-root>/<branch-slug>/reviews/<review-id>/architecture/solutions-filtered.md
 ```
 
 Under `# Filtered points`, skriv alla problem med sin valda lösning och en motivering, inklusive för- och nackdelar kring varför den är eller inte är värd att implementera.

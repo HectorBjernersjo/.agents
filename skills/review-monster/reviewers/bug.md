@@ -20,7 +20,7 @@ Leta efter:
 - Saker som inte funkar i skala med flera backends igång
 - Alla andra möjliga buggar
 
-När du är klar, skriv din kompletta rapport till `docs/prs/<branch-slug>/reviews/<review-id>/bug/report.md`. Skapa katalogen om den inte finns.
+När du är klar, skriv din kompletta rapport till `<review-root>/<branch-slug>/reviews/<review-id>/bug/report.md`. Skapa katalogen om den inte finns.
 Rapportera sedan tillbaka till huvudagenten för reviewn med sökvägen till filen.
 Ta med en relativt detaljerad förklaring av varje problem tillsammans med en enda konkret fix.
 Fixen ska vara specifik nog att någon helt utan sammanhang kan plocka upp den och implementera den i princip utan att tänka.

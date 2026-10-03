@@ -20,7 +20,7 @@ Till exempel:
 Ta inte med följande:
 - Förslag om att göra klasser sealed
 
-Skriv din kompletta rapport till `docs/prs/<branch-slug>/reviews/<review-id>/nitpick/report.md`. Skapa katalogen om den inte finns.
+Skriv din kompletta rapport till `<review-root>/<branch-slug>/reviews/<review-id>/nitpick/report.md`. Skapa katalogen om den inte finns.
 Rapporten ska vara en lista över varje nitpick eller liten förbättring du hittat. För varje problem, ta med:
 - Filen och platsen, om tillämpligt.
 - En kortfattad förklaring av varför den nuvarande koden är lite sämre än den behöver vara.

@@ -1,17 +1,13 @@
 # Steg 2
 
-Av alla problem du har identifierat, tänk igenom vilka som faktiskt är värda att lösa i den här PR:en.
+Av alla problem du har identifierat, tänk igenom vilka som faktiskt är värda att lösa i den här PR:en. Stryk allt som ligger utanför PR:ens scope.
 
-Skriv problemen som är värda att lösa till:
+Behåll som mest de 5 tydligaste och största arkitekturella problemen. Oftast är det färre än 5, och då ska du inte fylla på med svagare problem för att komma upp i antalet.
 
-```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/problems-filtered.md
-```
-
-Problem som är värda att lösa men helt utanför scope för den här PR:en skriver du till:
+Skriv problemen du behåller till:
 
 ```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/problems-out-of-scope.md
+<review-root>/<branch-slug>/reviews/<review-id>/architecture/problems-filtered.md
 ```
 
 Läs sedan:

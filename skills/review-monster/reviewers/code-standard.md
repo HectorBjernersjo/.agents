@@ -61,7 +61,7 @@ För varje fil, leta efter brott mot kodstandarden utifrån följande regler, ka
 - Ofta har vi av misstag lagt till en massa onödiga kommentarer som inte ger något värde och bara säger vad koden gör.
   Peka ut dem så att vi kan ta bort dem.
 
-Skriv din kompletta rapport till `docs/prs/<branch-slug>/reviews/<review-id>/code-standard/report.md`. Skapa katalogen om den inte finns.
+Skriv din kompletta rapport till `<review-root>/<branch-slug>/reviews/<review-id>/code-standard/report.md`. Skapa katalogen om den inte finns.
 Rapporten ska vara en lista över varje kodstandardproblem du hittat. För varje problem, ta med:
 - Filen och platsen, om tillämpligt.
 - Vilken standard som bryts.

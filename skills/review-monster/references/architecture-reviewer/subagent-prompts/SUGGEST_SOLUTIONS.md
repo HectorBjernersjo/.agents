@@ -5,7 +5,7 @@ Ditt första mål är att titta på koden och förstå problemet på djupet. Nä
 Skriv de bästa 3-5 lösningarna till:
 
 ```text
-docs/prs/<branch-slug>/reviews/<review-id>/architecture/<problem-slug>/suggested_solutions.md
+<review-root>/<branch-slug>/reviews/<review-id>/architecture/<problem-slug>/suggested_solutions.md
 ```
 
 Använd en kort, filsystemsäker `<problem-slug>` som beskriver problemet.

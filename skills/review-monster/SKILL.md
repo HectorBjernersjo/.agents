@@ -4,10 +4,12 @@ description: Kör flera reviewer-subagenter parallellt för att reviewa aktuell 
 disable-model-invocation: true
 ---
 
+Alla reviews hamnar utanför repot, i `<review-root>` = `/tmp/review-monster`. Inget av det ska committas.
+
 Använd den här filstrukturen för PR-reviews:
 
 ```text
-docs/prs/
+<review-root>/
 ├── _review-index/
 │   └── ignored-findings.jsonl
 └── <branch-slug>/
@@ -32,7 +34,7 @@ docs/prs/
 ```
 
 `review-data.js` är sanningskällan för den aktuella PR-reviewen. `review.html` är en statisk vy som kopieras från den här skillens `template.html`.
-`docs/prs/_review-index/ignored-findings.jsonl` är ett append-only historiskt sökindex över ignorerade findings från alla PR:er.
+`<review-root>/_review-index/ignored-findings.jsonl` är ett append-only historiskt sökindex över ignorerade findings från alla PR:er.
 
 Filen `review-data.js` måste vara strikt JSON-kompatibel JavaScript:
 
@@ -43,12 +45,11 @@ window.reviewData = {
     "branchSlug": "<branch-slug>",
     "reviewId": "<review-id>",
     "generatedAt": "<iso-8601 timestamp>",
-    "sourcePath": "docs/prs/<branch-slug>/review.html",
+    "sourcePath": "<review-root>/<branch-slug>/review.html",
     "baseRef": "origin/master",
     "agents": [
       "bug-reviewer",
       "code-standard-reviewer",
-      "naming-reviewer",
       "simplification-reviewer",
       "nitpick-reviewer",
       "slop-reviewer"
@@ -58,7 +59,7 @@ window.reviewData = {
 };
 ```
 
-Ta bara med `"architecture-reviewer"` i `review.agents` när den faktiskt kördes.
+Ta bara med `"architecture-reviewer"` och `"naming-reviewer"` i `review.agents` när de faktiskt kördes.
 
 Använd citerade objektnycklar, inga kommentarer och inga avslutande kommatecken inuti objektet, så att agenter kan parsa filen genom att strippa `window.reviewData =` och det avslutande semikolonet.
 
@@ -68,7 +69,7 @@ Rader i det historiska indexet över ignorerade findings måste vara ett JSON-ob
 {"event":"ignored","ignoredBy":"human","pr":"<branch-slug>","findingId":3,"files":["src/foo.ts"],"fingerprint":"bug-reviewer:src/foo.ts:null-user-id","agents":["bug-reviewer"],"title":"...","problem":"...","ignoreReason":"...","ignoredAt":"2026-06-26T08:04:00Z"}
 ```
 
-Använd `ignored-findings.jsonl` för att hitta kandidater bland tidigare ignorerade findings, och verifiera sedan att det nya findingen faktiskt handlar om samma sak innan du undertrycker det.
+`COMMENT-FILTER.md` använder `ignored-findings.jsonl` för att hitta findings som redan ignorerats i en tidigare review.
 
 ## Steg 1
 Om det finns ocommittade ändringar (förutom i package.json och liknande filer som inte alls hör till den här PR:en), säg åt användaren att committa dem innan du fortsätter, så att diffen fungerar som den ska.
@@ -76,18 +77,10 @@ Om det finns ocommittade ändringar (förutom i package.json och liknande filer 
 ## Steg 2
 Ta fram `<branch-slug>` från aktuell git-branch genom att ignorera `users/<username>` (om det är en del av branch-namnet) och bara använda resten för att skapa en slug.
 
-Om `docs/work/` har en mapp som matchar den sluggen, läs dess `spec.md` och den ticket som implementeras först, och skicka med deras sökvägar till reviewing-agenterna. Findings ska bedömas mot vad arbetet var tänkt att göra. `/land` tar bort den här PR:ens review-artefakter när arbetet mergats.
-Hämta filerna i aktuell PR med `jj diff --name-only --from 'fork_point(trunk() | @)' --to '@-'` om repot använder jj, annars med `git diff --name-only origin/master...`.
-
-Innan du startar reviewers, leta efter tidigare ignorerade findings som nämner någon av filerna i aktuell PR:
-
-- Sök i första hand i `docs/prs/_review-index/ignored-findings.jsonl` efter exakta repo-relativa sökvägar från aktuell PR.
-- Varje matchande JSONL-rad är en kandidat för tidigare ignorering.
-- Eftersom indexet är append-only, använd senaste eventet för samma `pr`, `findingId` och `fingerprint` för att avgöra om en tidigare ignorering fortfarande gäller.
-- När du senare sammanställer nya findings, undertryck ett finding bara när det tydligt handlar om samma sak som en tidigare ignorering: överlappande `files`, samma eller liknande `agents` eller kategori, och matchande `fingerprint` eller i stort sett matchande `title`/`problem`.
+Om `docs/work/` har en mapp som matchar den sluggen, läs dess `spec.md` och den ticket som implementeras först, och skicka med deras sökvägar till reviewing-agenterna. Findings ska bedömas mot vad arbetet var tänkt att göra.
 
 ## Steg 3
-Skapa nästa nollutfyllda review-mapp under `docs/prs/<branch-slug>/reviews/` (`review-001`, `review-002`, ...).
+Skapa nästa nollutfyllda review-mapp under `<review-root>/<branch-slug>/reviews/` (`review-001`, `review-002`, ...).
 Varje reviewing-agent skriver sin egen kompletta rapport till `<agent-name>/report.md`.
 
 ## Steg 4
@@ -97,11 +90,11 @@ Reviewerna är inte egna agenttyper. Varje reviewer är en färdig prompt i den 
 |---|---|
 | bug-reviewer | `reviewers/bug.md` |
 | code-standard-reviewer | `reviewers/code-standard.md` |
-| naming-reviewer | `reviewers/naming.md` |
+| naming-reviewer | `reviewers/naming.md` (bara vid tröskeln för stora PR:s nedan) |
 | simplification-reviewer | `reviewers/simplification.md` |
 | nitpick-reviewer | `reviewers/nitpick.md` |
 | slop-reviewer | `reviewers/slop.md` |
-| architecture-reviewer | `reviewers/architecture.md` (bara vid arkitekturtröskeln nedan) |
+| architecture-reviewer | `reviewers/architecture.md` (bara vid tröskeln för stora PR:s nedan) |
 | footgun-reviewer | `reviewers/footgun.md` (startas inte som default) |
 
 Subagentens prompt ska vara exakt:
@@ -109,6 +102,7 @@ Subagentens prompt ska vara exakt:
 ```text
 Läs `<absolut sökväg till skillen>/reviewers/<fil>` och följ den.
 <branch-slug> = <värde>
+<review-root> = /tmp/review-monster
 <review-id> = <värde>
 <architecture-steps-dir> = <absolut sökväg till skillen>/references/architecture-reviewer   (bara för architecture-reviewer)
 go
@@ -117,24 +111,26 @@ go
 Säg inget mer till subagenterna än det.
 Spawna alla i samma anrop, inte en i taget. Och gör dem blockerande.
 
-Avgör om PR:en är stor nog för `architecture-reviewer`. Hoppa över den som default.
+Avgör om PR:en är stor nog för `architecture-reviewer` och `naming-reviewer`. Hoppa över dem som default.
 
-Kör `architecture-reviewer` bara när PR:en tydligt har bred arkitekturell påverkan, till exempel:
+Kör dem bara när PR:en tydligt har bred arkitekturell påverkan, till exempel:
 
 - Den lägger till mer än 400 icke-genererade rader.
 - Den gör betydande arkitekturella ändringar i befintliga kontrakt eller flöden.
 - Den introducerar eller kopplar om ett någorlunda stort feature-flöde.
 
-Små lokala fixar, ändringar som bara rör tester, omdöpningar, formatering, textändringar och avgränsade refactors ska inte köra `architecture-reviewer`.
+Små lokala fixar, ändringar som bara rör tester, omdöpningar, formatering, textändringar och avgränsade refactors ska inte köra någon av dem.
 
 ## Steg 5
-När alla reviewers är klara, sammanställ deras findings i `docs/prs/<branch-slug>/review-data.js` och kopiera den här skillens `template.html` till `docs/prs/<branch-slug>/review.html`.
+När alla reviewers är klara, sammanställ deras findings i `<review-root>/<branch-slug>/review-data.js` och kopiera den här skillens `template.html` till `<review-root>/<branch-slug>/review.html`.
 Se till att alla agenters punkter kommer med i den slutliga sammanställningen.
 Om flera agenter pekar på exakt samma problem, slå ihop det till en punkt i tabellen. Du kan fortfarande beskriva agenternas respektive lösning i beskrivningen.
 Och välj exakt en lösning som du tycker är bäst att lägga som föreslagen fix.
+
+## Håll det simpelt
 När du skriver alla findings till review-data.js, översätt dom till svenska, och använd ett simpelt språk, undvik jargong och förutsätt inte att användaren har så bra koll på kodbasen.
 
-Om `docs/prs/<branch-slug>/review-data.js` redan finns, läs den innan du skriver över den och bevara review-tillståndet från den befintliga `findings`-arrayen:
+Om `<review-root>/<branch-slug>/review-data.js` redan finns, läs den innan du skriver över den och bevara review-tillståndet från den befintliga `findings`-arrayen:
 
 - Matcha befintliga findings mot nya findings via stabil identitet: använd i första hand samma `id` om det tydligt är samma finding, annars matcha på titel plus plats/problem.
 - Bevara `status` och `ignoreReason` för matchade findings.

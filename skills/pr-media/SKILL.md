@@ -31,3 +31,5 @@ man ser. `gh pr edit <nr> --body-file ...` från `~/work/HRM/master` med
 
 Städningen tar bort mappar daterade äldre än 7 dagar. Ligger PR:en öppen
 längre än så, kör publish igen så flyttas klippet fram.
+
+Om du bara visar att chatboten funkar som förut kan du bara skriva "Chatboten funkar som förut" under Demo

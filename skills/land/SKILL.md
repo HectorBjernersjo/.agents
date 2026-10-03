@@ -25,6 +25,5 @@ Kör den när sista ticketen i en feature mergas, eller sista featuren i ett st�
 
 5. **Radera**, efter godkännande:
    - mappen `docs/work/<slug>/` (eller bara undermappen `<feature-slug>/` om andra features i samma arbete fortfarande är igång)
-   - `docs/prs/<branch-slug>/` för de mergade brancherna, men behåll `docs/prs/_review-index/`, det är historik över flera PR:s
 
 Att radera är säkert: innehållet finns kvar i versionshistoriken under samma slug om någon nånsin behöver det. Att låta det ligga är inte säkert. En levererad spec som fortfarande ligger i `docs/work/` ser ut som planerat arbete, och nästa agent kommer försöka bygga den igen.

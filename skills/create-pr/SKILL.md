@@ -18,13 +18,15 @@ bookmark på segmentets sista change + push. Ingen duplicering, inget jj-pr.
 ## Branch + push
 1. `jj bookmark set <branch-namn> -r <segment-head>`. Hoppa över om
    bookmarken redan sitter rätt.
-2. `jj git push --bookmark <branch-namn> --allow-new`
+2. `jj fix -s 'roots(master@origin..<segment-head>)'` så att filerna behåller
+   radsluten de har i master (verktyget `eol-keep`, ligger i repo-configen).
+3. `jj git push --bookmark <branch-namn>`
 
-Kalla branchen för users/hebj01/{din feature}
+Kalla branchen för users/hebj01/{din feature}. Hör PR:et till en Linear-issue börjar featurens slug med issuens id, `users/hebj01/ai-123-<slug>`, se `~/work/HRM/AGENTS.md`.
 
 Uppdateringar av ett befintligt PR kräver ingen bookmark-hantering: squasha
-in i stackens changes (bookmarken följer med när changen skrivs om) och kör
-`jj git push --bookmark <branch-namn>` igen.
+in i stackens changes (bookmarken följer med när changen skrivs om), kör
+`jj fix` som ovan och sen `jj git push --bookmark <branch-namn>` igen.
 
 ## Skapa PR:et
 Skapa PR:et med gh cli:t, gör den som en draft och ge användaren en länk.
@@ -45,6 +47,8 @@ Avsluta PR-descriptionen med en rad som både länkar och stänger work itemet i
 - Bug: `Fixes AB#{id}`
 
 Nyckelordet måste stå direkt före referensen. Bara `AB#{id}` skapar en länk men flyttar inget, och `Fixes user story AB#{id}` blir också bara en länk. Ett nyckelord gäller bara den första referensen efter det, så flera work items får varsitt: `Closed AB#1, Closed AB#2`. Övergången sker först när PR:et mergas till master, så i en stack är det bara det som till slut går in i master som stänger något.
+
+Hör PR:et till en Linear-issue, lägg till `Closes AI-{nr}` på samma rad, `Closed AB#12345, Closes AI-123`. Linear kopplar redan PR:et via id:t i branchnamnet, men raden gör kopplingen även när branchen saknar id:t.
 
 Om du någon gång ska uppdatera pr descriptionen. Kolla först om jag eller nån annan har ändrat på den sen du satte den så du inte skriver över något.
 
@@ -128,6 +132,27 @@ Målet är att helt bryta ut confirmation från toolsen. Ett tool ska köras och
 Vi delar upp så att toolet bara är det som körs, sen returnerar den ett ConfirmationForm (en artifact) med en accept knapp. När man accepterar den körs den ConfirmableAction som hör till formuläret.
 
 Closed AB#37459
+```
+
+Exempel på hyffsad men ändå för lång description:
+```markdown
+Ett program som Flexie kör kan läsa mycket, upp till 10 MB per anrop och ofta uppgifter om andra anställda. Förut låg allt det kvar i konversationen och skickades om i varje request resten av turen, och det sparades i databasen.
+
+Nu släpps det när programmet är klart. AgentRunner tar bort programmets anrop och resultat ur minnet när program_output kommer, och programmet går därefter som text, alltså koden och outputen. Det är samma form som ett program från en tidigare tur redan hade. I databasen sparas anropen fortfarande så att UI:t kan visa dem, men resultatet byts mot en platshållare. Raden behövs, annars räknas anropet som avbrutet.
+
+Eftersom programmens anrop bara finns kvar medan programmet kan återupptas behöver Azure-servicen inte längre filtrera bort dem. ResumableProgram håller ihop Azures item och dess call_id.
+
+Jag tog också bort kommentaren om att Azure avvisar ett reasoning-item vars följande item saknas. Jag provade mot dev-Azure, och det stämmer inte.
+```
+
+Bättre:
+```markdown
+Flexie kan anropa tools via kod, typ:
+let employees = tools.ListEmployees();
+print(employees[0:5])
+ett sånt här tool call kan bli upp till 10mb med text som mest.
+Förut sparade vi alla dom i databasen och i konversationen i minnet fastän modellen aldrig ska läsa svaret från toolcallet utan bara programmets resultat (som ofta är mycket kortare)
+Nu slutar vi spara hela innehållet i databasen och slänger det från konversationen i minnet så fort det inte behövs längre (när programmet som körde toolet är klart).
 ```
 
 ## Stacked PRs, när flera PR:s beror på varandra

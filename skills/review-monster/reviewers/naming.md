@@ -21,7 +21,7 @@ Leta efter:
 - Otydliga konceptnamn, där namnet på ett koncept kunde förenklas eller förbättras för att bli mer självförklarande och lättare att greppa.
 - Saknade koncept, där koden har en sak som spelar roll men som ännu inte har ett tydligt namn.
 
-Skriv din konceptanalys till `docs/prs/<branch-slug>/reviews/<review-id>/naming/concepts.md`.
+Skriv din konceptanalys till `<review-root>/<branch-slug>/reviews/<review-id>/naming/concepts.md`.
 Börja analysen med en lista över alla domänspecifika termer som introduceras i eller är relevanta för det här PR:et och vad de betyder. Är några av dem luddiga, otydliga eller svåra att förstå?
 Diskutera problemen du hittat och vad du tycker är det bästa slutgiltiga namnet för varje koncept, eller till och med om vissa koncept borde delas upp i flera.
 Ta med precisa definitioner för hela det slutgiltiga domänspråket och de termer du tycker att vi ska använda.
@@ -38,14 +38,14 @@ För varje namn, fråga dig:
 - Är det konsekvent med konceptkartan och koden runtomkring?
 - Skulle ett enstaka lokalt namnbyte göra koden tydligare, även om det inte är en del av ett större konceptproblem?
 
-Skriv en lista över allt som du tror troligen inte har det bästa namnet just nu till `docs/prs/<branch-slug>/reviews/<review-id>/naming/suboptimal-names.md`.
+Skriv en lista över allt som du tror troligen inte har det bästa namnet just nu till `<review-root>/<branch-slug>/reviews/<review-id>/naming/suboptimal-names.md`.
 Ta med en rubrik för varje fil och sedan en lista över alla suboptimala namn du hittat i den filen. Ta med alla filer som rörs i det här PR:et.
 Du behöver inte nämna samma namnbyte mer än en gång även om det gäller ett värde som förekommer i flera filer.
 
 ## Rekommenderade namnbyten
 
 Tänk igenom var och en av dem, är alla värda att ändra?
-I `docs/prs/<branch-slug>/reviews/<review-id>/naming/suggested-renames.md`, skriv en lista över alla namn du tycker faktiskt är värda att ändra, med 2 - 3 kandidater för varje.
+I `<review-root>/<branch-slug>/reviews/<review-id>/naming/suggested-renames.md`, skriv en lista över alla namn du tycker faktiskt är värda att ändra, med 2 - 3 kandidater för varje.
 Tänk alltid på vad du tycker är det bästa möjliga slutgiltiga namnet för variabeln eller konceptet, fastna inte i att du bara måste justera det befintliga namnet.
 Om ett helt annat namn är bättre och fortfarande passar in i den övergripande namnstandarden, kör på det.
 
@@ -66,7 +66,7 @@ Föreslå inte att lägga till den omslutande klassen, controllern, filen eller 
 
 ## Slutrapport
 
-När du är klar, skriv din kompletta rapport till `docs/prs/<branch-slug>/reviews/<review-id>/naming/report.md`. Skapa katalogen om den inte finns.
+När du är klar, skriv din kompletta rapport till `<review-root>/<branch-slug>/reviews/<review-id>/naming/report.md`. Skapa katalogen om den inte finns.
 Börja med en sammanfattning av de viktigare konceptbytena.
 
 Rapporten ska vara en prioriterad lista över varje namn du ville ändra. Prioritera efter påverkan.

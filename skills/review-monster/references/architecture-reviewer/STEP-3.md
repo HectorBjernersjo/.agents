@@ -6,7 +6,7 @@ Starta aldrig fler än 5 subagenter för det här.
 Ge varje subagent:
 
 - En detaljerad beskrivning av problemet.
-- Sökvägen till PR-artefaktroten: `docs/prs/<branch-slug>/reviews/<review-id>/architecture/`.
+- Sökvägen till PR-artefaktroten: `<review-root>/<branch-slug>/reviews/<review-id>/architecture/`.
 - Arkitektur-stegmappen: `<architecture-steps-dir>`.
 - Sökvägen till dess instruktioner: `<architecture-steps-dir>/subagent-prompts/SUGGEST_SOLUTIONS.md`.
 

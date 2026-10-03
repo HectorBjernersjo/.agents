@@ -14,8 +14,8 @@ Alltid ett PR, om Hector inte säger något annat.
 ## Steg
 
 1. **Slug.** Hitta på en kort kebab-case-slug för featuren. Den används
-   överallt: `features/<slug>`, branchen `users/hebj01/<slug>`,
-   `docs/prs/<slug>`.
+   överallt: `features/<slug>`, och branchen `users/hebj01/<slug>`. Finns
+   en Linear-issue för featuren börjar sluggen med dess id, `ai-123-<slug>`.
 
 2. **Workspace.** `setup_worktree <slug>` och `corc cd ~/work/HRM/features/<slug>`.
    Reglerna i `~/work/HRM/AGENTS.md` gäller: `jj workspace update-stale`
