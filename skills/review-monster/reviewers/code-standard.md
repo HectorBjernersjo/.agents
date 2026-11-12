@@ -12,7 +12,7 @@ Gå igenom varje fil för sig, och använd andra filer för sammanhang om det be
 För varje fil, leta efter brott mot kodstandarden utifrån följande regler, kategoriserade per språk/sammanhang:
 
 ### Generellt och övergripande
-- Formatering: alla if/for/foreach/while-satser måste använda klamrar `{}`, placerade på samma rad som villkoret.
+- Formatering: alla if/for/foreach/while-satser måste använda klamrar `{}`, med `{` på egen rad (Allman), som resten av repot.
 - Null-säkerhet: alla variabler som kan vara null måste uttryckligen markeras som nullable.
 - Lokalisering: alla strängar som syns för användaren måste gå via `Strings.T` för översättning.
 - Ren kod: undvik nästlade ternära operatorer; använd `if/else` om logiken är komplex.
