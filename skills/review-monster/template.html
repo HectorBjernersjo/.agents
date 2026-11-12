@@ -376,15 +376,11 @@
       width: 118px;
     }
 
-    th:nth-child(5), td:nth-child(5) {
-      width: 250px;
-    }
-
-    th:nth-child(7), td:nth-child(7) {
+    th:nth-child(6), td:nth-child(6) {
       width: 150px;
     }
 
-    th:nth-child(8), td:nth-child(8) {
+    th:nth-child(7), td:nth-child(7) {
       width: 260px;
     }
 
@@ -424,12 +420,6 @@
       padding: 0;
       list-style: none;
     }
-
-    .problem {
-      min-width: 0;
-      color: var(--text);
-      overflow-wrap: anywhere;
-    }
   </style>
 </head>
 <body>
@@ -446,7 +436,6 @@
             <th><button type="button" class="sort-button" data-sort-key="needsHumanCheck">Needs Human Check <span class="sort-indicator" data-sort-indicator="needsHumanCheck"></span></button></th>
             <th>Status</th>
             <th>Finding</th>
-            <th>Problem</th>
             <th>Agent</th>
             <th>Location</th>
           </tr>
@@ -498,10 +487,6 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-    }
-
-    function visibleProblem(finding) {
-      return finding.problem || (finding.description || "").split(/\n\s*\n/)[0];
     }
 
     function statusFor(finding) {
@@ -736,7 +721,7 @@
         const isExpanded = Boolean(finding.expanded);
         const severity = finding.severity || "Low";
         const status = statusFor(finding);
-        const description = finding.description || finding.problem || "";
+        const background = finding.background || finding.description || "";
 
         return `
           <tr class="review-row ${severityClass(severity)}" data-finding-id="${finding.id}" aria-expanded="${isExpanded}">
@@ -746,22 +731,25 @@
             <td><span class="pill ${status}">${escapeHtml(statusLabel(status))}</span></td>
             <td class="finding">
               ${escapeHtml(finding.title)}
-              <div class="expand-hint">${isExpanded ? "Click to collapse" : "Click for more details and suggested fix"}</div>
+              <div class="expand-hint">${isExpanded ? "Click to collapse" : "Click for background and suggested fix"}</div>
             </td>
-            <td class="problem">${escapeHtml(visibleProblem(finding))}</td>
             <td class="agents">${renderAgentList(finding.agents)}</td>
             <td class="location">${renderLocationList(finding.location)}</td>
           </tr>
           ${isExpanded ? `
             <tr class="expanded-row">
-              <td colspan="8">
+              <td colspan="7">
                 <div class="expanded-content">
                   <section>
-                    <h3>Description</h3>
-                    <div class="rich-text">${renderMarkdown(description)}</div>
+                    <h3>Bakgrund</h3>
+                    <div class="rich-text">${renderMarkdown(background)}</div>
                   </section>
                   <section>
-                    <h3>Suggested fix</h3>
+                    <h3>Problem</h3>
+                    <div class="rich-text">${renderMarkdown(finding.problem || "")}</div>
+                  </section>
+                  <section>
+                    <h3>Föreslagen fix</h3>
                     <div class="rich-text">${renderMarkdown(finding.fix || "")}</div>
                     ${status.startsWith("ignored") && finding.ignoreReason ? `
                       <div class="ignore-reason">

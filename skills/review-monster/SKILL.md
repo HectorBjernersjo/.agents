@@ -124,8 +124,8 @@ Små lokala fixar, ändringar som bara rör tester, omdöpningar, formatering, t
 ## Steg 5
 När alla reviewers är klara, sammanställ deras findings i `<review-root>/<branch-slug>/review-data.js` och kopiera den här skillens `template.html` till `<review-root>/<branch-slug>/review.html`.
 Se till att alla agenters punkter kommer med i den slutliga sammanställningen.
-Om flera agenter pekar på exakt samma problem, slå ihop det till en punkt i tabellen. Du kan fortfarande beskriva agenternas respektive lösning i beskrivningen.
-Och välj exakt en lösning som du tycker är bäst att lägga som föreslagen fix.
+Om flera agenter pekar på exakt samma problem, slå ihop det till en punkt i tabellen.
+Varje punkt ska ha exakt en föreslagen fix. När agenterna föreslår olika lösningar, välj den du tycker är bäst eller slå ihop dem till en. Skriv inte med de andra förslagen, användaren ska bara läsa en fix per punkt.
 
 ## Håll det simpelt
 När du skriver alla findings till review-data.js, översätt dom till svenska, och använd ett simpelt språk, undvik jargong och förutsätt inte att användaren har så bra koll på kodbasen.
@@ -144,15 +144,15 @@ Varje finding måste innehålla:
 - `needsHumanCheck`: tal från 1 till 10. Se ### Guide för needs human check för hur du rankar.
 - `status`: `pending`, `implemented`, `ignored-by-human` eller `ignored-by-ai`. Nya findings får `pending` som default.
 - `ignoreReason`: krävs när status börjar med `ignored`; utelämna eller lämna tom annars.
-- `title`: kort beskrivning
-- `problem`: en användbar problemsammanfattning i ett stycke som visas direkt i tabellen, så att läsaren oftast inte behöver fälla ut raden
-- `description`: den fullständiga originalbeskrivningen från agentrapporterna, med Markdown och kodblock bevarade
-- `fix`: den fullständiga föreslagna fixen, med Markdown och kodblock bevarade
+- `title`: en kort mening som säger vad som är fel, till exempel "Sparning kraschar när användaren saknar avdelning", inte en etikett som "Null-hantering i SaveUser". Tabellen visar bara titeln, så den måste räcka för att avgöra om punkten är värd att fälla ut.
+- `background`: vad koden gör idag och varför det spelar roll, skrivet för någon som inte kan den här delen av kodbasen
+- `problem`: vad som är fel och vad som händer om det inte fixas
+- `fix`: den enda föreslagna fixen, konkret nog att implementera utan att fundera
 - `location`: lista med platser om tillämpligt, helst som en array av strängar så att varje plats renderas på egen rad
 - `files`: repo-relativa sökvägar till filer som berörs av findingen, utan radnummer, till exempel `["src/foo.ts"]`
 - `agents`: alla agenter som hittade problemet
 
-Skriv dem i ordning efter severity, högst först. Bevara Markdown och kodblock i `description` och `fix` så att mallen kan rendera dem korrekt.
+Skriv dem i ordning efter severity, högst först. `background`, `problem` och `fix` renderas som Markdown, så använd kodblock där det hjälper.
 
 ## Steg 6
 Som sista review-steg, läs den här skillens `COMMENT-FILTER.md` och tillämpa den på de färdiga findingsen en i taget.
