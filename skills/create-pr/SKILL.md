@@ -31,14 +31,15 @@ in i stackens changes (bookmarken följer med när changen skrivs om), kör
 ## Skapa PR:et
 Skapa PR:et med gh cli:t, gör den som en draft och ge användaren en länk.
 Sätt ingen reviewer och ingen Employee-tagg. `babysit-pr` lägger på båda
-först när testerna är gröna och alla trådar är resolvade.
+först när testerna är gröna och alla trådar är resolvade, utom när PR:et
+ändrar en pipeline. Då sätts ingen av dem.
 
 ## PR description
 Innehåller diffen synliga UI-ändringar, spela in med `record-demo` och publicera med `pr-media`, som lägger gif:en under `## Demo` i beskrivningen.
 
 Fokusera på varför jag har gjort det som det är, inte så mycket på exakt vad som har ändrats.
 Om PR:et är något lite större eller där det annars är aktuellt kan du även beskriva flödet som man behöver förstå i PR:et.
-Håll den kortfattad, du behöver inte ta med varenda ändring.
+Håll den kortfattad och så simpel att förså som möjligt, du behöver inte ta med varenda ändring.
 PR-descriptionen ska vara på svenska, den kan ofta vara rätt lik user story-descriptionen, men kanske med lite mer tekniska detaljer där det är relevant.
 
 Avsluta PR-descriptionen med en rad som både länkar och stänger work itemet i Azure DevOps när PR:et mergas:

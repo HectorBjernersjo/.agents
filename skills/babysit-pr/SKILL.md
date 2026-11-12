@@ -18,10 +18,9 @@ händelse, och säger exakt vad du gör i det.
    `@coderabbitai review`. En gång, aldrig igen. **Om PR:et är open**: gör
    inget, CodeRabbit triggas automatiskt på open PR:s.
 
-   Testpipelinen kör inte alls på draft. `DevOps/UnitTests.yml` och
-   `DevOps/IntegrationTests.yml` har `drafts: false` i sin `pr:`-trigger, så
-   `/azp run` på ett draft svarar "pipeline triggers exclude this branch/path"
-   och `UnitTests .NET`/`IntegrationTests .NET` dyker aldrig upp. PR:et måste
+   Testpipelinen kör inte alls på draft. `DevOps/PrTests.yml` har
+   `drafts: false` i sin `pr:`-trigger, så `/azp run` på ett draft svarar
+   "pipeline triggers exclude this branch/path" och `PrTests` dyker aldrig upp. PR:et måste
    vara open innan testerna kan dra igång, och att öppna det startar dem inte
    av sig självt: det krävs alltid ett `/azp run`, se reviewtillståndet nedan.
 4. Starta monitorn nedan.
@@ -105,15 +104,15 @@ gh api graphql -f query='query($owner:String!,$repo:String!,$pr:Int!){repository
 - **Är PR:et draft**: kör `gh pr ready` först, annars svarar azp att
   triggern exkluderar branchen. Sätt ingen reviewer än, det görs först när
   testerna är gröna. Att öppna PR:et startar inga tester av sig självt
-  (verifierat på #30235: tolv minuter open utan .NET-checkar).
+  (verifierat på #30235: tolv minuter open utan testcheck).
 - **Sen, oavsett om PR:et var draft eller redan open**: posta `/azp run` på
   PR:et (ensamt, ingen signatur).
 
-Kontrollera efteråt att pipelinen faktiskt startade. Azure-checkarna
-(`UnitTests .NET`, `IntegrationTests .NET`) dyker upp först en stund senare,
+Kontrollera efteråt att pipelinen faktiskt startade. Azure-checken
+`PrTests` dyker upp först en stund senare,
 så en checklista som bara innehåller `check-migrations`, `CodeRabbit` och
 `Aikido` betyder att pipelinen inte har startat, inte att den är grön. Vänta
-på att .NET-checkarna finns innan du kallar något grönt.
+på att `PrTests` finns innan du kallar något grönt.
 
 Samma fälla vid omkörning: checken står kvar på förra körningens resultat i
 någon minut innan den blir `pending`. En monitor som bara väntar på "alla
@@ -131,20 +130,20 @@ build-id:t ur check-URL:en (`...buildId=129597`) efter att azp svarat
     Sluggen hittar du med `gh api orgs/{owner}/teams`. Säg till Hector att
     PR:et är ute för review. Det är först här reviewer och tagg sätts,
     `create-pr` lämnar dem tomma.
-  - Annars: säg till Hector vad som är kvar. Sätt reviewer och tagg när sista
+    Undantag: ändrar PR:et en pipeline (en fil under `DevOps/` eller
+    `.github/workflows/`) sätts varken Team Employee eller Employee-taggen.
+    Säg bara till Hector att testerna är gröna och trådarna lösta.
+  - Annars: säg till Hector vad som är kvar. Sätt reviewer och tagg (om inte
+    undantaget ovan gäller) när sista
     tråden är resolvad, så länge testerna fortfarande är gröna på senaste
     pushen.
 - **Rött**: läs först varför med `ado-run-log --id <build-id>`. Id:t hittar du
-  med `ado-list-runs unit|integration --pr {pr}` om du inte har det.
+  med `ado-list-runs prtests --pr {pr}` om du inte har det.
 - **Rött, fixen är mekanisk och kan omöjligt peka på något större**: gör
-  fixen som ny change, pusha, kör om bara den pipeline som föll.
+  fixen som ny change, pusha, kör om med `/azp run`.
 - **Rött, allt annat**: fråga Hector.
 
 ## Slut
 
 Monitorn kör tills PR:et mergas eller stängs, eller Hector säger stopp.
 Om du ser att pr:et har mergeats, då kan du ta bort workspacet för featuren och avsluta alla processer som hör till det om det finns några.
-
-
-## Info
-Du kan köra om bara unit test eller integration tests med `/azp run UnitTests .Net` eller `/azp run IntegrationTests .Net`. Gör det bara om hector säger det.

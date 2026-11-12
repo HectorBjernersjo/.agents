@@ -22,5 +22,7 @@ Om en befintlig feature redan kom med i nya master är den troligen mergad. Ta d
 bort dess workspace, bookmark och jj-changes. Gör inga extra loggkontroller om
 rebasens output inte ger anledning till det.
 
+Ta även bort andra workspaces som redan har blivit mergeade tidigare och inte har några changes ovanpå master längre.
+
 Du behöver bara bygga och köra tester om du behövde göra stora ändringar för att fixa konflikter.
 Annars kan du skippa det.
